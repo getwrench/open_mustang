@@ -1,6 +1,7 @@
 name: codegen
 description: Codegen for Mustang.
 version: 1.0.0
+publish_to: none
 
 environment:
   sdk: '>=2.10.0 <3.0.0'
@@ -11,11 +12,11 @@ dependencies:
   meta: ^1.3.0
   path: ^1.8.0
   source_gen: ^1.0.0
-#  wrench_annotations:
-#    git:
-#      url: git@bitbucket.org:lunchclub/mustang.git
-#      path: core
-#      ref: master
+  core:
+    git:
+      url: git@bitbucket.org:lunchclub/mustang.git
+      path: core
+      ref: master
 
 dev_dependencies:
   pedantic: ^1.11.0
