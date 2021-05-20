@@ -1,5 +1,5 @@
-import 'package:core/src/widgets/wrench_provider.dart';
 import 'package:flutter/widgets.dart';
+import 'package:mustang_core/src/widgets/wrench_provider.dart';
 
 class WrenchConsumer<T extends ChangeNotifier> {
   T of(BuildContext context) {

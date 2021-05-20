@@ -1,7 +1,7 @@
 /// Support for doing something awesome.
 ///
 /// More dartdocs go here.
-library core;
+library mustang_core;
 
 export 'src/annotations/app_model.dart';
 export 'src/annotations/init_model_field.dart';

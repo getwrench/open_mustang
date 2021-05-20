@@ -8,7 +8,7 @@ Created from templates made available by Stagehand under a BSD-style
 A simple usage example:
 
 ```dart
-import 'package:codegen/codegen.dart';
+import 'package:mustang_codegen/mustang_codegen.dart';
 
 main() {
   var awesome = new Awesome();

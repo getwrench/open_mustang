@@ -1,5 +1,5 @@
-name: cli
-description: cli for Mustang.
+name: mustang_cli
+description: mustang_cli for Mustang.
 version: 1.0.0
 
 environment:

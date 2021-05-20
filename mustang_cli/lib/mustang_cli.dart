@@ -1,16 +1,16 @@
 import 'dart:io';
 
 import 'package:args/args.dart';
-import 'package:cli/src/app_model.dart';
-import 'package:cli/src/screen_directory.dart';
-import 'package:cli/src/screen_service.dart';
-import 'package:cli/src/screen_state.dart';
-import 'package:cli/src/utils.dart';
+import 'package:mustang_cli/src/app_model.dart';
+import 'package:mustang_cli/src/screen_directory.dart';
+import 'package:mustang_cli/src/screen_service.dart';
+import 'package:mustang_cli/src/screen_state.dart';
+import 'package:mustang_cli/src/utils.dart';
 
 import 'src/args.dart';
 import 'src/screen.dart';
 
-class Cli {
+class MustangCli {
   static run(List<String> args) async {
     ArgParser parser;
     try {

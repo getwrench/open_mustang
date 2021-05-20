@@ -8,7 +8,7 @@ Created from templates made available by Stagehand under a BSD-style
 A simple usage example:
 
 ```dart
-import 'package:core/core.dart';
+import 'package:mustang_core/mustang_core.dart';
 
 main() {
   var awesome = new Awesome();

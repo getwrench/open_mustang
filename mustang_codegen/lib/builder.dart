@@ -1,7 +1,7 @@
 import 'package:build/build.dart';
-import 'package:codegen/src/app_model_generator.dart';
-import 'package:codegen/src/screen_service_generator.dart';
-import 'package:codegen/src/screen_state_generator.dart';
+import 'package:mustang_codegen/src/app_model_generator.dart';
+import 'package:mustang_codegen/src/screen_service_generator.dart';
+import 'package:mustang_codegen/src/screen_state_generator.dart';
 import 'package:source_gen/source_gen.dart';
 
 Builder appModelLibraryBuilder(BuilderOptions options) =>
