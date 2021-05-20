@@ -1,0 +1,39 @@
+builders:
+  model_builder:
+    import: 'package:wrench_generators/builder.dart'
+    builder_factories: [ 'appModelLibraryBuilder' ]
+    build_extensions: { '.dart': [ '.model.dart' ] }
+    auto_apply: dependents
+    build_to: source
+    runs_before: ['built_value_generator:built_value']
+    applies_builders: [ 'built_value_generator|built_value' ]
+    defaults: {
+      generate_for: {
+        exclude: [ '**/*.model.dart', '**/*.service.dart', '**/*.state.dart' ],
+        include: [ '**/*.dart' ]
+      }
+    }
+  state_builder:
+    import: 'package:wrench_generators/builder.dart'
+    builder_factories: [ 'screenStateLibraryBuilder' ]
+    build_extensions: { '.dart': [ '.state.dart' ] }
+    auto_apply: dependents
+    build_to: source
+    defaults: {
+      generate_for: {
+        exclude: ['**/*.model.dart', '**/*.service.dart', '**/*.state.dart'],
+        include: ['**/*.dart']
+      }
+    }
+  service_builder:
+    import: 'package:wrench_generators/builder.dart'
+    builder_factories: [ 'screenServiceLibraryBuilder' ]
+    build_extensions: { '.dart': [ '.service.dart' ] }
+    auto_apply: dependents
+    build_to: source
+    defaults: {
+      generate_for: {
+        exclude: [ '**/*.model.dart', '**/*.service.dart', '**/*.state.dart' ],
+        include: [ '**/*.dart' ]
+      }
+    }
