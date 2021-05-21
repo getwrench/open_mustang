@@ -62,7 +62,7 @@ class ScreenServiceGenerator extends Generator {
     // }
 
     return '''
-      import 'package:wrench_flutter_common/flutter_common.dart';
+      import 'package:mustang_core/mustang_core.dart';
       import '$importService.dart';
       ${importStates.join('\n')}
       

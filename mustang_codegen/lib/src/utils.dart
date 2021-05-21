@@ -18,7 +18,7 @@ class Utils {
     elements.forEach((importElement) {
       String importedLib =
           '${importElement.importedLibrary.definingCompilationUnit.declaration}';
-      if (!importedLib.contains('wrench_annotations')) {
+      if (!importedLib.contains('mustang_core')) {
         if (importedLib.startsWith('dart:')) {
           importsList.add("import '$importedLib';");
         } else if (importedLib.contains('/models/')) {

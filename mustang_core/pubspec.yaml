@@ -1,9 +1,7 @@
 name: mustang_core
-description: A new Flutter project.
-
-publish_to: 'none'
-
-version: 1.0.0+1
+description: A starting point for Dart libraries or applications.
+# version: 1.0.0
+# homepage: https://www.example.com
 
 environment:
   sdk: '>=2.7.0 <3.0.0'
@@ -17,6 +15,3 @@ dev_dependencies:
     sdk: flutter
   pedantic: ^1.11.0
   test: ^1.16.0
-
-flutter:
-  uses-material-design: true

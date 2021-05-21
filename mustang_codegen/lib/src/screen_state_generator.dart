@@ -53,6 +53,7 @@ class ScreenStateGenerator extends Generator {
 
     return '''
       import 'package:flutter/foundation.dart';
+      import 'package:mustang_core/mustang_core.dart';
       ${stateImports.join('\n')}
       
       class $stateName extends ChangeNotifier {
