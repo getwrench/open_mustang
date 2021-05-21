@@ -1,4 +1,4 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 
 class WrenchProvider<T extends ChangeNotifier> extends InheritedNotifier<T> {
   WrenchProvider({

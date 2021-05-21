@@ -1,6 +1,6 @@
 builders:
   model_builder:
-    import: 'package:wrench_generators/builder.dart'
+    import: 'package:mustang_codegen/builder.dart'
     builder_factories: [ 'appModelLibraryBuilder' ]
     build_extensions: { '.dart': [ '.model.dart' ] }
     auto_apply: dependents
@@ -14,7 +14,7 @@ builders:
       }
     }
   state_builder:
-    import: 'package:wrench_generators/builder.dart'
+    import: 'package:mustang_codegen/builder.dart'
     builder_factories: [ 'screenStateLibraryBuilder' ]
     build_extensions: { '.dart': [ '.state.dart' ] }
     auto_apply: dependents
@@ -26,7 +26,7 @@ builders:
       }
     }
   service_builder:
-    import: 'package:wrench_generators/builder.dart'
+    import: 'package:mustang_codegen/builder.dart'
     builder_factories: [ 'screenServiceLibraryBuilder' ]
     build_extensions: { '.dart': [ '.service.dart' ] }
     auto_apply: dependents
