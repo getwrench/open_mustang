@@ -1,8 +1,8 @@
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
-import 'package:core/core.dart';
 import 'package:mustang_codegen/src/app_model_field.dart';
 import 'package:mustang_codegen/src/utils.dart';
+import 'package:mustang_core/mustang_core.dart';
 import 'package:source_gen/source_gen.dart';
 
 import 'app_model_method.dart';
