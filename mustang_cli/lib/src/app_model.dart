@@ -30,10 +30,18 @@ class AppModel {
 
   static String _template(String modelClass) {
     return '''
-import 'package:wrench_annotations/wrench_annotations.dart';
+import 'package:mustang_core/mustang_core.dart';
 
 @appModel 
 class \$$modelClass {
+  @InitField(false)
+  bool busy;
+
+  @InitField('')
+  String errorMsg;
+  
+  @InitField(false)
+  bool clearScreenCache;
 }
     ''';
   }

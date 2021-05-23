@@ -2,16 +2,15 @@ import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:mustang_cli/src/app_model.dart';
+import 'package:mustang_cli/src/args.dart';
+import 'package:mustang_cli/src/screen.dart';
 import 'package:mustang_cli/src/screen_directory.dart';
 import 'package:mustang_cli/src/screen_service.dart';
 import 'package:mustang_cli/src/screen_state.dart';
 import 'package:mustang_cli/src/utils.dart';
 
-import 'src/args.dart';
-import 'src/screen.dart';
-
 class MustangCli {
-  static run(List<String> args) async {
+  static void run(List<String> args) async {
     ArgParser parser;
     try {
       parser = Args.parser();

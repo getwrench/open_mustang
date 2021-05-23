@@ -22,10 +22,11 @@ class Screen {
   }
 
   static String _template(String assetName, String assetFilename) {
+    String modelVar = Utils.screenClassToModelVar(assetName);
     return '''
 import 'package:flutter/material.dart';
+import 'package:mustang_core/mustang_widgets.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:provider/provider.dart';
 
 import '${assetFilename}_service.dart';
 
@@ -36,22 +37,27 @@ class ${assetName}Screen extends StatelessWidget {
   
     @override
     Widget build(BuildContext context) {
-      return ChangeNotifierProvider<${assetName}State>(
-        create: (context) => ${assetName}State(),
-        child: Consumer<${assetName}State>(
-          builder: (
-            BuildContext context,
-            ${assetName}State state,
-            Widget _,
-          ) {
+      return StateProvider<${assetName}State>(
+        state: ${assetName}State(),
+        child: Builder(
+          builder: (BuildContext context) {
+            ${assetName}State state = StateConsumer<${assetName}State>().of(context);
             SchedulerBinding.instance.addPostFrameCallback(
               (_) => ${assetName}Service().memoizedGetData(),
             );
   
-            if (state?.common?.busy ?? false) return Spinner();
+            if (state?.$modelVar?.busy ?? false) {
+              return WrenchProgressIndicatorScreen(); 
+            }
   
-            if (state.common?.errorMsg != null)
-              return ErrorBody(errorMsg: state.common.errorMsg);
+            if (state?.$modelVar?.errorMsg?.isNotEmpty ?? false) {
+              return WrenchErrorWithDescriptionScreen(
+                description: state.$modelVar.errorMsg,
+                onPressed: () {
+                  ${assetName}Service().clearCacheAndReload();
+                },
+              );
+            }
   
             return _body(state, context);
           },

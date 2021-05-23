@@ -22,7 +22,7 @@ class ScreenState {
 
   static String _template(String assetName) {
     return '''
-import 'package:wrench_annotations/wrench_annotations.dart';
+import 'package:mustang_core/mustang_core.dart';
 
 @screenState 
 class \$${assetName}State {

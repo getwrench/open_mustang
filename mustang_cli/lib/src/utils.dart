@@ -7,10 +7,15 @@ class Utils {
   static String defaultAssetPrefix = 'lib/src/screens';
 
   static String class2File(String className) {
-    RegExp exp = RegExp(r'(?<=[0-9a-z])[A-Z]');
+    var exp = RegExp(r'(?<=[0-9a-z])[A-Z]');
     return className
         .replaceAllMapped(exp, (Match m) => ('_' + m.group(0)))
         .toLowerCase();
+  }
+
+  static String screenClassToModelVar(String screenClass) {
+    String firstLetter = screenClass.substring(0, 1).toLowerCase();
+    return '$firstLetter${screenClass.substring(1)}Model';
   }
 
   static String pathToClass(String path) {

@@ -21,7 +21,7 @@ class ScreenService {
 
   static String _template(String assetName, String assetFilename) {
     return '''
-import 'package:wrench_annotations/wrench_annotations.dart';
+import 'package:mustang_core/mustang_core.dart';
 import '${assetFilename}_state.dart';
 
 @ScreenService(screenState: \$${assetName}State) 
