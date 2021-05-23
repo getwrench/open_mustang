@@ -23,6 +23,7 @@ class ScreenService {
     return '''
 import 'package:mustang_core/mustang_core.dart';
 import '${assetFilename}_state.dart';
+import '${assetFilename}_service.service.dart';
 
 @ScreenService(screenState: \$${assetName}State) 
 class ${assetName}Service {

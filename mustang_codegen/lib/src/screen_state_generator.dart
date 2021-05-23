@@ -45,7 +45,7 @@ class ScreenStateGenerator extends Generator {
       stateModelFields.add(declaration);
     });
     List<String> stateImports = Utils.getImports(element.library.imports);
-    if (!stateImports
+    if (stateImports
         .any((import) => import.contains('wrench_flutter_common'))) {
       stateImports
           .add("import 'package:wrench_flutter_common/flutter_common.dart';");

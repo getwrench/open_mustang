@@ -28,6 +28,7 @@ import 'package:flutter/material.dart';
 import 'package:mustang_core/mustang_widgets.dart';
 import 'package:flutter/scheduler.dart';
 
+import '${assetFilename}_state.state.dart
 import '${assetFilename}_service.dart';
 
 class ${assetName}Screen extends StatelessWidget {
