@@ -1,6 +1,3 @@
-/// Support for doing something awesome.
-///
-/// More dartdocs go here.
 library mustang_core;
 
 export 'src/annotations/app_model.dart';
