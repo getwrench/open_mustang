@@ -27,6 +27,17 @@ import '${assetFilename}_service.service.dart';
 
 @ScreenService(screenState: \$${assetName}State) 
 class ${assetName}Service {
+  Future<void> getData() {
+    // TODO: Add Api calls here
+  }
+
+  void clearCacheAndReload({reload: true}) {
+    clearCache(reload: reload);
+  }
+
+  Future<void> memoizedGetData() {
+    return memoize(() => getData());
+  }
 }
     ''';
   }
