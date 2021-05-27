@@ -22,11 +22,11 @@ class ScreenState {
 
   static String _template(String assetName) {
     return '''
-import 'package:mustang_core/mustang_core.dart';
-
-@screenState 
-class \$${assetName}State {
-}
+      import 'package:mustang_core/mustang_core.dart';
+      
+      @screenState 
+      class \$${assetName}State {
+      }
     ''';
   }
 }

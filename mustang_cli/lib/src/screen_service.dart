@@ -21,24 +21,24 @@ class ScreenService {
 
   static String _template(String assetName, String assetFilename) {
     return '''
-import 'package:mustang_core/mustang_core.dart';
-import '${assetFilename}_state.dart';
-import '${assetFilename}_service.service.dart';
-
-@ScreenService(screenState: \$${assetName}State) 
-class ${assetName}Service {
-  Future<void> getData() {
-    // TODO: Add Api calls here
-  }
-
-  void clearCacheAndReload({reload: true}) {
-    clearCache(reload: reload);
-  }
-
-  Future<void> memoizedGetData() {
-    return memoize(() => getData());
-  }
-}
+      import 'package:mustang_core/mustang_core.dart';
+      import '${assetFilename}_state.dart';
+      import '${assetFilename}_service.service.dart';
+      
+      @ScreenService(screenState: \$${assetName}State) 
+      class ${assetName}Service {
+        Future<void> getData() {
+          // TODO: Add Api calls here
+        }
+      
+        void clearCacheAndReload({reload: true}) {
+          clearCache(reload: reload);
+        }
+      
+        Future<void> memoizedGetData() {
+          return memoize(() => getData());
+        }
+      }
     ''';
   }
 }

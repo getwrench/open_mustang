@@ -24,56 +24,55 @@ class Screen {
   static String _template(String assetName, String assetFilename) {
     String modelVar = Utils.screenClassToModelVar(assetName);
     return '''
-import 'package:flutter/material.dart';
-import 'package:mustang_core/mustang_widgets.dart';
-import 'package:flutter/scheduler.dart';
-
-import '${assetFilename}_state.state.dart';
-import '${assetFilename}_service.dart';
-
-class ${assetName}Screen extends StatelessWidget {
-    const ${assetName}Screen({
-      Key key,
-    }) : super(key: key);
-  
-    @override
-    Widget build(BuildContext context) {
-      return StateProvider<${assetName}State>(
-        state: ${assetName}State(),
-        child: Builder(
-          builder: (BuildContext context) {
-            ${assetName}State state = StateConsumer<${assetName}State>().of(context);
-            SchedulerBinding.instance.addPostFrameCallback(
-              (_) => ${assetName}Service().memoizedGetData(),
-            );
-  
-            if (state?.$modelVar?.busy ?? false) {
-              return WrenchProgressIndicatorScreen(); 
-            }
-  
-            if (state?.$modelVar?.errorMsg?.isNotEmpty ?? false) {
-              return WrenchErrorWithDescriptionScreen(
-                description: state.$modelVar.errorMsg,
-                onPressed: () {
-                  ${assetName}Service().clearCacheAndReload();
+      import 'package:flutter/material.dart';
+      import 'package:mustang_core/mustang_widgets.dart';
+      import 'package:flutter/scheduler.dart';
+      
+      import '${assetFilename}_state.state.dart';
+      import '${assetFilename}_service.dart';
+      
+      class ${assetName}Screen extends StatelessWidget {
+          const ${assetName}Screen({
+            Key key,
+          }) : super(key: key);
+        
+          @override
+          Widget build(BuildContext context) {
+            return StateProvider<${assetName}State>(
+              state: ${assetName}State(),
+              child: Builder(
+                builder: (BuildContext context) {
+                  ${assetName}State state = StateConsumer<${assetName}State>().of(context);
+                  SchedulerBinding.instance.addPostFrameCallback(
+                    (_) => ${assetName}Service().memoizedGetData(),
+                  );
+        
+                  if (state?.$modelVar?.busy ?? false) {
+                    return WrenchProgressIndicatorScreen(); 
+                  }
+        
+                  if (state?.$modelVar?.errorMsg?.isNotEmpty ?? false) {
+                    return WrenchErrorWithDescriptionScreen(
+                      description: state.$modelVar.errorMsg,
+                      onPressed: () {
+                        ${assetName}Service().clearCacheAndReload();
+                      },
+                    );
+                  }
+        
+                  return _body(state, context);
                 },
-              );
-            }
-  
-            return _body(state, context);
-          },
-        ),
-      );
-    }
-  
-    Widget _body(${assetName}State state, BuildContext context) {
-      return RefreshIndicator(
-        onRefresh: () => ${assetName}Service().getData(),
-        child: Container(),
-      );
-    }
-}
-
+              ),
+            );
+          }
+        
+          Widget _body(${assetName}State state, BuildContext context) {
+            return RefreshIndicator(
+              onRefresh: () => ${assetName}Service().getData(),
+              child: Container(),
+            );
+          }
+      }
     ''';
   }
 }
