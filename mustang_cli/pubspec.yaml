@@ -6,6 +6,11 @@ environment:
   sdk: '>=2.7.0 <3.0.0'
 
 dependencies:
+  mustang_codegen:
+    git:
+      url: git@bitbucket.org:lunchclub/mustang.git
+      path: mustang_codegen
+      ref: 27-may-21
   args: ^2.1.0
   path: ^1.8.0
 
