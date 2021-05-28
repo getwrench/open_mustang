@@ -11,7 +11,7 @@ class ScreenStateGenerator extends Generator {
     Iterable<AnnotatedElement> states =
         library.annotatedWith(TypeChecker.fromRuntime(ScreenState));
     if (states.isEmpty) {
-      return '${stateBuffer}';
+      return '$stateBuffer';
     }
 
     stateBuffer.writeln(_generate(
@@ -20,7 +20,7 @@ class ScreenStateGenerator extends Generator {
       buildStep,
     ));
 
-    return '${stateBuffer}';
+    return '$stateBuffer';
   }
 
   String _generate(
@@ -44,11 +44,6 @@ class ScreenStateGenerator extends Generator {
       stateModelFields.add(declaration);
     });
     List<String> stateImports = Utils.getImports(element.library.imports);
-    if (stateImports
-        .any((import) => import.contains('wrench_flutter_common'))) {
-      stateImports
-          .add("import 'package:wrench_flutter_common/flutter_common.dart';");
-    }
 
     return '''
       import 'package:flutter/foundation.dart';

@@ -24,7 +24,7 @@ class AppModelGenerator extends Generator {
       buildStep,
     ));
 
-    return '${appModelBuffer}';
+    return '$appModelBuffer';
   }
 
   String _generate(
@@ -64,7 +64,7 @@ class AppModelGenerator extends Generator {
       import 'package:built_value/serializer.dart';
       ${modelImports.join('\n')}
       
-      part '${appModelFilename}.g.dart';
+      part '$appModelFilename.g.dart';
       
       abstract class $appModelName implements Built<$appModelName, ${appModelName}Builder> {
         $appModelName._();
@@ -164,7 +164,7 @@ class AppModelGenerator extends Generator {
                   '${annotations.single.getField('object').toBoolValue()}';
               break;
             case 'BuiltMap':
-              initMapValue = Map();
+              initMapValue = {};
               annotations.single
                   .getField('object')
                   .toMapValue()

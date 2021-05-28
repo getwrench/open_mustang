@@ -16,6 +16,6 @@ class AppModelMethod {
 
   @override
   String toString() {
-    return '$type ${name}() -> $sourceOffset $sourceLength';
+    return '$type $name() -> $sourceOffset $sourceLength';
   }
 }

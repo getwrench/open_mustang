@@ -21,7 +21,7 @@ class ScreenServiceGenerator extends Generator {
       buildStep,
     ));
 
-    return '${serviceBuffer}';
+    return '$serviceBuffer';
   }
 
   String _generate(
