@@ -9,9 +9,8 @@ class WrenchStore {
   /// type [T] is not found.
   static T get<T>() {
     T t;
-    if (_largeStore) {
-      int typeHash = _getTypeHash(T.toString());
-      t = _hashStore[typeHash];
+    if (large) {
+      t = _hashStore[T.toString()];
     } else {
       t = _store.firstWhere(
         (element) => element is T,
@@ -23,10 +22,9 @@ class WrenchStore {
 
   /// Saves instance [t] after removing, if exists, an instance of [T]
   static void update<T>(T t) {
-    if (_largeStore) {
-      int typeHash = _getTypeHash(T.toString());
+    if (large) {
       _hashStore.update(
-        typeHash,
+        T.toString(),
         (_) => t,
         ifAbsent: () => t,
       );
@@ -67,9 +65,8 @@ class WrenchStore {
 
   /// Removes instance of type [T], if exists
   static void delete<T>() {
-    if (_largeStore) {
-      int typeHash = _getTypeHash(T.toString());
-      _hashStore.remove(typeHash);
+    if (large) {
+      _hashStore.remove(T.toString());
     } else {
       _store.removeWhere((element) => element is T);
     }
@@ -77,44 +74,25 @@ class WrenchStore {
 
   // removes all objects from the store
   static void nuke() {
-    if (_largeStore) {
+    if (large) {
       _hashStore.clear();
     } else {
       _store.clear();
     }
   }
 
-  static void largeStore(bool status) {
-    nuke();
-    _largeStore = status;
-  }
-
-  static int _getTypeHash(String typeStr) {
-    return _jf(_jc(0, typeStr.hashCode));
-  }
-
-  // Source: built_value library
-  static int _jc(int hash, int value) {
-    // Jenkins hash "combine".
-    hash = 0x1fffffff & (hash + value);
-    hash = 0x1fffffff & (hash + ((0x0007ffff & hash) << 10));
-    return hash ^ (hash >> 6);
-  }
-
-  // Source: built_value library
-  static int _jf(int hash) {
-    // Jenkins hash "finish".
-    hash = 0x1fffffff & (hash + ((0x03ffffff & hash) << 3));
-    hash = hash ^ (hash >> 11);
-    return 0x1fffffff & (hash + ((0x00003fff & hash) << 15));
+  static void config({
+    bool isLarge = false,
+  }) {
+    large = isLarge;
   }
 
   // Flag to switch between List and HashMap
-  static bool _largeStore = true;
+  static bool large = false;
 
-  // List is used to store objects when _largeStore flag is disabled
+  // List is used to store objects when large flag is disabled
   static final List<Object> _store = [];
 
-  // HashMap is used to store objects when _largeStore flag is enabled
-  static final HashMap<int, Object> _hashStore = HashMap();
+  // HashMap is used to store objects when large flag is enabled
+  static final HashMap<String, Object> _hashStore = HashMap();
 }
