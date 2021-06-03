@@ -14,7 +14,7 @@ dependencies:
     git:
       url: git@bitbucket.org:lunchclub/mustang.git
       path: mustang_core
-      ref: 27-may-21
+      ref: 03-jun-21
   path: ^1.8.0
   source_gen: ^1.0.0
   analyzer: ^1.7.1
