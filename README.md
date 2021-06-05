@@ -75,7 +75,7 @@ A framework to build Flutter applications.
 
 ### Folder Structure
 - Folder structure of a Flutter application created with this framework looks as below
-
+    ```
       lib/
         - main.dart
         - src
@@ -91,7 +91,7 @@ A framework to build Flutter applications.
               - screen_two_screen.dart
               - screen_two_state.dart
               - screen_two_service.dart
-
+    ```
 - Every `Screen` needs a `State` and a `Service`. So, `Screen, State, Service` files must be in their own named directory
 - All `Model` classes must be inside `models` directory
 
@@ -100,9 +100,8 @@ A framework to build Flutter applications.
 - Class name should start with `$`
 - Initialize fields with `InitField` annotation
 - Getters/Setters are `NOT` supported inside `Model` classes. Use regular methods instead.
-
-      ...
-                            
+    <br></br>
+    ```dart
       @appModel
       class $User {
           String name;
@@ -119,27 +118,27 @@ A framework to build Flutter applications.
             return 'Mr. $name';
           }
       }
-
+    ```
 ### State
 - A class annotated with `screenState`
 - Class name should start with `$`
 - Fields of the class must be `Model` or `BuiltValue` classes
-
-      ...
-    
+    <br></br>
+    ```dart      
       @screenState
       class $ExampleScreenState {
           $User user;
 
           $Vehicle vehicle;
       }
-
+    ```
+    
 ### Service
 - A class annotated with `ScreenService`
 - Provide `State` class as an argument to `ScreenService` annotation, to create an association between `State` and `Service` as shown below.
-
-      ...
-    
+    <br></br>
+    ```dart
+      
       @ScreenService(screenState: $ExampleScreenState)
       class ExampleScreenService {
           void getUser() {
@@ -147,7 +146,8 @@ A framework to build Flutter applications.
               updateState1(user);
           }
       }
-
+    ```
+    
 - Service also provides following APIs
     - `updateState` -  Updates screen state and/or re-build the screen. To update the `State` without re-building the screen. Set `reload` argument to `false` to update the `State` without re-building the `Screen`.
         - `updateState()`
@@ -158,129 +158,134 @@ A framework to build Flutter applications.
 
     - `memoize` - Caches result of an execution for later reuse. Cached data is specific to the screen.
         - `T memoize<T>(T Function() methodName)`
+            ```dart
+                // In the snippet below, cachedGetData caches the return value of getData, a Future, and re-uses it in all subsequent calls
+                Future<void> getData() async {
+                    Common common = WrenchStore.get<Common>() ?? Common();
+                    User user;
+                    Vehicle vehicle;
 
-              // In the snippet below, cachedGetData caches the return value of getData, a Future, and re-uses it in all subsequent calls
+                    ...   
+                 }
 
-              ...
-
-              Future<void> getData() async {
-                  Common common = WrenchStore.get<Common>() ?? Common();
-                  User user;
-                  Vehicle vehicle;
-
-                  ...   
-              }
-
-              Future<void> cachedGetData() async {
-                 return memoize(() => getData());
-              }
-
+                 Future<void> cachedGetData() async {
+                     return memoize(() => getData());
+                 }
+            ```
     - `clearCache` - Clears data cached by `memoize`
         - `void clearCache()`
+            ```dart
+                Future<void> getData() async {
+                    ..
+                  }
 
-              ...
+                  Future<void> cachedGetData() async {
+                      return memoize(() => getData());
+                  }
 
-              Future<void> getData() async {
-                  ..
-              }
-
-              Future<void> cachedGetData() async {
-                  return memoize(() => getData());
-              }
-
-              // this removes Future<void> cached by memoize()
-              void resetCache() {
-                  clearCache();
-              }
+                  // this removes Future<void> cached by memoize()
+                  void resetCache() {
+                      clearCache();
+                  }
+            ``` 
 
 ### Screen
 - Use `ChangeNotifierProvider` to re-build the `Screen` automatically when there is a change in `State`
-- When referring to the `State`, omit `$`
-
-  Following example shows a typical Flutter screen.
-
-      ...
+- When referring to the `State`, omit `$`. Following is a structure of a typical Flutter screen.
+    <br></br>
+    ```dart
+        ...
     
-      Widget build(BuildContext context) {
-          return ChangeNotifierProvider<HomeScreenState>(
-              create: (context) => HomeScreenState(),
-              child: Consumer<HomeScreenState>(
-                  builder: (
-                  BuildContext context,
-                  HomeScreenState state,
-                  Widget _,
-              ) {
-                  # Even when this widget is built many times, only 1 API call 
-                  # will be made because the Future from the service is cached
-                  SchedulerBinding.instance.addPostFrameCallback(
-                      (_) => HomeScreenService().cachedGetData(),
-                  );
+        Widget build(BuildContext context) {
+            return ChangeNotifierProvider<HomeScreenState>(
+                create: (context) => HomeScreenState(),
+                child: Consumer<HomeScreenState>(
+                    builder: (
+                        BuildContext context,
+                        HomeScreenState state,
+                        Widget _,
+                      ) {
+                      # Even when this widget is built many times, only 1 API call 
+                      # will be made because the Future from the service is cached
+                      SchedulerBinding.instance.addPostFrameCallback(
+                          (_) => HomeScreenService().cachedGetData(),
+                      );
     
-                  if (state?.common?.busy ?? false) return Spinner();
+                      if (state?.common?.busy ?? false) return Spinner();
     
-                  if (state.common?.errorMsg != null)
-                      return ErrorBody(errorMsg: state.common.errorMsg);
+                      if (state.common?.errorMsg != null)
+                          return ErrorBody(errorMsg: state.common.errorMsg);
     
-                  return _body(state, context);
-              },
-            ),
-          );
-      }
+                      return _body(state, context);
+                  },
+                ),
+              );
+          }
+    ```
 
-### Wrench CLI
+### Mustang CLI
 
-After adding framework dependencies to a Flutter project, `wrench_cli` tool helps in generating shell files
+After adding framework dependencies to a Flutter project, `mustang_cli` tool helps in generating shell files
 for all framework components.
 
 - To generate files for new screen in `lib/src/screens/routes/screen3`
+    <br></br>
+    ```bash
+        flutter pub run mustang_cli -s routes/screen3
 
-      flutter pub run wrench_cli -s routes/screen3
-
-      // Output
-
-      Created lib/src/screens/routes/screen3
-      Created lib/src/screens/routes/screen3/screen3_state.dart
-      Created lib/src/screens/routes/screen3/screen3_service.dart
-      Created lib/src/screens/routes/screen3/screen3_screen.dart
+        // Output
+        Created lib/src/screens/routes/screen3
+        Created lib/src/screens/routes/screen3/screen3_state.dart
+        Created lib/src/screens/routes/screen3/screen3_service.dart
+        Created lib/src/screens/routes/screen3/screen3_screen.dart
+    ```
 
 - To generate a model in `lib/src/models/user.dart`
+    <br></br>
+    ```bash
+        flutter pub run mustang_cli -m user 
 
-      > flutter pub run wrench_cli -m user 
-
-      // Output
-
-      Created lib/src/models
-      Created lib/src/models/user.dart
+        // Output
+        Created lib/src/models
+        Created lib/src/models/user.dart
+    ```
 
 - To generate runtime files
-
-      > flutter pub run wrench_cli -b
+    <br></br>
+    ```bash
+        flutter pub run mustang_cli -b
+    ```
 
 - To generate runtime files in watch mode
-
-      > flutter pub run wrench_cli -w
+    <br></br>
+    ```bash
+        flutter pub run wrench_cli -w
+    ```
 
 - To clean generated files
-
-      > flutter pub run wrench_cli -d      
+    <br></br>
+    ```bash
+        flutter pub run mustang_cli -d
+    ```
 
 ### Setup
 - Configure Flutter
+    <br></br>
+    ```dart
+        mkdir -p ~/software && cd ~/software
+    
+        curl -O https://storage.googleapis.com/flutter_infra/releases/stable/macos/flutter_macos_2.x.x-stable.zip
 
-      > mkdir -p ~/software && cd ~/software
-       
-      > curl -O https://storage.googleapis.com/flutter_infra/releases/stable/macos/flutter_macos_2.0.2-stable.zip
-
-      > unzip flutter_macos_2.0.2-stable.zip
-
-      > export PATH="$PATH:`pwd`/flutter/bin"
+        unzip flutter_macos_x.0.x-stable.zip
+    
+        export PATH="$PATH:`pwd`/flutter/bin
+    ```
 
 ### Dependencies
 - Update `pubspec.yaml` as below
-
-      ...
-    
-      dependencies:
+    <br></br>
+    ```yaml
+    dependencies:
         flutter:
           sdk: flutter
         built_collection: ^5.0.0
@@ -294,32 +299,33 @@ for all framework components.
           git:
             url: git@bitbucket.org:lunchclub/wrench_flutter_common.git
             ref: master
-        wrench_annotations:
+        mustang_core:
           git:
-            url: git@bitbucket.org:lunchclub/wrench_flutter_codegen.git
-            path: wrench_annotations
+            url: git@bitbucket.org:lunchclub/mustang.git
+            path: mustang_core
             ref: master
-          
+
       dev_dependencies:
         flutter_test:
           sdk: flutter
         build_runner: ^1.11.5
         pedantic: ^1.11.0
         test: ^1.16.5
-        wrench_cli:
+        mustang_cli:
           git:
-            url: git@bitbucket.org:lunchclub/wrench_flutter_codegen.git
-            path: wrench_cli
+            url: git@bitbucket.org:lunchclub/mustang.git
+            path: mustang_cli
             ref: master
-        wrench_generators:
+        mustang_codegen:
           git:
-            url: git@bitbucket.org:lunchclub/wrench_flutter_codegen.git
-            path: wrench_generators
+            url: git@bitbucket.org:lunchclub/mustang.git
+            path: mustang_codegen
             ref: master
-
+    ```
+    
 - Get Dependencies
-
-      > flutter pub get
-
-  If there is an error about  `integration_test`, delete that package in `pubspec.yaml` and re-run the command.  
-
+    <br></br>
+    ```bash
+        flutter pub get
+    ```
+  
