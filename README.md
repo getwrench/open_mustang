@@ -1,5 +1,3 @@
-[Mustang](https://tenor.com/4A2P.gif)
-
 # Mustang
 
 A framework to build Flutter applications.
