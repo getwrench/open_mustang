@@ -1,5 +1,7 @@
 # Mustang
 
+![Logo](./mustang.gif)
+
 A framework to build Flutter applications.
 
 - provides **state management**
