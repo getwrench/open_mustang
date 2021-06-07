@@ -5,18 +5,17 @@
 A framework to build Flutter applications.
 
 - provides **state management**
-- reduces boilerplate
-- generates source templates using **cli**
-- enables consistent **directory and file layout and naming standards**
+- generates source templates
+- enables consistent **file layout and naming standards**
 
 ### Framework Components
-- **Screen** - Flutter widget class for the UI. Code can be split into multiple dart files.
+- **Screen** - Flutter widget for the UI. Code can be split into multiple files.
 
 - **Model** - A Dart class representing application data.
 
 - **State** - Encapsulates data needed for a `Screen`. It is a Dart class with _1 or more_ `Model` fields.
 
-- **Service** - A Dart class housing code for async communication and business logic.
+- **Service** - A Dart class for async communication and business logic.
 
 ### Component Communication
 - Every `Screen` has a corresponding `Service` and a `State`. All three components work together to continuously re-build the UI whenever there is a change in the application state.
@@ -85,14 +84,14 @@ A framework to build Flutter applications.
             - model1.dart
             - model2.dart
           - screens/
-            - screen_one/
-              - screen_one_screen.dart
-              - screen_one_state.dart
-              - screen_one_service.dart
-            - screen_two/
-              - screen_two_screen.dart
-              - screen_two_state.dart
-              - screen_two_service.dart
+            - first/
+              - first_screen.dart
+              - first_state.dart
+              - first_service.dart
+            - second/
+              - second_screen.dart
+              - second_state.dart
+              - second_service.dart
     ```
 - Every `Screen` needs a `State` and a `Service`. So, `Screen, State, Service` files must be in their own named directory
 - All `Model` classes must be inside `models` directory
@@ -102,7 +101,7 @@ A framework to build Flutter applications.
 - Class name should start with `$`
 - Initialize fields with `InitField` annotation
 - Getters/Setters are `NOT` supported inside `Model` classes. Use regular methods instead.
-    <br></br>
+    
     ```dart
       @appModel
       class $User {
@@ -121,6 +120,7 @@ A framework to build Flutter applications.
           }
       }
     ```
+  
 ### State
 - A class annotated with `screenState`
 - Class name should start with `$`
@@ -140,7 +140,6 @@ A framework to build Flutter applications.
 - Provide `State` class as an argument to `ScreenService` annotation, to create an association between `State` and `Service` as shown below.
     <br></br>
     ```dart
-      
       @ScreenService(screenState: $ExampleScreenState)
       class ExampleScreenService {
           void getUser() {
