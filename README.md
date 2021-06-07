@@ -258,7 +258,7 @@ A framework to build Flutter applications.
           git:
             url: git@bitbucket.org:lunchclub/mustang.git
             path: mustang_core
-            ref: 03-jun-21
+            ref: 07-jun-21
 
       dev_dependencies:
         flutter_test:
@@ -268,14 +268,15 @@ A framework to build Flutter applications.
           git:
             url: git@bitbucket.org:lunchclub/mustang.git
             path: mustang_cli
-            ref: master
+            ref: 07-jun-21
         mustang_codegen:
           git:
             url: git@bitbucket.org:lunchclub/mustang.git
             path: mustang_codegen
-            ref: master
+            ref: 07-jun-21
         pedantic: ^1.11.0        
     ```
+  
 - Get Dependencies
     
     ```bash
@@ -287,7 +288,7 @@ A framework to build Flutter applications.
       flutter pub run mustang_cli -s counter
     ```
 
-- Generate a model for the screen
+- Create a model for the screen
 
     ```bash
       flutter pub run mustang_cli -m counter 
@@ -299,6 +300,7 @@ A framework to build Flutter applications.
       flutter pub run mustang_cli -w
       # Delete generated files: flutter pub run mustang_cli -d
     ```
+  
 - Update `counter.dart` model
     ```dart
       class $Counter {
@@ -306,6 +308,7 @@ A framework to build Flutter applications.
         int value;
       }
     ```
+  
 - Update `counter_screen.dart` screen
     ```dart
       import 'package:flutter/material.dart';
@@ -358,6 +361,7 @@ A framework to build Flutter applications.
         }
       }
     ```
+  
 - Update `counter_service.dart` service
     ```dart
       import 'package:mustang_core/mustang_core.dart';
@@ -375,6 +379,7 @@ A framework to build Flutter applications.
         }
       }
     ```
+  
 - Update `main.dart`
     ```dart
       ...
@@ -386,7 +391,7 @@ A framework to build Flutter applications.
             ...
             primarySwatch: Colors.blue,
           ),
-          home: CounterScreen(), <-- Point to Counter screen
+          home: CounterScreen(), // Point to Counter screen
         );
       }
   
