@@ -10,7 +10,7 @@ A framework to build Flutter applications.
 
 ### Useful links
 - Presentation: https://docs.google.com/presentation/d/19VSU_TsbtzKUtKsblheX399KsqTTjPV_AWZNE2vthqM/edit?usp=sharing
-- Video:  
+- Video: https://drive.google.com/file/d/1zoTbw5pjLIBxlJD6NquAmHeGVuA4R8co/view?usp=sharing  
 
 ### Framework Components
 - **Screen** - Flutter widget for the UI. Code can be split into multiple files.
