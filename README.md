@@ -8,6 +8,10 @@ A framework to build Flutter applications.
 - generates source templates
 - enables consistent **file layout and naming standards**
 
+### Useful links
+- Presentation: https://docs.google.com/presentation/d/19VSU_TsbtzKUtKsblheX399KsqTTjPV_AWZNE2vthqM/edit?usp=sharing
+- Video:  
+
 ### Framework Components
 - **Screen** - Flutter widget for the UI. Code can be split into multiple files.
 
@@ -257,7 +261,7 @@ A framework to build Flutter applications.
           git:
             url: git@bitbucket.org:lunchclub/mustang.git
             path: mustang_core
-            ref: 07-jun-21
+            ref: 09-jun-21
 
       dev_dependencies:
         flutter_test:
@@ -267,12 +271,12 @@ A framework to build Flutter applications.
           git:
             url: git@bitbucket.org:lunchclub/mustang.git
             path: mustang_cli
-            ref: 07-jun-21
+            ref: 09-jun-21
         mustang_codegen:
           git:
             url: git@bitbucket.org:lunchclub/mustang.git
             path: mustang_codegen
-            ref: 07-jun-21
+            ref: 09-jun-21
         pedantic: ^1.11.0        
     ```
   
