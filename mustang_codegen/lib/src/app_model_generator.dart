@@ -82,15 +82,6 @@ class AppModelGenerator extends Generator {
   }
 
   void _validate(Element element) {
-    Utils.getRawImports(element.library.imports).forEach((import) {
-      if (import.contains('\.model\.dart')) {
-        throw InvalidGenerationSourceError(
-            'It is not recommended to use model inside another model: $import',
-            todo: 'Treat each Model as independent object',
-            element: element);
-      }
-    });
-
     if (!element.displayName.startsWith(r'$')) {
       throw InvalidGenerationSourceError(
           'Model class name should start with \$',
@@ -231,7 +222,8 @@ class AppModelGenerator extends Generator {
   ) {
     return appModelFields.map(
       (field) {
-        String declaration = '${field.type} get ${field.name};\n';
+        String declaration =
+            '${field.type.replaceFirst('\$', '')} get ${field.name};\n';
         if (field.initValue == null &&
             field.initListValue == null &&
             field.initMapValue == null) {

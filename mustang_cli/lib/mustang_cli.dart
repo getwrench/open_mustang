@@ -70,6 +70,7 @@ class MustangCli {
           'run',
           'build_runner',
           'watch',
+          '--delete-conflicting-outputs'
         ]);
         return;
       }
