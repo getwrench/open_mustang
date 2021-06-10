@@ -286,12 +286,12 @@ A framework to build Flutter applications.
       flutter pub get
     ```
 
-- Create a template for new screen
+- Generate files for a screen
     ```bash
       flutter pub run mustang_cli -s counter
     ```
 
-- Create a model for the screen
+- Generate a model with default fields
 
     ```bash
       flutter pub run mustang_cli -m counter 
@@ -301,7 +301,6 @@ A framework to build Flutter applications.
 
     ```bash
       flutter pub run mustang_cli -w
-      # Delete generated files: flutter pub run mustang_cli -d
     ```
   
 - Update `counter.dart` model

@@ -8,13 +8,13 @@ class Screen {
     String assetName = Utils.pathToClass(screenDir);
     String assetFilename = Utils.class2File(assetName);
     String path =
-        '${Utils.defaultAssetPrefix}/$screenDir/${assetFilename}_screen.dart';
+        '${Utils.defaultScreenPrefix}/$screenDir/${assetFilename}_screen.dart';
 
     bool exists = await File(path).exists();
     if (!exists) {
       File file = File(path);
       await file.writeAsString(_template(assetName, assetFilename));
-      print('Created $path');
+      print('  Created $path');
       return;
     }
 
@@ -27,6 +27,7 @@ class Screen {
 import 'package:flutter/material.dart';
 import 'package:mustang_core/mustang_widgets.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:wrench_widgets/widgets.dart';
 
 import '${assetFilename}_state.state.dart';
 import '${assetFilename}_service.dart';
@@ -72,9 +73,9 @@ class ${assetName}Screen extends StatelessWidget {
           title: Text('$assetName'),
         ),
         body: RefreshIndicator(
-          onRefresh: () => ${assetName}Service().getData(),
+          onRefresh: () => ${assetName}Service().getData(showBusy: false),
           child: Container(
-            child: Text('...'),
+            child: Text('Generated screen'),
           ),
         ),
       );

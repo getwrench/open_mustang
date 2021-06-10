@@ -4,7 +4,8 @@ import 'dart:io';
 import 'package:path/path.dart' as p;
 
 class Utils {
-  static String defaultAssetPrefix = 'lib/src/screens';
+  static String defaultScreenPrefix = 'lib/src/screens';
+  static String defaultModelPrefix = 'lib/src/models';
 
   static String class2File(String className) {
     var exp = RegExp(r'(?<=[0-9a-z])[A-Z]');
@@ -40,6 +41,10 @@ class Utils {
           (data) => stdout.write(data),
           onError: (error) => stdout.write(error),
         );
+  }
+
+  static String pkgName() {
+    return 'package:${p.basename(p.current)}';
   }
 
   // static boolean validateModel(String name) {}

@@ -22,14 +22,17 @@ class MustangCli {
         return;
       }
 
-      // if arg -c/--create exists
+      // if arg -s/--screen exists
       String screenDir = parsedArgs['screen'];
       if (screenDir != null) {
+        print('Creating screen files...');
         screenDir = screenDir.toLowerCase().replaceAll('-', '_');
         await ScreenDirectory.create(screenDir);
         await ScreenState.create(screenDir);
         await ScreenService.create(screenDir);
         await Screen.create(screenDir);
+        print('Creating model for the screen...');
+        await AppModel.create(screenDir);
       }
 
       // if arg -m/--model exists

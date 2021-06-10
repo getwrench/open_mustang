@@ -7,11 +7,11 @@ class ScreenDirectory {
   /// Path specified by [directory] argument will be created inside `lib/src/screens`
   /// of the flutter project directory
   static Future<void> create(String directory) async {
-    String path = '${Utils.defaultAssetPrefix}/$directory';
+    String path = '${Utils.defaultScreenPrefix}/$directory';
     bool exists = await Directory(path).exists();
     if (!exists) {
       await Directory(path).create(recursive: true);
-      print('Created $path');
+      print('  Created $path');
       return;
     }
     print('$path exists, skipping operation..');
