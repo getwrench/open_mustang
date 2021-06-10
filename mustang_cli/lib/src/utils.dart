@@ -13,9 +13,9 @@ class Utils {
         .toLowerCase();
   }
 
-  static String screenClassToModelVar(String screenClass) {
-    String firstLetter = screenClass.substring(0, 1).toLowerCase();
-    return '$firstLetter${screenClass.substring(1)}Model';
+  static String classNameToVar(String className) {
+    String firstLetter = className.substring(0, 1).toLowerCase();
+    return '$firstLetter${className.substring(1)}';
   }
 
   static String pathToClass(String path) {

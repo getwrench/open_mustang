@@ -22,7 +22,7 @@ class Screen {
   }
 
   static String _template(String assetName, String assetFilename) {
-    String modelVar = Utils.screenClassToModelVar(assetName);
+    String modelVar = Utils.classNameToVar(assetName);
     return '''
 import 'package:flutter/material.dart';
 import 'package:mustang_core/mustang_widgets.dart';

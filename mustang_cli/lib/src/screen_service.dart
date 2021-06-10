@@ -20,6 +20,7 @@ class ScreenService {
   }
 
   static String _template(String assetName, String assetFilename) {
+    String modelVar = Utils.classNameToVar(assetName);
     return '''
 import 'package:mustang_core/mustang_core.dart';
 import '${assetFilename}_state.dart';
@@ -36,6 +37,14 @@ class ${assetName}Service {
   }
 
   Future<void> memoizedGetData() {
+    $assetName $modelVar =
+        WrenchStore.get<$assetName>() ?? $assetName();
+    if ($modelVar.clearScreenCache) {
+      clearCache(reload: false);
+      $modelVar = $modelVar
+          .rebuild((b) => b..clearScreenCache = false);
+      updateState1($modelVar, reload: false);
+    }
     return memoize(() => getData());
   }
 }
