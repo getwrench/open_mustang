@@ -94,7 +94,7 @@ class AppModelGenerator extends Generator {
       // No getter/setter
       if (element.isSynthetic) {
         throw InvalidGenerationSourceError(
-            'Explicit getter/setter not allowed in Models. Use method instead',
+            'Error: Explicit getter/setter not allowed in Models. Use method instead',
             todo: 'Convert getter/setter to a method',
             element: element);
       }
@@ -102,7 +102,7 @@ class AppModelGenerator extends Generator {
       // No static/const/final fields
       if (element.isStatic || element.isConst || element.isFinal) {
         throw InvalidGenerationSourceError(
-            'Models fields should not be static or static const or final',
+            'Error: Models fields should not be static or static const or final',
             todo: 'remove static/static const/final',
             element: element);
       }
@@ -110,7 +110,7 @@ class AppModelGenerator extends Generator {
       // List, Map are not allowed
       if (['List', 'Map'].contains(element.type.element.displayName)) {
         throw InvalidGenerationSourceError(
-            'List/Map are not allowed for fields. Use BuiltList/BuiltMap instead',
+            'Error: List/Map are not allowed for fields. Use BuiltList/BuiltMap instead',
             todo: 'Use BuiltList/BuiltMap',
             element: element);
       }

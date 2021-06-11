@@ -43,23 +43,6 @@ class ScreenServiceGenerator extends Generator {
         .replaceFirst(r'$', '');
     importStates.add("import '${Utils.class2File(screenState)}.state.dart';");
 
-    // String rootStateUpdate = '';
-    // if (annotation.read('rootState').isString) {
-    //   String rootState = annotation.read('rootState').stringValue;
-    //   String rootStateDir = annotation.read('rootStateDir')?.stringValue;
-    //   if (rootStateDir != null) {
-    //     importStates.add(
-    //         "import '${rootStateDir}${Utils.class2File(rootState)}.state.dart';");
-    //
-    //     rootStateUpdate = '''
-    //       $rootState rootState = WrenchStore.get<$rootState>();
-    //           (rootState == null)
-    //             ? print('$rootState not found in the store')
-    //             : rootState.update();
-    //     ''';
-    //   }
-    // }
-
     return '''
       import 'package:mustang_core/mustang_core.dart';
       import '$importService.dart';
@@ -163,6 +146,16 @@ class ScreenServiceGenerator extends Generator {
   }
 
   void _validate(Element element, ConstantReader annotation) {
+    List<String> modelImports = Utils.getRawImports(element.library.imports);
+    if (modelImports
+            .indexWhere((element) => element.contains('material.dart')) !=
+        -1) {
+      throw InvalidGenerationSourceError(
+        'Error: Service class should not import flutter library',
+        element: element,
+      );
+    }
+
     if (!annotation
         .read('screenState')
         .typeValue
@@ -170,7 +163,7 @@ class ScreenServiceGenerator extends Generator {
         .displayName
         .startsWith(r'$')) {
       throw InvalidGenerationSourceError(
-        'State class name should start with \$',
+        'Error: State class name should start with \$',
         todo: 'Missing \$ in the State class name',
         element: element,
       );

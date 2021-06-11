@@ -46,7 +46,7 @@ class ${assetName}Service {
   }
   
   Future<void> getData({
-    bool showBusy: true,
+    bool showBusy = true,
   }) async {
     $assetName $modelVar = WrenchStore.get<$assetName>() ?? $assetName();
     if (showBusy) {
@@ -58,7 +58,7 @@ class ${assetName}Service {
     // TODO: Add API calls here
   }
 
-  void clearCacheAndReload({reload: true}) {
+  void clearCacheAndReload({bool reload = true}) {
     clearCache(reload: reload);
   }
 }

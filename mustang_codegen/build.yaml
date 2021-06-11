@@ -37,3 +37,15 @@ builders:
         include: [ '**/*.dart' ]
       }
     }
+  screen_builder:
+    import: 'package:mustang_codegen/builder.dart'
+    builder_factories: [ 'screenLibraryBuilder' ]
+    build_extensions: { '.dart': [ '.temp.dart' ] }
+    auto_apply: dependents
+    build_to: source
+    defaults: {
+      generate_for: {
+        exclude: [ '**/*.model.dart', '**/*.service.dart', '**/*.state.dart' ],
+        include: [ '**/*.dart' ]
+      }
+    }

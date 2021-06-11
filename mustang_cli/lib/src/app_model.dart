@@ -8,6 +8,8 @@ class AppModel {
   /// [modelFile] is the name of the file that gets created inside `/lib/models` directory
   static Future<void> create(String modelFile) async {
     modelFile = modelFile.replaceAll('-', '_').replaceAll('\.dart', '');
+    // removing directories in the path, if any
+    modelFile = p.basename(modelFile);
     String path = '${Utils.defaultModelPrefix}/$modelFile.dart';
     String modelClass = Utils.pathToClass(modelFile);
 

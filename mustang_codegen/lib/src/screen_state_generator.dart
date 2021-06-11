@@ -79,15 +79,22 @@ class ScreenStateGenerator extends Generator {
     Utils.getRawImports(element.library.imports).forEach((import) {
       if (import.contains('\.model\.dart')) {
         throw InvalidGenerationSourceError(
-            'Do not import generated Model class inside State: $import',
+            'Error: Do not import generated Model class inside State: $import',
             todo: 'Import Model class annotated with @AppModel instead',
             element: element);
+      }
+
+      if (import.contains('material.dart')) {
+        throw InvalidGenerationSourceError(
+          'Error: State class should not import flutter library',
+          element: element,
+        );
       }
     });
 
     if (!element.displayName.startsWith(r'$')) {
       throw InvalidGenerationSourceError(
-          'State class name should start with \$',
+          'Error: State class name should start with \$',
           todo: 'Prefix class name with \$',
           element: element);
     }
@@ -96,7 +103,7 @@ class ScreenStateGenerator extends Generator {
     stateClass.fields.forEach((element) {
       if (element.type.element.displayName == 'dynamic') {
         throw InvalidGenerationSourceError(
-          'Import is missing for the field',
+          'Error: Import is missing for the field',
           todo: 'Add import for the field',
           element: element,
         );
@@ -104,21 +111,21 @@ class ScreenStateGenerator extends Generator {
 
       if (element.isSynthetic) {
         throw InvalidGenerationSourceError(
-            'Explicit getter/setter is not allowed in State classes',
+            'Error: Explicit getter/setter is not allowed in State classes',
             todo: 'Remove getter/setter',
             element: element);
       }
 
       if (element.hasInitializer) {
         throw InvalidGenerationSourceError(
-            'No need to initialize fields of the State class ',
+            'Error: No need to initialize fields of the State class ',
             todo: 'Undo initialization',
             element: element);
       }
 
       if (element.isStatic || element.isConst || element.isFinal) {
         throw InvalidGenerationSourceError(
-            'State fields should not be static or static const or final',
+            'Error: State fields should not be static or static const or final',
             todo: 'remove static/static const/final',
             element: element);
       }
@@ -126,7 +133,7 @@ class ScreenStateGenerator extends Generator {
       // List, Map are not allowed
       if (['List', 'Map'].contains(element.type.element.displayName)) {
         throw InvalidGenerationSourceError(
-            'List/Map are not allowed for fields. Use BuiltList/BuiltMap instead',
+            'Error: List/Map are not allowed for fields. Use BuiltList/BuiltMap instead',
             todo: 'Use BuiltList/BuiltMap',
             element: element);
       }
