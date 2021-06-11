@@ -261,7 +261,7 @@ A framework to build Flutter applications.
           git:
             url: git@bitbucket.org:lunchclub/mustang.git
             path: mustang_core
-            ref: 11-jun-21
+            ref: master
 
       dev_dependencies:
         flutter_test:
@@ -271,12 +271,12 @@ A framework to build Flutter applications.
           git:
             url: git@bitbucket.org:lunchclub/mustang.git
             path: mustang_cli
-            ref: 11-jun-21
+            ref: master
         mustang_codegen:
           git:
             url: git@bitbucket.org:lunchclub/mustang.git
             path: mustang_codegen
-            ref: 11-jun-21
+            ref: master
         pedantic: ^1.11.0        
     ```
   

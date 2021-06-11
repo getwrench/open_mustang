@@ -6,6 +6,11 @@ import 'package:source_gen/source_gen.dart';
 class ScreenGenerator extends Generator {
   @override
   String generate(LibraryReader library, BuildStep buildStep) {
+    Iterable<Element> elements = library.element.topLevelElements;
+    if (elements.isEmpty) {
+      return '';
+    }
+
     String declaration = library.element.topLevelElements
         .map((e) => e.declaration.getDisplayString(withNullability: false))
         .toList()
@@ -15,6 +20,7 @@ class ScreenGenerator extends Generator {
         declaration.contains('extends StatefulWidget')) {
       _validate(library.element);
     }
+
     return '';
   }
 
