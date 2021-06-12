@@ -239,11 +239,16 @@ A framework to build Flutter applications.
     ```
 
 ### Quick Start
-- Create Project
+- Install Mustang CLI (https://bitbucket.org/lunchclub/mustang_cli/src/master)
+  ```bash
+  dart pub global activate -sgit git@bitbucket.org:lunchclub/mustang_cli.git
+  ```
+  
+- Create Flutter project
   ```bash
     cd /tmp
     flutter create quick_start
-    cd quick_start 
+    cd quick_start
     # Open the project in editor of your choice
     # vscode - code .
     # IntelliJ - idea .
@@ -267,11 +272,6 @@ A framework to build Flutter applications.
         flutter_test:
           sdk: flutter
         build_runner: ^2.0.0
-        mustang_cli:
-          git:
-            url: git@bitbucket.org:lunchclub/mustang.git
-            path: mustang_cli
-            ref: master
         mustang_codegen:
           git:
             url: git@bitbucket.org:lunchclub/mustang.git
@@ -288,19 +288,13 @@ A framework to build Flutter applications.
 
 - Generate files for a screen
     ```bash
-      flutter pub run mustang_cli -s counter
-    ```
-
-- Generate a model with default fields
-
-    ```bash
-      flutter pub run mustang_cli -m counter 
+      mcli -s counter
     ```
 
 - Generate runtime files
 
     ```bash
-      flutter pub run mustang_cli -w
+      mcli -w
     ```
   
 - Update `counter.dart` model
