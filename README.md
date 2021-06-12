@@ -9,6 +9,7 @@ A framework to build Flutter applications.
 - enables consistent **file layout and naming standards**
 
 ### Useful links
+- Mustang CLI: https://bitbucket.org/lunchclub/mustang_cli/src/master
 - Presentation: https://docs.google.com/presentation/d/19VSU_TsbtzKUtKsblheX399KsqTTjPV_AWZNE2vthqM/edit?usp=sharing
 - Video: https://drive.google.com/file/d/1zoTbw5pjLIBxlJD6NquAmHeGVuA4R8co/view?usp=sharing  
 
