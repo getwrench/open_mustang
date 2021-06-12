@@ -270,11 +270,12 @@ A framework to build Flutter applications.
     ```
 
 - Update `pubspec.yaml`
-    
     ```yaml
+      environment:
+        sdk: '>=2.7.0 <3.0.0' # this is needed to turn off Sound null safety
+  
       dependencies:
-        flutter:
-          sdk: flutter
+        ...
         built_collection: ^5.0.0
         built_value: ^8.0.0
         mustang_core:
@@ -284,15 +285,13 @@ A framework to build Flutter applications.
             ref: master
 
       dev_dependencies:
-        flutter_test:
-          sdk: flutter
+        ...
         build_runner: ^2.0.0
         mustang_codegen:
           git:
             url: git@bitbucket.org:lunchclub/mustang.git
             path: mustang_codegen
-            ref: master
-        pedantic: ^1.11.0        
+            ref: master                
     ```
   
 - Get Dependencies
