@@ -1,10 +1,27 @@
 import 'dart:collection';
 
+import 'package:hive/hive.dart';
+
 /// [WrenchStore] provides utility methods to save/lookup instances
 /// of any type.
 ///
 /// Only 1 instance of a type exists at any point of time.
 class WrenchStore {
+  // Flag to switch between List and HashMap
+  static bool large = false;
+
+  // List is used to store objects when large flag is disabled
+  static final List<Object> _store = [];
+
+  // HashMap is used to store objects when large flag is enabled
+  static final HashMap<String, Object> _hashStore = HashMap();
+
+  // Flat to persist the data
+  static bool persistent = false;
+
+  // Hive Box Name to store the model data
+  static String hiveBox = '';
+
   /// Looks up instance of type [T], if exists. Returns null if instance of
   /// type [T] is not found.
   static T get<T>() {
@@ -83,16 +100,24 @@ class WrenchStore {
 
   static void config({
     bool isLarge = false,
+    bool isPersistent = false,
+    String hiveBoxName = '',
   }) {
+    assert(
+        ((!isPersistent && hiveBoxName == '') ||
+            (isPersistent && hiveBoxName != '')),
+        'Specify BoxName if you want to persist the data!');
     large = isLarge;
+    persistent = isPersistent;
+    hiveBox = hiveBoxName;
   }
 
-  // Flag to switch between List and HashMap
-  static bool large = false;
-
-  // List is used to store objects when large flag is disabled
-  static final List<Object> _store = [];
-
-  // HashMap is used to store objects when large flag is enabled
-  static final HashMap<String, Object> _hashStore = HashMap();
+  static Future<void> persistObject<T>(String key, String value) async {
+    if (persistent) {
+      Box box = Hive.box(hiveBox);
+      if (box?.isOpen ?? false) {
+        await box.put(key, value);
+      }
+    }
+  }
 }
