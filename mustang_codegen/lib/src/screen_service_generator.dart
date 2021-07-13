@@ -43,9 +43,17 @@ class ScreenServiceGenerator extends Generator {
         .replaceFirst(r'$', '');
     importStates.add("import '${Utils.class2File(screenState)}.state.dart';");
 
+    String pkgName = buildStep.inputId.package;
+    String appSerializer = 'app_serializer';
+    String commonAlias = 'wrench_flutter_common';
+
     return '''
       import 'package:mustang_core/mustang_core.dart';
+      import 'package:built_value/serializer.dart';
       import '$importService.dart';
+      import 'dart:convert';
+      import 'package:$pkgName/src/models/serializers.dart' as $appSerializer;
+      import 'package:wrench_flutter_common/flutter_common.dart' as $commonAlias;
       ${importStates.join('\n')}
       
       class \$${screenState}Cache<T> {
@@ -68,6 +76,14 @@ class ScreenServiceGenerator extends Generator {
           $screenState screenState = WrenchStore.get<$screenState>();
           if (screenState?.mounted ?? false) {
             WrenchStore.update(t);
+            WrenchStore.persistObject(
+              '\$T',
+              jsonEncode(
+                $appSerializer.serializerNames.contains('\$T')
+                  ? $appSerializer.serializers.serialize(t)
+                  : $commonAlias.serializers.serialize(t),
+              ),
+            );
             if (reload) {
               screenState.update();
             }
@@ -80,6 +96,22 @@ class ScreenServiceGenerator extends Generator {
           $screenState screenState = WrenchStore.get<$screenState>();
           if (screenState?.mounted ?? false) {
             WrenchStore.update2(t, s);
+            WrenchStore.persistObject(
+              '\$T',
+              jsonEncode(
+                $appSerializer.serializerNames.contains('\$T')
+                  ? $appSerializer.serializers.serialize(t)
+                  : $commonAlias.serializers.serialize(t),
+              ),
+            );
+            WrenchStore.persistObject(
+              '\$S',
+              jsonEncode(
+                $appSerializer.serializerNames.contains('\$S')
+                  ? $appSerializer.serializers.serialize(s)
+                  : $commonAlias.serializers.serialize(s),
+              ),
+            );
             if (reload) {
               screenState.update();
             }
@@ -92,6 +124,30 @@ class ScreenServiceGenerator extends Generator {
           $screenState screenState = WrenchStore.get<$screenState>();
           if (screenState?.mounted ?? false) {
             WrenchStore.update3(t, s, u);
+            WrenchStore.persistObject(
+              '\$T',
+              jsonEncode(
+                $appSerializer.serializerNames.contains('\$T')
+                  ? $appSerializer.serializers.serialize(t)
+                  : $commonAlias.serializers.serialize(t),
+              ),
+            );
+            WrenchStore.persistObject(
+              '\$S',
+              jsonEncode(
+                $appSerializer.serializerNames.contains('\$S')
+                  ? $appSerializer.serializers.serialize(s)
+                  : $commonAlias.serializers.serialize(s),
+              ),
+            );
+            WrenchStore.persistObject(
+              '\$U',
+              jsonEncode(
+                $appSerializer.serializerNames.contains('\$U')
+                  ? $appSerializer.serializers.serialize(u)
+                  : $commonAlias.serializers.serialize(u),
+              ),
+            );
             if (reload) {
               screenState.update();
             }
@@ -104,6 +160,38 @@ class ScreenServiceGenerator extends Generator {
           $screenState screenState = WrenchStore.get<$screenState>();
           if (screenState?.mounted ?? false) {
             WrenchStore.update4(t, s, u, v);
+            WrenchStore.persistObject(
+              '\$T',
+              jsonEncode(
+                $appSerializer.serializerNames.contains('\$T')
+                  ? $appSerializer.serializers.serialize(t)
+                  : $commonAlias.serializers.serialize(t),
+              ),
+            );
+            WrenchStore.persistObject(
+              '\$S',
+              jsonEncode(
+                $appSerializer.serializerNames.contains('\$S')
+                  ? $appSerializer.serializers.serialize(s)
+                  : $commonAlias.serializers.serialize(s),
+              ),
+            );
+            WrenchStore.persistObject(
+              '\$U',
+              jsonEncode(
+                $appSerializer.serializerNames.contains('\$U')
+                  ? $appSerializer.serializers.serialize(u)
+                  : $commonAlias.serializers.serialize(u),
+              ),
+            );
+            WrenchStore.persistObject(
+              '\$V',
+              jsonEncode(
+                $appSerializer.serializerNames.contains('\$V')
+                  ? $appSerializer.serializers.serialize(v)
+                  : $commonAlias.serializers.serialize(v),
+              ),
+            );
             if (reload) {
               screenState.update();
             }

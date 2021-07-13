@@ -13,6 +13,16 @@ class Utils {
     return '$firstLetter${className.substring(1)}';
   }
 
+  static String capitalizeFirst(String str) {
+    String firstLetter = str.substring(0, 1).toUpperCase();
+    return '$firstLetter${str.substring(1)}';
+  }
+
+  static String pkg2Var(String pkgName) {
+    return class2Var(
+        pkgName.split('_').map((e) => capitalizeFirst(e)).toList().join(''));
+  }
+
   static List<String> getImports(List<ImportElement> elements) {
     List<String> importsList = [];
     elements.forEach((importElement) {
@@ -39,4 +49,7 @@ class Utils {
             '${importElement.importedLibrary.definingCompilationUnit.declaration}')
         .toList();
   }
+
+  static String defaultGeneratorComment =
+      '// GENERATED CODE - DO NOT MODIFY BY HAND';
 }

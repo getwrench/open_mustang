@@ -3,21 +3,21 @@ builders:
     import: 'package:mustang_codegen/builder.dart'
     builder_factories: [ 'appModelLibraryBuilder' ]
     build_extensions: { '.dart': [ '.model.dart' ] }
-    auto_apply: dependents
+    auto_apply: root_package
     build_to: source
-    runs_before: ['built_value_generator:built_value']
-    applies_builders: [ 'built_value_generator|built_value' ]
+    runs_before: ['mustang_codegen:app_serializer_builder', 'built_value_generator:built_value']
+    applies_builders: ['built_value_generator|built_value']
     defaults: {
       generate_for: {
-        exclude: [ '**/*.model.dart', '**/*.service.dart', '**/*.state.dart' ],
-        include: [ '**/*.dart' ]
+        exclude: ['**/*.model.dart', '**/*.service.dart', '**/*.state.dart'],
+        include: ['**/*.dart']
       }
     }
   state_builder:
     import: 'package:mustang_codegen/builder.dart'
     builder_factories: [ 'screenStateLibraryBuilder' ]
     build_extensions: { '.dart': [ '.state.dart' ] }
-    auto_apply: dependents
+    auto_apply: root_package
     build_to: source
     defaults: {
       generate_for: {
@@ -29,7 +29,7 @@ builders:
     import: 'package:mustang_codegen/builder.dart'
     builder_factories: [ 'screenServiceLibraryBuilder' ]
     build_extensions: { '.dart': [ '.service.dart' ] }
-    auto_apply: dependents
+    auto_apply: root_package
     build_to: source
     defaults: {
       generate_for: {
@@ -40,8 +40,8 @@ builders:
   screen_builder:
     import: 'package:mustang_codegen/builder.dart'
     builder_factories: [ 'screenLibraryBuilder' ]
-    build_extensions: { '.dart': [ '.temp.dart' ] }
-    auto_apply: dependents
+    build_extensions: { '.dart': [ '.screen.dart' ] }
+    auto_apply: root_package
     build_to: source
     defaults: {
       generate_for: {
@@ -49,3 +49,11 @@ builders:
         include: [ '**/*.dart' ]
       }
     }
+  app_serializer_builder:
+    import: 'package:mustang_codegen/builder.dart'
+    builder_factories: [ 'appSerializerBuilder' ]
+    build_extensions: { '.dart': [ '.ser.dart' ] }
+    auto_apply: root_package
+    build_to: source
+    runs_before: ['built_value_generator:built_value']
+    applies_builders: ['built_value_generator|built_value']

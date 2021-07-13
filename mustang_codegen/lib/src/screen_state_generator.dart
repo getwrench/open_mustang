@@ -130,19 +130,24 @@ class ScreenStateGenerator extends Generator {
             element: element);
       }
 
-      // List, Map are not allowed
-      if (['List', 'Map'].contains(element.type.element.displayName)) {
+      if (element.type.element.metadata.isEmpty &&
+          !element.type.element.declaration
+              .toString()
+              .contains('implements Built')) {
         throw InvalidGenerationSourceError(
-            'Error: List/Map are not allowed for fields. Use BuiltList/BuiltMap instead',
-            todo: 'Use BuiltList/BuiltMap',
+            'Error: Only models are allowed as fields in State class',
+            todo: 'Use only Models as fields',
             element: element);
       }
 
-      // TODO
-      // Fields can be only be
-      // - Classes annotated with appModel
-      // - Abstract subclass of Built class are allowed
-      // print(element.type.element.thisOrAncestorOfType<T extends Built>());
+      if (element.type.element.metadata.isNotEmpty &&
+          element.type.element.metadata.first.element.name.toLowerCase() !=
+              '$AppModel'.toLowerCase()) {
+        throw InvalidGenerationSourceError(
+            'Error: Only models are allowed as fields in State class',
+            todo: 'Use only Models as fields',
+            element: element);
+      }
     });
   }
 }

@@ -89,34 +89,75 @@ class WrenchStore {
     }
   }
 
-  // removes all objects from the store
-  static void nuke() {
+  /// Delete all objects from the store
+  static void nuke() async {
     if (large) {
       _hashStore.clear();
     } else {
       _store.clear();
+    }
+    if (persistent) {
+      Box box = Hive.box(hiveBox);
+      if (box?.isOpen ?? false) {
+        await box.deleteAll(box.keys);
+      }
     }
   }
 
   static void config({
     bool isLarge = false,
     bool isPersistent = false,
-    String hiveBoxName = '',
-  }) {
-    assert(
-        ((!isPersistent && hiveBoxName == '') ||
-            (isPersistent && hiveBoxName != '')),
-        'Specify BoxName if you want to persist the data!');
+    String persistentStoreName = '',
+  }) async {
+    if (isPersistent) {
+      assert(
+        persistentStoreName.isNotEmpty,
+        'Missing persistent directory location',
+      );
+    }
+
     large = isLarge;
     persistent = isPersistent;
-    hiveBox = hiveBoxName;
+    hiveBox = persistentStoreName;
   }
 
+  /// Writes serialized object to a file
   static Future<void> persistObject<T>(String key, String value) async {
     if (persistent) {
       Box box = Hive.box(hiveBox);
       if (box?.isOpen ?? false) {
         await box.put(key, value);
+      }
+    }
+  }
+
+  /// Creates directory [boxDir] in the file system to save serialized objects
+  static Future<void> initPersistence(String boxDir) async {
+    if (persistent) {
+      Hive.init(boxDir);
+      await Hive.openBox(hiveBox);
+    }
+  }
+
+  /// Deserializes the previously serialized string into an object
+  /// and makes it available in the WrenchStore
+  static Future<void> restoreState(
+    void Function(
+      void Function<T>(T t) update,
+      String modelName,
+      String jsonStr,
+    )
+        callback,
+    List<String> serializerNames,
+  ) async {
+    if (persistent) {
+      Box box = Hive.box(hiveBox);
+      if (box.isOpen ?? false) {
+        box.keys.forEach((key) {
+          if (serializerNames.contains(key)) {
+            callback(WrenchStore.update, key, box.get(key));
+          }
+        });
       }
     }
   }

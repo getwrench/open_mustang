@@ -1,5 +1,6 @@
 import 'package:build/build.dart';
 import 'package:mustang_codegen/src/app_model_generator.dart';
+import 'package:mustang_codegen/src/app_serializer_builder.dart';
 import 'package:mustang_codegen/src/screen_generator.dart';
 import 'package:mustang_codegen/src/screen_service_generator.dart';
 import 'package:mustang_codegen/src/screen_state_generator.dart';
@@ -22,11 +23,7 @@ Builder screenServiceLibraryBuilder(BuilderOptions options) => LibraryBuilder(
 
 Builder screenLibraryBuilder(BuilderOptions options) => LibraryBuilder(
       ScreenGenerator(),
-      generatedExtension: '.temp.dart',
+      generatedExtension: '.screen.dart',
     );
 
-// Builder screenStateBuilder(BuilderOptions options) =>
-//     SharedPartBuilder([ScreenStateGenerator()], 'screen_state');
-//
-// Builder screenServiceBuilder(BuilderOptions options) =>
-//     SharedPartBuilder([ScreenServiceGenerator()], 'screen_service');
+Builder appSerializerBuilder(BuilderOptions options) => AppSerializerBuilder();
