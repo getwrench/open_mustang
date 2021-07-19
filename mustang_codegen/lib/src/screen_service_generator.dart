@@ -49,7 +49,6 @@ class ScreenServiceGenerator extends Generator {
 
     return '''
       import 'package:mustang_core/mustang_core.dart';
-      import 'package:built_value/serializer.dart';
       import '$importService.dart';
       import 'dart:convert';
       import 'package:$pkgName/src/models/serializers.dart' as $appSerializer;
