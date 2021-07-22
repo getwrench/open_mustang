@@ -1,14 +1,16 @@
 # Mustang
-
 ![Logo](./mustang.gif)
 
-A framework to build Flutter applications.
+A framework to build Flutter applications. It provides
 
-- provides **state management**
-- generates source templates using `cli` (https://bitbucket.org/lunchclub/mustang_cli/src/master)
-- enables consistent **file layout and naming standards**
+- State Management
+- State Persistence
+- Enforces file layout and naming standards
+- Reduces boiler plate by generating code
+- Generates source templates using `cli` (https://bitbucket.org/lunchclub/mustang_cli/src/master)
 
 ## Contents
+- [Quick Start](#markdown-header-quick-start)
 - [Resources](#markdown-header-resources)
 - [Framework Components](#markdown-header-framework-components)
 - [Component Communication](#markdown-header-component-communication)
@@ -17,8 +19,176 @@ A framework to build Flutter applications.
 - [State](#markdown-header-state)
 - [Service](#markdown-header-service)
 - [Screen](#markdown-header-screen)
-- [Quick Start](#markdown-header-quick-start)
+- [Persistence](#markdown-persistence)
 
+### Quick Start
+- Install Flutter
+  ```bash
+    mkdir -p ~/lib && cd ~/lib
+    
+    git clone https://github.com/flutter/flutter.git -b stable
+
+    # Add PATH in ~/.zshrc 
+    export PATH=$PATH:~/lib/flutter/bin
+    export PATH=$PATH:~/.pub-cache/bin
+  ```
+    
+- Install Mustang CLI
+  ```bash
+    dart pub global activate -sgit git@bitbucket.org:lunchclub/mustang_cli.git
+  ```
+  
+- Create Flutter project
+  ```bash
+    cd /tmp
+    
+    flutter create quick_start
+    
+    cd quick_start
+    
+    # Open the project in editor of your choice
+    # vscode - code .
+    # IntelliJ - idea .
+  ```
+
+- Update `pubspec.yaml`
+  ```yaml
+    environment:
+      sdk: '>=2.7.0 <3.0.0' # this is needed to turn off Dart's sound null safety
+  
+    dependencies:
+      ...
+      built_collection: ^5.0.0
+      built_value: ^8.0.0
+      mustang_core:
+        git:
+          url: git@bitbucket.org:lunchclub/mustang.git
+          path: mustang_core
+          ref: master
+
+    dev_dependencies:
+      ...
+      build_runner: ^2.0.4
+      mustang_codegen:
+        git:
+          url: git@bitbucket.org:lunchclub/mustang.git
+          path: mustang_codegen
+          ref: master 
+      pedantic: ^1.11.0    
+  ```
+  
+- Install dependencies
+  ```bash
+    flutter pub get
+  ```
+
+- Generate files for a screen
+  ```bash
+    mcli -s counter
+  ```
+
+- Generate runtime files and watches for changes
+  ```bash
+    mcli -w
+  ```
+  
+- Update `counter.dart` model
+  ```dart
+    class $Counter {
+      @InitField(0)
+      int value;
+    }
+  ```
+  
+- Update `counter_screen.dart` screen
+  ```dart
+    import 'package:flutter/material.dart';
+    import 'package:mustang_core/mustang_widgets.dart';
+    
+    import 'counter_service.dart';
+    import 'counter_state.state.dart';
+    
+    class CounterScreen extends StatelessWidget {
+      const CounterScreen({
+        Key key,
+      }) : super(key: key);
+        
+      @override
+      Widget build(BuildContext context) {
+        return StateProvider<CounterState>(
+          state: CounterState(),
+          child: Builder(
+            builder: (BuildContext context) {
+              CounterState state = StateConsumer<CounterState>().of(context);
+              return _body(state, context);
+            },
+          ),
+        );
+      }
+    
+      Widget _body(CounterState state, BuildContext context) {
+        int counter = state?.counter?.value ?? 0;
+        return Scaffold(
+          appBar: AppBar(
+            title: Text('Counter'),
+          ),
+          body: Center(
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                    child: Text('$counter'),
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: CounterService().increment,
+                  child: Text('Increment'),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+    }
+  ```
+  
+- Update `counter_service.dart` service
+  ```dart
+    import 'package:mustang_core/mustang_core.dart';
+    import 'package:quick_start/src/models/counter.model.dart';
+        
+    import 'counter_service.service.dart';
+    import 'counter_state.dart';
+        
+    @ScreenService(screenState: $CounterState)
+    class CounterService {
+      void increment() {
+        Counter counter = WrenchStore.get<Counter>() ?? Counter();
+        counter = counter.rebuild((b) => b.value = b.value + 1);
+        updateState1(counter);
+      }
+    }
+  ```
+  
+- Update `main.dart`
+  ```dart
+    ...
+  
+    Widget build(BuildContext context) {
+      return MaterialApp(
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          ...
+          primarySwatch: Colors.blue,
+        ),
+        home: CounterScreen(), // Point to Counter screen
+      );
+    }
+  
+    ...  
+  ```
+    
 ### Resources
 - Presentation: https://docs.google.com/presentation/d/19VSU_TsbtzKUtKsblheX399KsqTTjPV_AWZNE2vthqM/edit?usp=sharing
 - Video: https://drive.google.com/file/d/1zoTbw5pjLIBxlJD6NquAmHeGVuA4R8co/view?usp=sharing  
@@ -113,9 +283,9 @@ A framework to build Flutter applications.
 
 ### Model
 - A Class annotated with `appModel`
-- Class name should start with `$`
+- Model name should start with `$`
 - Initialize fields with `InitField` annotation
-- Getters/Setters are `NOT` supported inside `Model` classes. Use regular methods instead.
+- Methods/Getters/Setters are `NOT` supported inside `Model` classes.
     
     ```dart
     @appModel
@@ -129,22 +299,23 @@ A framework to build Flutter applications.
     
       @InitField(['user', 'default'])
       BuiltList<String> roles;
-    
-      String fullName() {
-        return 'Mr. $name';
-      }
+      
+      $Address address;  // $Address is another model annotated with @appModel
+      
+      BuiltList<$Vehicle> vehicles;  // Use immutable versions of List/Map inside Model classes
     }
     ```
   
 ### State
 - A class annotated with `screenState`
-- Class name should start with `$`
-- Fields of the class must be `Model` or `BuiltValue` classes
+- State name should start with `$`
+- Fields of the class must be `Model` classes
   
     ```dart      
     @screenState
     class $ExampleScreenState {
       $User user;
+      
       $Vehicle vehicle;
     }
     ```
@@ -205,21 +376,19 @@ A framework to build Flutter applications.
             ``` 
 
 ### Screen
-- Use `ChangeNotifierProvider` to re-build the `Screen` automatically when there is a change in `State`
-- When referring to the `State`, omit `$`. Following is a structure of a typical Flutter screen.
+- Use `StateProvider` widget to re-build the `Screen` automatically when there is a change in `State`
   
     ```dart
     ...
     
     Widget build(BuildContext context) {
-      return ChangeNotifierProvider<HomeScreenState>(
-        create: (context) => HomeScreenState(),
-          child: Consumer<HomeScreenState>(
-            builder: (
-              BuildContext context,
-              HomeScreenState state,
-              Widget _,
-            ) {
+      return StateProvider<HomeScreenState>(
+          state: HomeScreenState(),
+          child: Builder(
+            builder: (BuildContext context) {
+              // state variable provides access to model fields declared in the HomeScreenState class
+              HomeScreenState state = StateConsumer<HomeScreenState>().of(context);
+              
               # Even when this widget is built many times, only 1 API call 
               # will be made because the Future from the service is cached
               SchedulerBinding.instance.addPostFrameCallback(
@@ -241,169 +410,5 @@ A framework to build Flutter applications.
       }
     ```
 
-### Quick Start
-
-- Install Flutter
-    ```dart
-    mkdir -p ~/lib && cd ~/lib
-    
-    git clone https://github.com/flutter/flutter.git -b stable
-
-    export PATH="$PATH:~/lib/flutter/bin"
-    ```
-
-- Install Mustang CLI (https://bitbucket.org/lunchclub/mustang_cli/src/master)
-    ```bash
-    dart pub global activate -sgit git@bitbucket.org:lunchclub/mustang_cli.git
-    ```
-  
-- Create Flutter project
-    ```bash
-    cd /tmp
-    
-    flutter create quick_start
-    
-    cd quick_start
-    # Open the project in editor of your choice
-    # vscode - code .
-    # IntelliJ - idea .
-    ```
-
-- Update `pubspec.yaml`
-    ```yaml
-      environment:
-        sdk: '>=2.7.0 <3.0.0' # this is needed to turn off Sound null safety
-  
-      dependencies:
-        ...
-        built_collection: ^5.0.0
-        built_value: ^8.0.0
-        mustang_core:
-          git:
-            url: git@bitbucket.org:lunchclub/mustang.git
-            path: mustang_core
-            ref: master
-
-      dev_dependencies:
-        ...
-        build_runner: ^2.0.0
-        mustang_codegen:
-          git:
-            url: git@bitbucket.org:lunchclub/mustang.git
-            path: mustang_codegen
-            ref: master                
-    ```
-  
-- Get Dependencies
-    
-    ```bash
-    flutter pub get
-    ```
-
-- Generate files for a screen
-    ```bash
-    mcli -s counter
-    ```
-
-- Generate runtime files
-
-    ```bash
-    mcli -w
-    ```
-  
-- Update `counter.dart` model
-    ```dart
-    class $Counter {
-      @InitField(0)
-      int value;
-    }
-    ```
-  
-- Update `counter_screen.dart` screen
-    ```dart
-    import 'package:flutter/material.dart';
-    import 'package:mustang_core/mustang_widgets.dart';
-    
-    import 'counter_service.dart';
-    import 'counter_state.state.dart';
-    
-    class CounterScreen extends StatelessWidget {
-      const CounterScreen({
-        Key key,
-      }) : super(key: key);
-        
-      @override
-      Widget build(BuildContext context) {
-        return StateProvider<CounterState>(
-          state: CounterState(),
-          child: Builder(
-            builder: (BuildContext context) {
-              CounterState state = StateConsumer<CounterState>().of(context);
-              return _body(state, context);
-            },
-          ),
-        );
-      }
-    
-      Widget _body(CounterState state, BuildContext context) {
-        int counter = state?.counter?.value ?? 0;
-        return Scaffold(
-          appBar: AppBar(
-            title: Text('Counter'),
-          ),
-          body: Center(
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                    child: Text('$counter'),
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: CounterService().increment,
-                  child: Text('Increment'),
-                ),
-              ],
-            ),
-          ),
-        );
-      }
-    }
-    ```
-  
-- Update `counter_service.dart` service
-    ```dart
-    import 'package:mustang_core/mustang_core.dart';
-    import 'package:quick_start/src/models/counter.model.dart';
-        
-    import 'counter_service.service.dart';
-    import 'counter_state.dart';
-        
-    @ScreenService(screenState: $CounterState)
-    class CounterService {
-      void increment() {
-        Counter counter = WrenchStore.get<Counter>() ?? Counter();
-        counter = counter.rebuild((b) => b.value = b.value + 1);
-        updateState1(counter);
-      }
-    }
-    ```
-  
-- Update `main.dart`
-    ```dart
-    ...
-  
-    Widget build(BuildContext context) {
-      return MaterialApp(
-        title: 'Flutter Demo',
-        theme: ThemeData(
-          ...
-          primarySwatch: Colors.blue,
-        ),
-        home: CounterScreen(), // Point to Counter screen
-      );
-    }
-  
-    ...  
-    ```
+### Persistence
+```Documentation in Progres...```
