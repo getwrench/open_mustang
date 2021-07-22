@@ -4,8 +4,6 @@ import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
 import 'package:glob/glob.dart';
 import 'package:mustang_codegen/src/utils.dart';
-import 'package:mustang_core/mustang_core.dart';
-import 'package:source_gen/source_gen.dart';
 
 class AppSerializerBuilder implements Builder {
   static const String modelsPath = 'src/models';
@@ -27,17 +25,13 @@ class AppSerializerBuilder implements Builder {
     final StringBuffer deserializerCases = StringBuffer();
 
     await for (AssetId assetId
-        in buildStep.findAssets(Glob('$serializerPath/*.dart'))) {
+        in buildStep.findAssets(Glob('$serializerPath/*.model.dart'))) {
       LibraryElement library = await buildStep.resolver.libraryFor(assetId);
-      Iterable<AnnotatedElement> appModels = LibraryReader(library)
-          .annotatedWith(TypeChecker.fromRuntime(AppModel));
-      if (appModels.isEmpty) {
-        String modelName = library.topLevelElements.first.name;
-        modelNames.add(modelName);
-        modelStrNames.add("'$modelName'");
-        imports.add("import '${assetId.uri}';");
-        deserializerCases.writeln(_deserializeForModel(modelName));
-      }
+      String modelName = library.topLevelElements.first.name;
+      modelNames.add(modelName);
+      modelStrNames.add("'$modelName'");
+      imports.add("import '${assetId.uri}';");
+      deserializerCases.writeln(_deserializeForModel(modelName));
     }
 
     String pkgName = buildStep.inputId.package;

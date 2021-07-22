@@ -5,8 +5,6 @@ import 'package:mustang_codegen/src/utils.dart';
 import 'package:mustang_core/mustang_core.dart';
 import 'package:source_gen/source_gen.dart';
 
-import 'app_model_method.dart';
-
 class AppModelGenerator extends Generator {
   @override
   String generate(LibraryReader library, BuildStep buildStep) {
@@ -40,16 +38,9 @@ class AppModelGenerator extends Generator {
     // Create an instance of AppModelField for each field in the model class
     List<AppModelField> appModelFields = _parseFields(appModelClass);
 
-    // Create an instance of AppModelMethod for each method in the model class
-    List<AppModelMethod> appModelMethods = _parseMethods(appModelClass);
-
     // Create field declarations in the built_value abstract class
     List<String> fieldDeclarations =
         _generateFields(appModelFields, appModelClass);
-
-    // Create method definitions in the built_value abstract class
-    List<String> methodDefinitions =
-        _generateMethods(appModelMethods, appModelClass);
 
     // Create initializer method in the built_value abstract class
     String initializer = _generateInitializer(appModelFields, appModelName);
@@ -75,8 +66,6 @@ class AppModelGenerator extends Generator {
         static Serializer<$appModelName> get serializer => _\$${appModelVarName}Serializer;
       
         $initializer
-        
-        ${methodDefinitions.join('\n')}
       }
     ''';
   }
@@ -190,32 +179,6 @@ class AppModelGenerator extends Generator {
     ).toList();
   }
 
-  // TODO Brittle code
-  List<AppModelMethod> _parseMethods(ClassElement appModelClass) {
-    List<AppModelMethod> appModelMethods = appModelClass.methods.map(
-      (methodElement) {
-        return AppModelMethod(
-          name: methodElement.name,
-          type: methodElement.returnType.element.displayName,
-          sourceOffset: methodElement.nameOffset,
-        );
-      },
-    ).toList();
-
-    // update sourceLength of for each field
-    // Type method1 body1 ... Type method2 body2
-    appModelMethods.asMap().forEach((index, field) {
-      if (index == 0) return;
-      if (index <= appModelMethods.length - 1) {
-        AppModelMethod prevField = appModelMethods.elementAt(index - 1);
-        prevField.sourceLength = (prevField.sourceOffset - 1) +
-            (field.sourceOffset - prevField.sourceOffset);
-        prevField.sourceLength -= field.type.length;
-      }
-    });
-    return appModelMethods;
-  }
-
   List<String> _generateFields(
     List<AppModelField> appModelFields,
     ClassElement appModelClass,
@@ -236,19 +199,6 @@ class AppModelGenerator extends Generator {
         }
       },
     ).toList();
-  }
-
-  List<String> _generateMethods(
-    List<AppModelMethod> appModelMethods,
-    ClassElement appModelClass,
-  ) {
-    String source = appModelClass.source.contents.data;
-    return appModelMethods.map((element) {
-      String methodDefinition = element.sourceLength == null
-          ? source.substring(element.sourceOffset).replaceFirst('}', '')
-          : source.substring(element.sourceOffset, element.sourceLength);
-      return '${element.type} $methodDefinition';
-    }).toList();
   }
 
   String _generateInitializer(
