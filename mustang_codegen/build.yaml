@@ -6,35 +6,32 @@ builders:
     auto_apply: root_package
     build_to: source
     runs_before: ['mustang_codegen:app_serializer_builder', 'built_value_generator:built_value']
-    applies_builders: ['built_value_generator|built_value']
     defaults: {
       generate_for: {
-        exclude: ['**/*.model.dart', '**/*.service.dart', '**/*.state.dart'],
-        include: ['**/*.dart']
+        exclude: ['**/models/*.model.dart', '**/models/*.model.g.dart'],
+        include: ['**/models/*.dart']
       }
     }
-  state_builder:
+  app_serializer_builder:
     import: 'package:mustang_codegen/builder.dart'
-    builder_factories: [ 'screenStateLibraryBuilder' ]
-    build_extensions: { '.dart': [ '.state.dart' ] }
+    builder_factories: [ 'appSerializerBuilder' ]
+    build_extensions: { '.dart': [ '.ser.dart' ] }
     auto_apply: root_package
     build_to: source
-    defaults: {
-      generate_for: {
-        exclude: ['**/*.model.dart', '**/*.service.dart', '**/*.state.dart'],
-        include: ['**/*.dart']
-      }
-    }
-  service_builder:
-    import: 'package:mustang_codegen/builder.dart'
-    builder_factories: [ 'screenServiceLibraryBuilder' ]
-    build_extensions: { '.dart': [ '.service.dart' ] }
+    runs_before: [ 'built_value_generator:built_value' ]
+  # built_value builder config is from
+  # https://github.com/google/built_value.dart/blob/master/built_value_generator/build.yaml
+  built_value:
+    target: ':built_value_generator'
+    import: 'package:built_value_generator/builder.dart'
+    builder_factories: [ 'builtValue' ]
+    build_extensions: { '.dart': [ '.built_value.g.part' ] }
     auto_apply: root_package
-    build_to: source
+    build_to: cache
+    applies_builders: [ 'source_gen|combining_builder' ]
     defaults: {
       generate_for: {
-        exclude: [ '**/*.model.dart', '**/*.service.dart', '**/*.state.dart' ],
-        include: [ '**/*.dart' ]
+        include: [ '**/models/*.model.dart', '**/models/serializers.dart' ]
       }
     }
   screen_builder:
@@ -45,15 +42,30 @@ builders:
     build_to: source
     defaults: {
       generate_for: {
-        exclude: [ '**/*.model.dart', '**/*.service.dart', '**/*.state.dart' ],
-        include: [ '**/*.dart' ]
+        include: [ '**/screens/**/*_screen.dart' ]
       }
     }
-  app_serializer_builder:
+  service_builder:
     import: 'package:mustang_codegen/builder.dart'
-    builder_factories: [ 'appSerializerBuilder' ]
-    build_extensions: { '.dart': [ '.ser.dart' ] }
+    builder_factories: [ 'screenServiceLibraryBuilder' ]
+    build_extensions: { '.dart': [ '.service.dart' ] }
     auto_apply: root_package
     build_to: source
-    runs_before: ['built_value_generator:built_value']
-    applies_builders: ['built_value_generator|built_value']
+    defaults: {
+      generate_for: {
+        include: ['**/screens/**/*_service.dart']
+      }
+    }
+  state_builder:
+    import: 'package:mustang_codegen/builder.dart'
+    builder_factories: [ 'screenStateLibraryBuilder' ]
+    build_extensions: { '.dart': [ '.state.dart' ] }
+    auto_apply: root_package
+    build_to: source
+    defaults: {
+      generate_for: {
+        include: [ '**/screens/**/*_state.dart' ]
+      }
+    }
+
+
