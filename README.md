@@ -285,6 +285,7 @@ A framework to build Flutter applications. It provides
 - A Class annotated with `appModel`
 - Model name should start with `$`
 - Initialize fields with `InitField` annotation
+- Skip serialization of the field with `SerializeField` annotation.
 - Methods/Getters/Setters are `NOT` supported inside `Model` classes.
     
     ```dart
@@ -303,6 +304,9 @@ A framework to build Flutter applications. It provides
       $Address address;  // $Address is another model annotated with @appModel
       
       BuiltList<$Vehicle> vehicles;  // Use immutable versions of List/Map inside Model classes
+      
+      @SerializeField(false)
+      String errorMsg; // errorMsg field will not be persisted 
     }
     ```
   
