@@ -7,6 +7,7 @@ class AppModelField {
     this.initValue,
     this.initListValue,
     this.initMapValue,
+    this.serializeField,
   })  : assert(name != null),
         assert(type != null);
 
@@ -15,6 +16,7 @@ class AppModelField {
   final Object initValue;
   final List<Object> initListValue;
   final Map<Object, Object> initMapValue;
+  final bool serializeField;
 
   @override
   String toString() {

@@ -125,6 +125,10 @@ class AppModelGenerator extends Generator {
         Map<Object, Object> initMapValue;
         final annotations =
             TypeChecker.fromRuntime(InitField).annotationsOf(fieldElement);
+        final serializeAnnotation =
+            TypeChecker.fromRuntime(SerializeField).annotationsOf(fieldElement);
+        bool serializeField;
+
         if (annotations.isNotEmpty) {
           switch (typeToMatch) {
             case 'String':
@@ -167,6 +171,12 @@ class AppModelGenerator extends Generator {
               print(fieldType);
           }
         }
+        if (serializeAnnotation.isNotEmpty) {
+          serializeField = serializeAnnotation.single
+                  .getField('serializeField')
+                  .toBoolValue() ??
+              true;
+        }
 
         return AppModelField(
           name: fieldName,
@@ -174,6 +184,7 @@ class AppModelGenerator extends Generator {
           initValue: initValue,
           initListValue: initListValue,
           initMapValue: initMapValue,
+          serializeField: serializeField,
         );
       },
     ).toList();
@@ -190,12 +201,27 @@ class AppModelGenerator extends Generator {
         if (field.initValue == null &&
             field.initListValue == null &&
             field.initMapValue == null) {
-          return '''
+          if (field.serializeField != null && !field.serializeField) {
+            return '''
+            @nullable
+            @BuiltValueField(serialize: ${field.serializeField})
+            $declaration
+          ''';
+          } else {
+            return '''
             @nullable
             $declaration
           ''';
+          }
         } else {
-          return declaration;
+          if (field.serializeField != null && !field.serializeField) {
+            return '''
+            @BuiltValueField(serialize: ${field.serializeField})
+            $declaration
+            ''';
+          } else {
+            return declaration;
+          }
         }
       },
     ).toList();
