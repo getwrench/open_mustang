@@ -48,7 +48,10 @@ class AppModelGenerator extends Generator {
     String appModelFilename = '${Utils.class2File(appModelName)}.model';
     String appModelVarName = Utils.class2Var(appModelName);
 
-    List<String> modelImports = Utils.getImports(element.library.imports);
+    List<String> modelImports = Utils.getImports(
+      element.library.imports,
+      buildStep.inputId.package,
+    );
 
     return '''
       import 'package:built_value/built_value.dart';

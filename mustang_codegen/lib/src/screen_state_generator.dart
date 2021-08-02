@@ -43,7 +43,10 @@ class ScreenStateGenerator extends Generator {
           '$fieldType get $fieldName => WrenchStore.get<$fieldType>();';
       stateModelFields.add(declaration);
     });
-    List<String> stateImports = Utils.getImports(element.library.imports);
+    List<String> stateImports = Utils.getImports(
+      element.library.imports,
+      buildStep.inputId.package,
+    );
 
     return '''
       import 'package:flutter/foundation.dart';
