@@ -31,8 +31,13 @@ class AppSerializerBuilder implements Builder {
       modelNames.add(modelName);
       modelStrNames.add("'$modelName'");
       imports.add("import '${assetId.uri}';");
-      deserializerCases.writeln(_deserializeForModel(modelName));
     }
+
+    modelNames.sort();
+    modelStrNames.sort();
+    modelNames.forEach((modelName) {
+      deserializerCases.writeln(_deserializeForModel(modelName));
+    });
 
     String pkgName = buildStep.inputId.package;
 
