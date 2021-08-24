@@ -164,4 +164,13 @@ class WrenchStore {
       }
     }
   }
+
+  static Future<void> deleteState(List<String> deleteModels) async {
+    if (persistent) {
+      Box box = Hive.box(hiveBox);
+      if (box.isOpen ?? false) {
+        await box.deleteAll(deleteModels);
+      }
+    }
+  }
 }
