@@ -2,6 +2,7 @@ import 'dart:collection';
 import 'dart:io';
 
 import 'package:hive/hive.dart';
+import 'package:mustang_core/src/cache/wrench_cache.dart';
 
 /// [WrenchStore] provides utility methods to save/lookup instances
 /// of any type.
@@ -123,7 +124,7 @@ class WrenchStore {
   }
 
   /// Writes serialized object to a file
-  static Future<void> persistObject<T>(String key, String value) async {
+  static Future<void> persistObject(String key, String value) async {
     if (persistent) {
       Box box = Hive.box(hiveBox);
       if (box?.isOpen ?? false) {
@@ -134,11 +135,15 @@ class WrenchStore {
 
   /// Creates directory [boxDir] in the file system to save serialized objects
   static Future<void> initPersistence([String storeLocation]) async {
-    if (persistent && storeLocation != null) {
-      if (Platform.isIOS || Platform.isAndroid) {
+    if (persistent) {
+      if (storeLocation != null && (Platform.isIOS || Platform.isAndroid)) {
         Hive.init(storeLocation);
       }
       await Hive.openBox(hiveBox);
+
+      // Cache Initialization
+      WrenchCache.configCache('${hiveBox}Cache');
+      await WrenchCache.initCache(storeLocation);
     }
   }
 
@@ -165,7 +170,7 @@ class WrenchStore {
     }
   }
 
-  static Future<void> deleteState(List<String> deleteModels) async {
+  static Future<void> deletePersistedState(List<String> deleteModels) async {
     if (persistent) {
       Box box = Hive.box(hiveBox);
       if (box.isOpen ?? false) {

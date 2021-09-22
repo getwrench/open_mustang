@@ -1,0 +1,81 @@
+import 'dart:io';
+
+import 'package:hive/hive.dart';
+import 'package:mustang_core/src/state/wrench_store.dart';
+
+/// [WrenchCache] provides utility methods to save/lookup instances
+/// of any type.
+///
+/// Only 1 instance of cache store exists for an App.
+class WrenchCache {
+  /// Hive Box Name to cache the model data
+  static String cacheName = '';
+
+  static void configCache(String cacheName) async {
+    WrenchCache.cacheName = cacheName;
+  }
+
+  /// Creates directory [boxDir] in the file system to save serialized objects
+  static Future<void> initCache([String storeLocation]) async {
+    if (storeLocation != null && (Platform.isIOS || Platform.isAndroid)) {
+      Hive.init(storeLocation);
+    }
+    await Hive.openLazyBox(cacheName);
+  }
+
+  /// Writes serialized object to a file
+  static Future<void> addObject(
+    String key,
+    String modelKey,
+    String modelValue,
+  ) async {
+    LazyBox lazyBox = Hive.lazyBox(cacheName);
+    Map<String, String> value;
+
+    if (lazyBox.isOpen ?? false) {
+      value = (await lazyBox.get(key))?.cast<String, String>() ?? {};
+      value.update(
+        modelKey,
+        (_) => modelValue,
+        ifAbsent: () => modelValue,
+      );
+      await lazyBox.put(key, value);
+    }
+  }
+
+  /// Deserializes the previously serialized string into an object
+  /// and makes it available in the WrenchStore
+  static Future<void> restoreObjects(
+    String key,
+    void Function(
+      void Function<T>(T t) update,
+      String modelName,
+      String jsonStr,
+    )
+        callback,
+  ) async {
+    LazyBox lazyBox = Hive.lazyBox(cacheName);
+    if (lazyBox.isOpen ?? false) {
+      Map<String, String> cacheData =
+          (await lazyBox.get(key))?.cast<String, String>();
+      if (cacheData != null) {
+        cacheData.keys.forEach((modelKey) {
+          WrenchStore.persistObject(modelKey, cacheData[modelKey]);
+          callback(WrenchStore.update, modelKey, cacheData[modelKey]);
+        });
+      }
+    }
+  }
+
+  static Future<void> deleteObjects(String key) async {
+    LazyBox lazyBox = Hive.lazyBox(cacheName);
+    if (lazyBox.isOpen ?? false) {
+      await lazyBox.delete(key);
+    }
+  }
+
+  static bool objectExists(String key) {
+    LazyBox lazyBox = Hive.lazyBox(cacheName);
+    return ((lazyBox.isOpen ?? false) && lazyBox.containsKey(key));
+  }
+}

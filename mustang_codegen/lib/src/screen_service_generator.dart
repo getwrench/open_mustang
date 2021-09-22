@@ -228,7 +228,28 @@ class ScreenServiceGenerator extends Generator {
             }    
           }
         }
-      }
+        
+        Future<void> addObjectToCache<T>(String key, T t) async {
+          await WrenchCache.addObject(
+            key,
+            '\$T',
+            jsonEncode(
+              $appSerializer.serializerNames.contains('\$T')
+                  ? $appSerializer.serializers.serialize(t)
+                  : $commonAlias.serializers.serialize(t),
+            ),
+          );
+        }
+        
+        Future<void> deleteObjectsFromCache(String key) async {
+          await WrenchCache.deleteObjects(key);
+        }
+        
+        bool objectExistsInCache(String key) {
+          return WrenchCache.objectExists(key);
+        }
+  
+    }
     ''';
   }
 
