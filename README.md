@@ -212,9 +212,9 @@ A framework to build Flutter applications. It provides
     1. `Screen` reads `State` while building the UI
     2. `Screen` invokes methods in the `Service` as a response to user events (`scroll`, `tap` etc.,)
     3. `Service` 
-       1. Reads/Updates Object(s) in the `WrenchStore`
-       2. Makes API calls, if needed
-       3. Informs `State` that `WrenchStore` is mutated
+        - Reads/Updates Object(s) in the `WrenchStore`
+        - Makes API calls, if needed
+        - Informs `State` that `WrenchStore` is mutated
     4. `State` tells `Screen` to rebuild
     5. Back to Step 1
 
