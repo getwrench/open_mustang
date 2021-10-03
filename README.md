@@ -20,6 +20,7 @@ A framework to build Flutter applications. It provides
 - [Service](#markdown-header-service)
 - [Screen](#markdown-header-screen)
 - [Persistence](#markdown-persistence)
+- [Cache](#markdown-cache)
 
 ### Quick Start
 - Install Flutter
@@ -346,10 +347,11 @@ A framework to build Flutter applications. It provides
         - `updateState3(T model1, S model2, U model3, { reload: true })`
         - `updateState4(T model1, S model2, U mode3, V model4, { reload: true })`
 
-    - `memoize` - Caches result of an execution for later reuse. Cached data is specific to the screen.
-        - `T memoize<T>(T Function() methodName)`
+    - `memoizeScreen` - Invokes any method passed as argument only once.
+        - `T memoizeScreen<T>(T Function() methodName)`
             ```dart
-            // In the snippet below, cachedGetData caches the return value of getData, a Future, and re-uses it in all subsequent calls
+            // In the snippet below, getScreenData method caches the return value of getData method, a Future.
+            // Even when getData method is called multiple times, method execution happens only the first time.
             Future<void> getData() async {
               Common common = WrenchStore.get<Common>() ?? Common();
               User user;
@@ -358,24 +360,24 @@ A framework to build Flutter applications. It provides
               ...   
             }
 
-            Future<void> cachedGetData() async {
-              return memoize(() => getData());
+            Future<void> getScreenData() async {
+              return memoize(getData);
             }
             ```
-    - `clearCache` - Clears data cached by `memoize`
+    - `clearMemoizedScreen` - Clears value cached by `memoizeScreen` method.
         - `void clearCache()`
             ```dart
             Future<void> getData() async {
-            ...
+              ...
             }
 
-            Future<void> cachedGetData() async {
-              return memoize(() => getData());
+            Future<void> getScreenData() async {
+              return memoizeScreen(getData);
             }
 
-            // this removes Future<void> cached by memoize()
-            void resetCache() {
-              clearCache();
+            void resetScreen() {
+              // clears Future<void> cached by memoizeScreen()
+              clearMemoizedScreen();
             }
             ``` 
 
@@ -384,7 +386,6 @@ A framework to build Flutter applications. It provides
   
     ```dart
     ...
-    
     Widget build(BuildContext context) {
       return StateProvider<HomeScreenState>(
           state: HomeScreenState(),
@@ -396,7 +397,7 @@ A framework to build Flutter applications. It provides
               # Even when this widget is built many times, only 1 API call 
               # will be made because the Future from the service is cached
               SchedulerBinding.instance.addPostFrameCallback(
-                (_) => HomeScreenService().cachedGetData(),
+                (_) => HomeScreenService().getScreenData(),
               );
     
               if (state?.common?.busy ?? false) {
@@ -415,4 +416,64 @@ A framework to build Flutter applications. It provides
     ```
 
 ### Persistence
-```Documentation in Progres...```
+By default, `app state` is maintained in memory by `WrenchStore`. When the app is terminated, the `app state` is lost
+permanently. However, there are cases where it is desirable to persist and restore the `app state`. For example,
+
+- Save and restore user's session token to prevent user from logging in everytime
+- Save and restore partial changes in a screen so that the work can be resumed from where the user has left off. 
+
+Enabling persistence is simple and works transparently.
+    
+```dart
+// In main.dart before calling runApp method,
+// 1. Enable persistence like below
+WrenchStore.config(
+  isLarge: true,
+  isPersistent: true,
+  persistentStoreName: 'myapp',
+);
+
+// 2. Initialize persistence
+Directory dir = await getApplicationDocumentsDirectory();
+await WrenchStore.initPersistence(dir.path);
+```
+
+With the above change, `app state` (`WrenchStore`) is persisted to the disk and will be restored into `WrenchStore` when the app is started.
+
+### Cache
+`Cache` feature allows switching between instances of the same type on need basis.
+
+`Persistence` is a snapshot of the `app state` in memory (`WrenchStore`). However, there are times when certain data
+needs to be persisted but restored only when needed. An example would be a technician working on multiple jobs at the same time i.e, technician switches between jobs.
+Since the `WrenchStore` allows only one instance of a type, there cannot be two instances of the Job object in WrenchStore.
+
+`Cache` APIs, available in `Service`s, make it easy to restore any instance into memory (`WrenchStore`).
+
+- ```dart
+  Future<void> addObjectToCache<T>(String key, T t)
+  ```
+  Save an instance of type `T` in the cache. `key` is an identifier for one or more cached objects.
+
+- ```dart
+  Future<void> deleteObjectsFromCache(String key)
+  ```
+  Delete all cached objects having the identifier `key`
+
+- ```dart
+  static Future<void> restoreObjects(
+      String key,
+      void Function(
+          void Function<T>(T t) update,
+          String modelName,
+          String jsonStr,
+      ) callback,
+  )
+  ```
+    
+  Restores all objects in the cache identified by the `key` into memory `WrenchStore` and also into the persisted store
+so that the in-memory and persisted app state remain consistent.
+
+- ```dart
+  bool itemExistsInCache(String key)
+  ```
+  Returns `true` if an identifier `key` exists in the Cache, `false` otherwise.

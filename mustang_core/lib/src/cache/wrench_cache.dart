@@ -6,7 +6,7 @@ import 'package:mustang_core/src/state/wrench_store.dart';
 /// [WrenchCache] provides utility methods to save/lookup instances
 /// of any type.
 ///
-/// Only 1 instance of cache store exists for an App.
+/// Only one instance of cache store exists for an App.
 class WrenchCache {
   /// Hive Box Name to cache the model data
   static String cacheName = '';
@@ -15,7 +15,7 @@ class WrenchCache {
     WrenchCache.cacheName = cacheName;
   }
 
-  /// Creates directory [boxDir] in the file system to save serialized objects
+  /// Creates [storeLocation] in the file system to save serialized objects
   static Future<void> initCache([String storeLocation]) async {
     if (storeLocation != null && (Platform.isIOS || Platform.isAndroid)) {
       Hive.init(storeLocation);
@@ -43,8 +43,9 @@ class WrenchCache {
     }
   }
 
-  /// Deserializes the previously serialized string into an object
-  /// and makes it available in the WrenchStore
+  /// Deserializes the previously serialized string into an object and
+  /// - updates WrenchStore
+  /// - updates Persistence store
   static Future<void> restoreObjects(
     String key,
     void Function(
@@ -74,7 +75,7 @@ class WrenchCache {
     }
   }
 
-  static bool objectExists(String key) {
+  static bool itemExists(String key) {
     LazyBox lazyBox = Hive.lazyBox(cacheName);
     return ((lazyBox.isOpen ?? false) && lazyBox.containsKey(key));
   }
