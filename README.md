@@ -444,9 +444,9 @@ With the above change, `app state` (`WrenchStore`) is persisted to the disk and 
 ### Cache
 `Cache` feature allows switching between instances of the same type on need basis.
 
-`Persistence` is a snapshot of the `app state` in memory (`WrenchStore`). However, there are times when certain data
-needs to be persisted but restored only when needed. An example would be a technician working on multiple jobs at the same time i.e, technician switches between jobs.
-Since the `WrenchStore` allows only one instance of a type, there cannot be two instances of the Job object in WrenchStore.
+`Persistence` is a snapshot of the `app state` in memory (`WrenchStore`). However, there are times when data
+need to be persisted but restored only when needed. An example would be a technician working on multiple jobs at the same time i.e, technician switches between jobs.
+Since the `WrenchStore` allows only one instance of a type, there cannot be two instances of the Job object in the WrenchStore.
 
 `Cache` APIs, available in `Service`s, make it easy to restore any instance into memory (`WrenchStore`).
 
@@ -470,7 +470,6 @@ Since the `WrenchStore` allows only one instance of a type, there cannot be two 
       ) callback,
   )
   ```
-    
   Restores all objects in the cache identified by the `key` into memory `WrenchStore` and also into the persisted store
 so that the in-memory and persisted app state remain consistent.
 
