@@ -416,17 +416,17 @@ Since the `WrenchStore` allows only one instance of a type, there cannot be two 
 
 `Cache` APIs, available in `Service`s, make it easy to restore any instance into memory (`WrenchStore`).
 
-- ```dart
+- ```
   Future<void> addObjectToCache<T>(String key, T t)
   ```
   Save an instance of type `T` in the cache. `key` is an identifier for one or more cached objects.
 
-- ```dart
+- ```
   Future<void> deleteObjectsFromCache(String key)
   ```
   Delete all cached objects having the identifier `key`
 
-- ```dart
+- ```
   static Future<void> restoreObjects(
       String key,
       void Function(
@@ -439,7 +439,7 @@ Since the `WrenchStore` allows only one instance of a type, there cannot be two 
   Restores all objects in the cache identified by the `key` into memory `WrenchStore` and also into the persisted store
 so that the in-memory and persisted app state remain consistent.
 
-- ```dart
+- ```
   bool itemExistsInCache(String key)
   ```
   Returns `true` if an identifier `key` exists in the Cache, `false` otherwise.
