@@ -420,7 +420,7 @@ A framework to build Flutter applications. It provides
 By default, `app state` is maintained in memory by `WrenchStore`. When the app is terminated, the `app state` is lost
 permanently. However, there are cases where it is desirable to persist and restore the `app state`. For example,
 
-- Save and restore user's session token to prevent user from logging in everytime
+- Save and restore user's session token to prevent user having to log in everytime
 - Save and restore partial changes in a screen so that the work can be resumed from where the user has left off. 
 
 Enabling persistence is simple and works transparently.
@@ -437,6 +437,9 @@ WrenchStore.config(
 // 2. Initialize persistence
 Directory dir = await getApplicationDocumentsDirectory();
 await WrenchStore.initPersistence(dir.path);
+
+// 3. Restore persisted state into WrenchStore
+await WrenchStore.restoreState(.., ..);
 ```
 
 With the above change, `app state` (`WrenchStore`) is persisted to the disk and will be restored into `WrenchStore` when the app is started.
