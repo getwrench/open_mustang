@@ -88,7 +88,7 @@ A framework to build Flutter applications. It provides
     mcli -s counter
   ```
 
-- Generate runtime files and watches for changes
+- Generate runtime files and watche for changes
   ```bash
     mcli -w
   ```
