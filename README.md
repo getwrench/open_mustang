@@ -207,59 +207,16 @@ A framework to build Flutter applications. It provides
 ### Component Communication
 - Every `Screen` has a corresponding `Service` and a `State`. All three components work together to continuously re-build the UI whenever there is a change in the application state.
 
-    1. `Screen` builds itself after reading `State`
+    ![Architecture](./01-arch.png)
+
+    1. `Screen` reads `State` while building the UI
     2. `Screen` invokes methods in the `Service` as a response to user events (`scroll`, `tap` etc.,)
-    3. `Service` updates `State`
-    4. Back to Step 1
-
-                                   +----------------+
-                                   |                |
-                                   |                |
-                     +----------+  |     Screen     |+----------+
-                     |             |                |           |
-                     |             |                |           |
-                     |             +----------------+           |
-                     |                                          |
-                     |                                          |
-                     |calls Service                             |reads State
-                     |                                          |
-                     |                                          |
-                     |                                          |
-                     v                                          v
-             +--------------------+                   +--------------------+
-             |                    |                   |                    |
-             |                    |                   |                    |
-             |                    |                   |                    |
-             |    Service         |+----------------> |       State        |
-             |                    |  updates State    |                    |
-             |                    |                   |                    |
-             +--------------------+                   +--------------------+
-
-- **Uni-directional Data Flow**
-    - For a given `State/Screen/Service`, data flow always happens in the same direction i.e. `State -> Screen -> Service -> State -> ...`
-
-                                       +----------------+
-                                       |                |
-                                       |                |
-                         +----------+  |     Screen     | <---------+
-                         |             |                |           |
-                         |             |                |           |
-                         |             +----------------+           |
-                         |                                          |
-                         |                                          |
-                         |                                          |
-                         |                                          |
-                         |                                          |
-                         |                                          |
-                         v                                          +
-                 +--------------------+                   +--------------------+
-                 |                    |                   |                    |
-                 |                    |                   |                    |
-                 |                    |                   |                    |
-                 |    Service         |+----------------> |       State        |
-                 |                    |                   |                    |
-                 |                    |                   |                    |
-                 +--------------------+                   +--------------------+            
+    3. `Service` 
+       1. Reads/Updates Object(s) in the `WrenchStore`
+       2. Makes API calls, if needed
+       3. Informs `State` that `WrenchStore` is mutated
+    4. `State` tells `Screen` to rebuild
+    5. Back to Step 1
 
 ### Folder Structure
 - Folder structure of a Flutter application created with this framework looks as below
@@ -417,6 +374,9 @@ A framework to build Flutter applications. It provides
     ```
 
 ### Persistence
+
+![Persistence](./02-arch-with-persistence.png)
+
 By default, `app state` is maintained in memory by `WrenchStore`. When the app is terminated, the `app state` is lost
 permanently. However, there are cases where it is desirable to persist and restore the `app state`. For example,
 
@@ -445,6 +405,9 @@ await WrenchStore.restoreState(.., ..);
 With the above change, `app state` (`WrenchStore`) is persisted to the disk and will be restored into `WrenchStore` when the app is started.
 
 ### Cache
+
+![Cache](./03-arch-with-cache.png)
+
 `Cache` feature allows switching between instances of the same type on need basis.
 
 `Persistence` is a snapshot of the `app state` in memory (`WrenchStore`). However, there are times when data
