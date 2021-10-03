@@ -238,7 +238,7 @@ class ScreenServiceGenerator extends Generator {
           return screenStateCache.t;
         }
         
-        void resetScreen({
+        void clearMemoizedScreen({
           reload = true,
         }) {
           WrenchStore.delete<\$${screenState}Cache>();
@@ -250,7 +250,7 @@ class ScreenServiceGenerator extends Generator {
           }
         }
         
-        @Deprecated('Use resetScreen')
+        @Deprecated('Use clearMemoizedScreen')
         void clearCache({
           reload = true,
         }) {
