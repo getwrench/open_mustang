@@ -5,8 +5,9 @@ A framework to build Flutter applications. It provides
 
 - State Management
 - State Persistence
+- Cache
 - Enforces file layout and naming standards
-- Reduces boiler plate by generating code
+- Reduces boiler plate
 - Generates source templates using `cli` (https://bitbucket.org/lunchclub/mustang_cli/src/master)
 
 ## Contents
