@@ -197,6 +197,27 @@ class ScreenServiceGenerator extends Generator {
           }
         }
         
+        T memoizeScreen<T>(T Function() service) {
+          \$${screenState}Cache screenStateCache =
+              WrenchStore.get<\$${screenState}Cache>();
+          $screenState screenState = WrenchStore.get<$screenState>();
+          
+          if (screenStateCache == null) {
+            T t = service();
+            screenStateCache = \$${screenState}Cache(t);
+            WrenchStore.update(screenStateCache);
+            if (t is Future) {
+              t.whenComplete(() {
+                if (!screenState.mounted ?? false) {
+                  WrenchStore.delete<\$${screenState}Cache>();
+                }
+              });
+            }
+          }
+          return screenStateCache.t;
+        }
+        
+        @Deprecated('Use memoizeScreen')
         T memoize<T>(T Function() service) {
           \$${screenState}Cache screenStateCache =
               WrenchStore.get<\$${screenState}Cache>();
@@ -217,6 +238,19 @@ class ScreenServiceGenerator extends Generator {
           return screenStateCache.t;
         }
         
+        void resetScreen({
+          reload = true,
+        }) {
+          WrenchStore.delete<\$${screenState}Cache>();
+          $screenState screenState = WrenchStore.get<$screenState>();
+          if (screenState?.mounted ?? false) {
+            if (reload) { 
+              screenState.update();
+            }    
+          }
+        }
+        
+        @Deprecated('Use resetScreen')
         void clearCache({
           reload = true,
         }) {
