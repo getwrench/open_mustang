@@ -279,8 +279,8 @@ class ScreenServiceGenerator extends Generator {
           await WrenchCache.deleteObjects(key);
         }
         
-        bool objectExistsInCache(String key) {
-          return WrenchCache.objectExists(key);
+        bool itemExistsInCache(String key) {
+          return WrenchCache.itemExists(key);
         }
   
     }

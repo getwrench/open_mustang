@@ -447,7 +447,7 @@ With the above change, `app state` (`WrenchStore`) is persisted to the disk and 
 needs to be persisted but restored only when needed. An example would be a technician working on multiple jobs at the same time i.e, technician switches between jobs.
 Since the `WrenchStore` allows only one instance of a type, there cannot be two instances of the Job object in WrenchStore.
 
-`Cache` APIs make it easy to restore any instance into memory (`WrenchStore`).
+`Cache` APIs, available in `Service`s, make it easy to restore any instance into memory (`WrenchStore`).
 
 - ```dart
   Future<void> addObjectToCache<T>(String key, T t)
@@ -472,3 +472,8 @@ Since the `WrenchStore` allows only one instance of a type, there cannot be two 
     
   Restores all objects in the cache identified by the `key` into memory `WrenchStore` and also into the persisted store
 so that the in-memory and persisted app state remain consistent.
+
+- ```dart
+  bool itemExistsInCache(String key)
+  ```
+  Returns `true` if an identifier `key` exists in the Cache, `false` otherwise.
