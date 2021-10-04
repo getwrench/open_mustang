@@ -1,13 +1,13 @@
 # Mustang
 ![Logo](./mustang.gif)
 
-A framework to build Flutter applications. It provides
+A framework to build Flutter applications. Framework provides
 
 - State Management
 - State Persistence
 - Cache
 - Enforces file layout and naming standards
-- Reduces boiler plate
+- Reduces boilerplate
 - Generates source templates using `cli` (https://bitbucket.org/lunchclub/mustang_cli/src/master)
 
 ## Contents
@@ -89,12 +89,12 @@ A framework to build Flutter applications. It provides
     mcli -s counter
   ```
 
-- Generate runtime files and watche for changes
+- Generate runtime files and watches for changes
   ```bash
     mcli -w
   ```
   
-- Update `counter.dart` model
+- Update the generated `counter.dart` model
   ```dart
     class $Counter {
       @InitField(0)
@@ -102,7 +102,7 @@ A framework to build Flutter applications. It provides
     }
   ```
   
-- Update `counter_screen.dart` screen
+- Update the generated `counter_screen.dart` screen
   ```dart
     import 'package:flutter/material.dart';
     import 'package:mustang_core/mustang_widgets.dart';
@@ -155,7 +155,7 @@ A framework to build Flutter applications. It provides
     }
   ```
   
-- Update `counter_service.dart` service
+- Update the generated `counter_service.dart` service
   ```dart
     import 'package:mustang_core/mustang_core.dart';
     import 'package:quick_start/src/models/counter.model.dart';
@@ -196,26 +196,27 @@ A framework to build Flutter applications. It provides
 - Video: https://drive.google.com/file/d/1zoTbw5pjLIBxlJD6NquAmHeGVuA4R8co/view?usp=sharing  
 
 ### Framework Components
-- **Screen** - Flutter widget for the UI. Code can be split into multiple files.
+- **Screen** - Represents a screen in the app or a page in Browser.
 
 - **Model** - A Dart class representing application data.
 
-- **State** - Encapsulates data needed for a `Screen`. It is a Dart class with _1 or more_ `Model` fields.
+- **State** - Provides access to subset of `Models` needed for a `Screen`. It is a Dart class with _1 or more_ `Model` fields.
 
 - **Service** - A Dart class for async communication and business logic.
 
 ### Component Communication
-- Every `Screen` has a corresponding `Service` and a `State`. All three components work together to continuously re-build the UI whenever there is a change in the application state.
+- Every `Screen` has a corresponding `Service` and a `State`. All three components work together to continuously
+rebuild the UI whenever there is a change in the application state.
 
     ![Architecture](./01-arch.png)
 
     1. `Screen` reads `State` while building the UI
     2. `Screen` invokes methods in the `Service` as a response to user events (`scroll`, `tap` etc.,)
     3. `Service` 
-        - Reads/Updates Object(s) in the `WrenchStore`
-        - Makes API calls, if needed
-        - Informs `State` that `WrenchStore` is mutated
-    4. `State` tells `Screen` to rebuild
+        - reads/updates `Models` in the `WrenchStore`
+        - makes API calls, if needed
+        - informs `State` that `WrenchStore` has mutated
+    4. `State` informs `Screen` to rebuild
     5. Back to Step 1
 
 ### Folder Structure
@@ -237,15 +238,15 @@ A framework to build Flutter applications. It provides
               - second_state.dart
               - second_service.dart
     ```
-- Every `Screen` needs a `State` and a `Service`. So, `Screen, State, Service` files must be in their own named directory
+- Every `Screen` needs a `State` and a `Service`. So, `Screen, State, Service` files are grouped inside a directory
 - All `Model` classes must be inside `models` directory
 
 ### Model
 - A Class annotated with `appModel`
 - Model name should start with `$`
 - Initialize fields with `InitField` annotation
-- Skip serialization of the field with `SerializeField` annotation.
-- Methods/Getters/Setters are `NOT` supported inside `Model` classes.
+- Methods/Getters/Setters are `NOT` supported inside `Model` classes
+- If a field should be excluded when a `Model` is persisted, annotate that field with `SerializeField(false)`
     
     ```dart
     @appModel
@@ -265,7 +266,7 @@ A framework to build Flutter applications. It provides
       BuiltList<$Vehicle> vehicles;  // Use immutable versions of List/Map inside Model classes
       
       @SerializeField(false)
-      String errorMsg; // errorMsg field will not be persisted 
+      String errorMsg; // errorMsg field will not be included when $User model is persisted 
     }
     ```
   
@@ -273,6 +274,7 @@ A framework to build Flutter applications. It provides
 - A class annotated with `screenState`
 - State name should start with `$`
 - Fields of the class must be `Model` classes
+
   
     ```dart      
     @screenState
