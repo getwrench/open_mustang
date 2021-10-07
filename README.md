@@ -336,14 +336,14 @@ so that the in-memory and persisted app state remain consistent.
     flutter pub get
   ```
 
-- Generate files for a screen
+- Generate files for a screen called `counter`. Following command creates file representing a `Model`, and also files representing `Screen`, `Service` and `State`.
   ```bash
     mcli -s counter
   ```
 
-- Generate runtime files and watches for changes
+- Generate runtime files and watch for changes. 
   ```bash
-    mcli -w
+    mcli -w # mcli -b to generate runtime files without watch mode
   ```
   
 - Update the generated `counter.dart` model
