@@ -13,13 +13,13 @@ A framework to build Flutter applications. Framework provides
 ## Contents
 - [Framework Components](#markdown-header-framework-components)
 - [Component Communication](#markdown-header-component-communication)
-- [Folder Structure](#markdown-header-folder-structure)
+- [Persistence](#markdown-header-persistence)
+- [Cache](#markdown-header-cache)
 - [Model](#markdown-header-model)
 - [State](#markdown-header-state)
 - [Service](#markdown-header-service)
 - [Screen](#markdown-header-screen)
-- [Persistence](#markdown-header-persistence)
-- [Cache](#markdown-header-cache)
+- [Folder Structure](#markdown-header-folder-structure)
 - [Quick Start](#markdown-header-quick-start)
 - [Resources](#markdown-header-resources)
 
@@ -43,31 +43,80 @@ rebuild the UI whenever there is a change in the application state.
     3. `Service` 
         - reads/updates `Models` in the `WrenchStore`
         - makes API calls, if needed
-        - informs `State` that `WrenchStore` has mutated
-    4. `State` informs `Screen` to rebuild
+        - informs `State` if `WrenchStore` is mutated
+    4. `State` informs `Screen` to rebuild the UI
     5. Back to Step 1
 
-### Folder Structure
-- Folder structure of a Flutter application created with this framework looks as below
-    ```
-      lib/
-        - main.dart
-        - src
-          - models/
-            - model1.dart
-            - model2.dart
-          - screens/
-            - first/
-              - first_screen.dart
-              - first_state.dart
-              - first_service.dart
-            - second/
-              - second_screen.dart
-              - second_state.dart
-              - second_service.dart
-    ```
-- Every `Screen` needs a `State` and a `Service`. So, `Screen, State, Service` files are grouped inside a directory
-- All `Model` classes must be inside `models` directory
+### Persistence
+
+![Persistence](./02-arch-with-persistence.png)
+
+By default, `app state` is maintained in memory by `WrenchStore`. When the app is terminated, the `app state` is lost
+permanently. However, there are cases where it is desirable to persist and restore the `app state`. For example,
+
+- Save and restore user's session token to prevent user having to log in everytime
+- Save and restore partial changes in a screen so that the work can be resumed from where the user has left off. 
+
+Enabling persistence is simple and works transparently.
+    
+```dart
+// In main.dart before calling runApp method,
+// 1. Enable persistence like below
+WrenchStore.config(
+  isLarge: true,
+  isPersistent: true,
+  persistentStoreName: 'myapp',
+);
+
+// 2. Initialize persistence
+Directory dir = await getApplicationDocumentsDirectory();
+await WrenchStore.initPersistence(dir.path);
+
+// 3. Restore persisted state into WrenchStore
+await WrenchStore.restoreState(.., ..);
+```
+
+With the above change, `app state` (`WrenchStore`) is persisted to the disk and will be restored into `WrenchStore` when the app is started.
+
+### Cache
+
+![Cache](./03-arch-with-cache.png)
+
+`Cache` feature allows switching between instances of the same type on need basis.
+
+`Persistence` is a snapshot of the `app state` in memory (`WrenchStore`). However, there are times when data
+need to be persisted but restored only when needed. An example would be a technician working on multiple jobs at the same time i.e, technician switches between jobs.
+Since the `WrenchStore` allows only one instance of a type, there cannot be two instances of the Job object in the WrenchStore.
+
+`Cache` APIs, available in `Service`s, make it easy to restore any instance into memory (`WrenchStore`).
+
+- ```
+  Future<void> addObjectToCache<T>(String key, T t)
+  ```
+  Save an instance of type `T` in the cache. `key` is an identifier for one or more cached objects.
+
+- ```
+  Future<void> deleteObjectsFromCache(String key)
+  ```
+  Delete all cached objects having the identifier `key`
+
+- ```
+  static Future<void> restoreObjects(
+      String key,
+      void Function(
+          void Function<T>(T t) update,
+          String modelName,
+          String jsonStr,
+      ) callback,
+  )
+  ```
+  Restores all objects in the cache identified by the `key` into memory `WrenchStore` and also into the persisted store
+so that the in-memory and persisted app state remain consistent.
+
+- ```
+  bool itemExistsInCache(String key)
+  ```
+  Returns `true` if an identifier `key` exists in the Cache, `false` otherwise.
 
 ### Model
 - A Class annotated with `appModel`
@@ -203,76 +252,28 @@ rebuild the UI whenever there is a change in the application state.
       }
     ```
 
-### Persistence
+### Folder Structure
+- Folder structure of a Flutter application created with this framework looks as below
+    ```
+      lib/
+        - main.dart
+        - src
+          - models/
+            - model1.dart
+            - model2.dart
+          - screens/
+            - first/
+              - first_screen.dart
+              - first_state.dart
+              - first_service.dart
+            - second/
+              - second_screen.dart
+              - second_state.dart
+              - second_service.dart
+    ```
+- Every `Screen` needs a `State` and a `Service`. So, `Screen, State, Service` files are grouped inside a directory
+- All `Model` classes must be inside `models` directory
 
-![Persistence](./02-arch-with-persistence.png)
-
-By default, `app state` is maintained in memory by `WrenchStore`. When the app is terminated, the `app state` is lost
-permanently. However, there are cases where it is desirable to persist and restore the `app state`. For example,
-
-- Save and restore user's session token to prevent user having to log in everytime
-- Save and restore partial changes in a screen so that the work can be resumed from where the user has left off. 
-
-Enabling persistence is simple and works transparently.
-    
-```dart
-// In main.dart before calling runApp method,
-// 1. Enable persistence like below
-WrenchStore.config(
-  isLarge: true,
-  isPersistent: true,
-  persistentStoreName: 'myapp',
-);
-
-// 2. Initialize persistence
-Directory dir = await getApplicationDocumentsDirectory();
-await WrenchStore.initPersistence(dir.path);
-
-// 3. Restore persisted state into WrenchStore
-await WrenchStore.restoreState(.., ..);
-```
-
-With the above change, `app state` (`WrenchStore`) is persisted to the disk and will be restored into `WrenchStore` when the app is started.
-
-### Cache
-
-![Cache](./03-arch-with-cache.png)
-
-`Cache` feature allows switching between instances of the same type on need basis.
-
-`Persistence` is a snapshot of the `app state` in memory (`WrenchStore`). However, there are times when data
-need to be persisted but restored only when needed. An example would be a technician working on multiple jobs at the same time i.e, technician switches between jobs.
-Since the `WrenchStore` allows only one instance of a type, there cannot be two instances of the Job object in the WrenchStore.
-
-`Cache` APIs, available in `Service`s, make it easy to restore any instance into memory (`WrenchStore`).
-
-- ```
-  Future<void> addObjectToCache<T>(String key, T t)
-  ```
-  Save an instance of type `T` in the cache. `key` is an identifier for one or more cached objects.
-
-- ```
-  Future<void> deleteObjectsFromCache(String key)
-  ```
-  Delete all cached objects having the identifier `key`
-
-- ```
-  static Future<void> restoreObjects(
-      String key,
-      void Function(
-          void Function<T>(T t) update,
-          String modelName,
-          String jsonStr,
-      ) callback,
-  )
-  ```
-  Restores all objects in the cache identified by the `key` into memory `WrenchStore` and also into the persisted store
-so that the in-memory and persisted app state remain consistent.
-
-- ```
-  bool itemExistsInCache(String key)
-  ```
-  Returns `true` if an identifier `key` exists in the Cache, `false` otherwise.
 
 ### Quick Start
 - Install Flutter
