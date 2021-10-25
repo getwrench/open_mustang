@@ -1,12 +1,12 @@
 # Mustang
 ![Logo](./mustang.gif)
 
-A framework to build Flutter applications. Framework provides
+A framework to build Flutter applications. Following features are available out of the box.
 
 - State Management
-- State Persistence
+- Persistence
 - Cache
-- Enforces file layout and naming standards
+- File layout and naming standards
 - Reduces boilerplate
 - Generates source templates using `cli` (https://bitbucket.org/lunchclub/mustang_cli/src/master)
 
