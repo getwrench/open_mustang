@@ -208,7 +208,7 @@ class ScreenServiceGenerator extends Generator {
             WrenchStore.update(screenStateCache);
             if (t is Future) {
               t.whenComplete(() {
-                if (!screenState?.mounted ?? false) {
+                if (!(screenState?.mounted ?? false)) {
                   WrenchStore.delete<\$${screenState}Cache>();
                 }
               });
@@ -229,7 +229,7 @@ class ScreenServiceGenerator extends Generator {
             WrenchStore.update(screenStateCache);
             if (t is Future) {
               t.whenComplete(() {
-                if (!screenState?.mounted ?? false) {
+               if (!(screenState?.mounted ?? false)) {
                   WrenchStore.delete<\$${screenState}Cache>();
                 }
               });
