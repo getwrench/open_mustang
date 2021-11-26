@@ -1,4 +1,4 @@
-name: mustang_codegen
+name: open_mustang_codegen
 description: Codegen for Mustang.
 version: 1.0.1
 publish_to: none
@@ -15,7 +15,7 @@ dependencies:
   mustang_core:
     git:
       url: git@bitbucket.org:lunchclub/open-mustang.git
-      path: mustang_core
+      path: open_mustang_core
       ref: master
   path: ^1.8.0
   source_gen: ^1.1.1
