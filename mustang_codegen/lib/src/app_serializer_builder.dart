@@ -48,7 +48,6 @@ class AppSerializerBuilder implements Builder {
       modelNames.join(',\n  '),
       modelStrNames.join(',\n  '),
       deserializerCases.toString(),
-      pkgName == 'wrench_flutter_common',
     );
     await buildStep.writeAsString(outFile, out);
   }
@@ -58,7 +57,6 @@ class AppSerializerBuilder implements Builder {
     String models,
     String strModels,
     String deserializers,
-    isCommonRepo,
   ) {
     return '''
 ${Utils.defaultGeneratorComment} 
@@ -71,7 +69,6 @@ import 'dart:convert';
 import 'package:built_collection/built_collection.dart';
 import 'package:built_value/serializer.dart';
 import 'package:built_value/standard_json_plugin.dart';
-${isCommonRepo ? '' : "import 'package:wrench_flutter_common/flutter_common.dart';"}
 $imports
 
 part 'serializers.g.dart';

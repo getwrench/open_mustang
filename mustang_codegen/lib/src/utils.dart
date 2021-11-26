@@ -32,19 +32,8 @@ class Utils {
         if (importedLib.startsWith('dart:')) {
           importsList.add("import '$importedLib';");
         } else if (importedLib.contains('/models/')) {
-          // Legacy code check:
-          // When a model is imported inside another model which is not
-          // annotated with AppModel, don't add .model suffix.
-          // This weird check is needed only in wrench_flutter_common repo
-          // as the models in this repo were not created using AppModel annotation
-          if (package == 'wrench_flutter_common' &&
-              importedLib.contains('\.model\.dart')) {
-            importsList.add(
-                "import 'package:${importedLib.substring(1).replaceAll('/lib/', '/')}';");
-          } else {
-            importsList.add(
-                "import 'package:${importedLib.substring(1).replaceAll('/lib/', '/').replaceFirst('\.dart', '\.model.dart')}';");
-          }
+          importsList.add(
+              "import 'package:${importedLib.substring(1).replaceAll('/lib/', '/').replaceFirst('\.dart', '\.model.dart')}';");
         } else {
           importsList.add(
               "import 'package:${importedLib.substring(1).replaceAll('/lib/', '/')}';");

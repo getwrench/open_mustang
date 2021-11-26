@@ -8,7 +8,7 @@ A framework to build Flutter applications. Following features are available out 
 - Cache
 - File layout and naming standards
 - Reduces boilerplate
-- Generates source templates using `cli` (https://bitbucket.org/lunchclub/mustang_cli/src/master)
+- Generates source templates using `cli` (https://bitbucket.org/lunchclub/open-mustang-cli/src/master)
 
 ## Contents
 - [Framework Components](#markdown-header-framework-components)
@@ -316,7 +316,7 @@ so that the in-memory and persisted app state remain consistent.
       built_value: ^8.0.0
       mustang_core:
         git:
-          url: git@bitbucket.org:lunchclub/mustang.git
+          url: git@bitbucket.org:lunchclub/open-mustang.git
           path: mustang_core
           ref: master
 
@@ -325,10 +325,9 @@ so that the in-memory and persisted app state remain consistent.
       build_runner: ^2.0.4
       mustang_codegen:
         git:
-          url: git@bitbucket.org:lunchclub/mustang.git
+          url: git@bitbucket.org:lunchclub/open-mustang.git
           path: mustang_codegen
-          ref: master 
-      pedantic: ^1.11.0    
+          ref: master    
   ```
   
 - Install dependencies

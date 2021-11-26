@@ -14,7 +14,7 @@ dependencies:
   meta: ^1.7.0
   mustang_core:
     git:
-      url: git@bitbucket.org:lunchclub/mustang.git
+      url: git@bitbucket.org:lunchclub/open-mustang.git
       path: mustang_core
       ref: master
   path: ^1.8.0
