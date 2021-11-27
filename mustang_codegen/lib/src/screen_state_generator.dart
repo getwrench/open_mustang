@@ -64,7 +64,7 @@ class ScreenStateGenerator extends Generator {
         ${stateModelFields.join('\n')}
         
         void update() {
-          if (mounted) {
+          if (mounted ?? false) {
             notifyListeners(); 
           }
         }

@@ -84,7 +84,7 @@ class ScreenServiceGenerator extends Generator {
               jsonEncode($appSerializer.serializers.serialize(t)),
             );
             if (reload) {
-              screenState1!.update();
+              screenState!.update();
             }
           }
         }
@@ -162,7 +162,7 @@ class ScreenServiceGenerator extends Generator {
         }
         
         T memoizeScreen<T>(T Function() service) {
-          \$${screenState}Cache screenStateCache =
+          \$${screenState}Cache? screenStateCache =
               WrenchStore.get<\$${screenState}Cache>();
           $screenState? screenState = WrenchStore.get<$screenState>();
           
@@ -188,7 +188,7 @@ class ScreenServiceGenerator extends Generator {
           $screenState? screenState = WrenchStore.get<$screenState>();
           if (screenState?.mounted ?? false) {
             if (reload) { 
-              screenState.update();
+              screenState!.update();
             }    
           }
         }
