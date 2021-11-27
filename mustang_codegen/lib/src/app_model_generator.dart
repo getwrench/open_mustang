@@ -231,13 +231,11 @@ class AppModelGenerator extends Generator {
               '${field.type.replaceFirst('\$', '')}? get ${field.name};\n';
           if (field.serializeField != null && !field.serializeField!) {
             return '''
-            @nullable
             @BuiltValueField(serialize: ${field.serializeField})
             $declaration
           ''';
           } else {
             return '''
-            @nullable
             $declaration
           ''';
           }
