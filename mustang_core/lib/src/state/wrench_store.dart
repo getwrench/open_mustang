@@ -13,10 +13,10 @@ class WrenchStore {
   static bool large = false;
 
   // List is used to store objects when large flag is disabled
-  static final List<Object> _store = [];
+  static final List<Object?> _store = [];
 
   // HashMap is used to store objects when large flag is enabled
-  static final HashMap<String, Object> _hashStore = HashMap();
+  static final HashMap<String, Object?> _hashStore = HashMap();
 
   // Flat to persist the data
   static bool persistent = false;
@@ -26,15 +26,15 @@ class WrenchStore {
 
   /// Looks up instance of type [T], if exists. Returns null if instance of
   /// type [T] is not found.
-  static T get<T>() {
-    T t;
+  static T? get<T>() {
+    T? t;
     if (large) {
-      t = _hashStore[T.toString()];
+      t = _hashStore[T.toString()] as T?;
     } else {
       t = _store.firstWhere(
         (element) => element is T,
         orElse: () => null,
-      );
+      ) as T?;
     }
     return t;
   }
@@ -100,7 +100,7 @@ class WrenchStore {
     }
     if (persistent) {
       Box box = Hive.box(hiveBox);
-      if (box?.isOpen ?? false) {
+      if (box.isOpen) {
         await box.deleteAll(box.keys);
       }
     }
@@ -127,14 +127,14 @@ class WrenchStore {
   static Future<void> persistObject(String key, String value) async {
     if (persistent) {
       Box box = Hive.box(hiveBox);
-      if (box?.isOpen ?? false) {
+      if (box.isOpen) {
         await box.put(key, value);
       }
     }
   }
 
   /// Creates directory [boxDir] in the file system to save serialized objects
-  static Future<void> initPersistence([String storeLocation]) async {
+  static Future<void> initPersistence([String? storeLocation]) async {
     if (persistent) {
       if (storeLocation != null && (Platform.isIOS || Platform.isAndroid)) {
         Hive.init(storeLocation);
@@ -160,7 +160,7 @@ class WrenchStore {
   ) async {
     if (persistent) {
       Box box = Hive.box(hiveBox);
-      if (box.isOpen ?? false) {
+      if (box.isOpen) {
         box.keys.forEach((key) {
           if (serializerNames.contains(key)) {
             callback(WrenchStore.update, key, box.get(key));
@@ -173,7 +173,7 @@ class WrenchStore {
   static Future<void> deletePersistedState(List<String> deleteModels) async {
     if (persistent) {
       Box box = Hive.box(hiveBox);
-      if (box.isOpen ?? false) {
+      if (box.isOpen) {
         await box.deleteAll(deleteModels);
       }
     }

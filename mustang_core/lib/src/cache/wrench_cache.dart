@@ -16,7 +16,7 @@ class WrenchCache {
   }
 
   /// Creates [storeLocation] in the file system to save serialized objects
-  static Future<void> initCache([String storeLocation]) async {
+  static Future<void> initCache([String? storeLocation]) async {
     if (storeLocation != null && (Platform.isIOS || Platform.isAndroid)) {
       Hive.init(storeLocation);
     }
@@ -32,7 +32,7 @@ class WrenchCache {
     LazyBox lazyBox = Hive.lazyBox(cacheName);
     Map<String, String> value;
 
-    if (lazyBox.isOpen ?? false) {
+    if (lazyBox.isOpen) {
       value = (await lazyBox.get(key))?.cast<String, String>() ?? {};
       value.update(
         modelKey,
@@ -56,27 +56,25 @@ class WrenchCache {
         callback,
   ) async {
     LazyBox lazyBox = Hive.lazyBox(cacheName);
-    if (lazyBox.isOpen ?? false) {
+    if (lazyBox.isOpen) {
       Map<String, String> cacheData =
-          (await lazyBox.get(key))?.cast<String, String>();
-      if (cacheData != null) {
-        cacheData.keys.forEach((modelKey) {
-          WrenchStore.persistObject(modelKey, cacheData[modelKey]);
-          callback(WrenchStore.update, modelKey, cacheData[modelKey]);
-        });
-      }
+          (await lazyBox.get(key))?.cast<String, String>() ?? {};
+      cacheData.keys.forEach((modelKey) {
+        WrenchStore.persistObject(modelKey, cacheData[modelKey] ?? '{}');
+        callback(WrenchStore.update, modelKey, cacheData[modelKey] ?? '{}');
+      });
     }
   }
 
   static Future<void> deleteObjects(String key) async {
     LazyBox lazyBox = Hive.lazyBox(cacheName);
-    if (lazyBox.isOpen ?? false) {
+    if (lazyBox.isOpen) {
       await lazyBox.delete(key);
     }
   }
 
   static bool itemExists(String key) {
     LazyBox lazyBox = Hive.lazyBox(cacheName);
-    return ((lazyBox.isOpen ?? false) && lazyBox.containsKey(key));
+    return ((lazyBox.isOpen) && lazyBox.containsKey(key));
   }
 }

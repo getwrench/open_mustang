@@ -1,22 +1,19 @@
-import 'package:meta/meta.dart';
-
 class AppModelField {
   const AppModelField({
-    @required this.name,
-    @required this.type,
+    required this.name,
+    required this.type,
     this.initValue,
     this.initListValue,
     this.initMapValue,
     this.serializeField,
-  })  : assert(name != null),
-        assert(type != null);
+  });
 
   final String name;
   final String type;
-  final Object initValue;
-  final List<Object> initListValue;
-  final Map<Object, Object> initMapValue;
-  final bool serializeField;
+  final Object? initValue;
+  final List<Object>? initListValue;
+  final Map<Object, Object>? initMapValue;
+  final bool? serializeField;
 
   @override
   String toString() {

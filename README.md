@@ -312,8 +312,8 @@ so that the in-memory and persisted app state remain consistent.
   
     dependencies:
       ...
-      built_collection: ^5.0.0
-      built_value: ^8.0.0
+      built_collection: ^5.1.1
+      built_value: ^8.1.3
       mustang_core:
         git:
           url: git@bitbucket.org:lunchclub/open-mustang.git
@@ -322,7 +322,7 @@ so that the in-memory and persisted app state remain consistent.
 
     dev_dependencies:
       ...
-      build_runner: ^2.0.4
+      build_runner: ^2.1.4
       mustang_codegen:
         git:
           url: git@bitbucket.org:lunchclub/open-mustang.git
