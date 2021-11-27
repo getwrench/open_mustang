@@ -24,7 +24,7 @@ A framework to build Flutter applications. Following features are available out 
 - [Resources](#markdown-header-resources)
 
 ### Framework Components
-- **Screen** - Represents a screen in the app or a page in Browser.
+- **Screen** - Screen is a reusable widget. It usually represents a screen in the app or a page in Browser. 
 
 - **Model** - A Dart class representing application data.
 
@@ -130,20 +130,20 @@ so that the in-memory and persisted app state remain consistent.
     class $User {
       String name;
     
-      late int age;
+      int? age;
     
       @InitField(false)
-      late bool admin; 
+      bool? admin; 
     
       @InitField(['user', 'default'])
-      late BuiltList<String> roles;
+      BuiltList<String>? roles;
       
-      late $Address address;  // $Address is another model annotated with @appModel
+      $Address? address;  // $Address is another model annotated with @appModel
       
-      late BuiltList<$Vehicle> vehicles;  // Use immutable versions of List/Map inside Model classes
+      BuiltList<$Vehicle>? vehicles;  // Use immutable versions of List/Map inside Model classes
       
       @SerializeField(false)
-      late String errorMsg; // errorMsg field will not be included when $User model is persisted 
+      String? errorMsg; // errorMsg field will not be included when $User model is persisted 
     }
     ```
   
@@ -202,7 +202,7 @@ so that the in-memory and persisted app state remain consistent.
             }
             ```
     - `clearMemoizedScreen` - Clears value cached by `memoizeScreen` method.
-        - `void clearCache()`
+        - `void clearMemoizedScreen()`
             ```dart
             Future<void> getData() async {
               ...
@@ -229,11 +229,11 @@ so that the in-memory and persisted app state remain consistent.
           child: Builder(
             builder: (BuildContext context) {
               // state variable provides access to model fields declared in the HomeScreenState class
-              HomeScreenState state = StateConsumer<HomeScreenState>().of(context);
+              HomeScreenState? state = StateConsumer<HomeScreenState>().of(context);
               
               # Even when this widget is built many times, only 1 API call 
               # will be made because the Future from the service is cached
-              SchedulerBinding.instance.addPostFrameCallback(
+              SchedulerBinding.instance?.addPostFrameCallback(
                 (_) => HomeScreenService().getScreenData(),
               );
     
@@ -241,7 +241,7 @@ so that the in-memory and persisted app state remain consistent.
                 return Spinner();
               }
     
-              if (state.common?.errorMsg != null) {
+              if (state?.counter?.errorMsg.isNotEmpty ?? false) {
                 return ErrorBody(errorMsg: state.common.errorMsg);
               }
                 
@@ -289,7 +289,7 @@ so that the in-memory and persisted app state remain consistent.
     
 - Install Mustang CLI
   ```bash
-    dart pub global activate -sgit git@bitbucket.org:lunchclub/mustang_cli.git
+    dart pub global activate -sgit git@bitbucket.org:lunchclub/open_mustang_cli.git
   ```
   
 - Create Flutter project
@@ -307,9 +307,7 @@ so that the in-memory and persisted app state remain consistent.
 
 - Update `pubspec.yaml`
   ```yaml
-    environment:
-      sdk: '>=2.7.0 <3.0.0' # this is needed to turn off Dart's sound null safety
-  
+    ...
     dependencies:
       ...
       built_collection: ^5.1.1
@@ -337,19 +335,19 @@ so that the in-memory and persisted app state remain consistent.
 
 - Generate files for a screen called `counter`. Following command creates file representing a `Model`, and also files representing `Screen`, `Service` and `State`.
   ```bash
-    mcli -s counter
+    omcli -s counter
   ```
 
 - Generate runtime files and watch for changes. 
   ```bash
-    mcli -w # mcli -b to generate runtime files without watch mode
+    omcli -w # omcli -b generates runtime files once
   ```
   
 - Update the generated `counter.dart` model
   ```dart
     class $Counter {
       @InitField(0)
-      int value;
+      int? value;
     }
   ```
   
@@ -372,14 +370,14 @@ so that the in-memory and persisted app state remain consistent.
           state: CounterState(),
           child: Builder(
             builder: (BuildContext context) {
-              CounterState state = StateConsumer<CounterState>().of(context);
+              CounterState? state = StateConsumer<CounterState>().of(context);
               return _body(state, context);
             },
           ),
         );
       }
     
-      Widget _body(CounterState state, BuildContext context) {
+      Widget _body(CounterState? state, BuildContext context) {
         int counter = state?.counter?.value ?? 0;
         return Scaffold(
           appBar: AppBar(
@@ -390,13 +388,11 @@ so that the in-memory and persisted app state remain consistent.
               children: [
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                    child: Text('$counter'),
-                  ),
+                  child: const Text('$counter'),
                 ),
                 ElevatedButton(
                   onPressed: CounterService().increment,
-                  child: Text('Increment'),
+                  child: const Text('Increment'),
                 ),
               ],
             ),
@@ -418,7 +414,7 @@ so that the in-memory and persisted app state remain consistent.
     class CounterService {
       void increment() {
         Counter counter = WrenchStore.get<Counter>() ?? Counter();
-        counter = counter.rebuild((b) => b.value = b.value + 1);
+        counter = counter.rebuild((b) => b.value = (b.value ?? 0) + 1);
         updateState1(counter);
       }
     }
