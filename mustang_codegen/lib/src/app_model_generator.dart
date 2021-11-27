@@ -99,8 +99,9 @@ class AppModelGenerator extends Generator {
             element: element);
       }
 
-      // List, Map are not allowed
-      if (['List', 'Map'].contains(element.type.element.displayName)) {
+      // List/Map fields are not allowed
+      if (element.type.element != null &&
+          ['List', 'Map'].contains(element.type.element!.displayName)) {
         throw InvalidGenerationSourceError(
             'Error: List/Map are not allowed for fields. Use BuiltList/BuiltMap instead',
             todo: 'Use BuiltList/BuiltMap',
@@ -123,61 +124,85 @@ class AppModelGenerator extends Generator {
           typeToMatch = 'BuiltMap';
         }
 
-        Object initValue;
-        List<Object> initListValue;
-        Map<Object, Object> initMapValue;
+        Object? initValue;
+        List<Object?>? initListValue;
+        Map<Object, Object?>? initMapValue;
         final annotations =
             TypeChecker.fromRuntime(InitField).annotationsOf(fieldElement);
         final serializeAnnotation =
             TypeChecker.fromRuntime(SerializeField).annotationsOf(fieldElement);
-        bool serializeField;
 
         if (annotations.isNotEmpty) {
           switch (typeToMatch) {
             case 'String':
-              initValue =
-                  "'${annotations.single.getField('object').toStringValue()}'";
+              if (annotations.single.getField('object') != null) {
+                initValue =
+                    "'${annotations.single.getField('object')!.toStringValue()}'";
+              }
               break;
             case 'int':
-              initValue =
-                  '${annotations.single.getField('object').toIntValue()}';
+              if (annotations.single.getField('object') != null) {
+                initValue =
+                    '${annotations.single.getField('object')!.toIntValue()}';
+              }
               break;
             case 'double':
-              initValue =
-                  '${annotations.single.getField('object').toDoubleValue()}';
+              if (annotations.single.getField('object') != null) {
+                initValue =
+                    '${annotations.single.getField('object')!.toDoubleValue()}';
+              }
               break;
             case 'bool':
-              initValue =
-                  '${annotations.single.getField('object').toBoolValue()}';
+              if (annotations.single.getField('object') != null) {
+                initValue =
+                    '${annotations.single.getField('object')!.toBoolValue()}';
+              }
               break;
             case 'BuiltMap':
-              initMapValue = {};
-              annotations.single
-                  .getField('object')
-                  .toMapValue()
-                  .entries
-                  .forEach((entry) {
-                initMapValue[ConstantReader(entry.key).literalValue] =
-                    ConstantReader(entry.value).literalValue;
-              });
+              if (annotations.single.getField('object') != null) {
+                if (annotations.single.getField('object')!.toMapValue() !=
+                    null) {
+                  initMapValue = {};
+                  annotations.single
+                      .getField('object')!
+                      .toMapValue()!
+                      .entries
+                      .forEach((entry) {
+                    if (ConstantReader(entry.key).literalValue != null) {
+                      initMapValue!.putIfAbsent(
+                          ConstantReader(entry.key).literalValue!,
+                          () => ConstantReader(entry.value).literalValue);
+                    }
+                  });
+                }
+              }
               break;
             case 'BuiltList':
-              initListValue =
-                  annotations.single.getField('object').toListValue().map((e) {
-                if (e.type.isDartCoreString) {
-                  return "'${ConstantReader(e).literalValue}'";
+              if (annotations.single.getField('object') != null) {
+                if (annotations.single.getField('object')!.toListValue() !=
+                    null) {
+                  initListValue = annotations.single
+                      .getField('object')!
+                      .toListValue()!
+                      .map((e) {
+                    if (e.type?.isDartCoreString ?? false) {
+                      return "'${ConstantReader(e).literalValue}'";
+                    }
+                    return ConstantReader(e).literalValue;
+                  }).toList();
                 }
-                return ConstantReader(e).literalValue;
-              }).toList();
+              }
               break;
             default:
               print(fieldType);
           }
         }
+
+        bool? serializeField;
         if (serializeAnnotation.isNotEmpty) {
           serializeField = serializeAnnotation.single
                   .getField('serializeField')
-                  .toBoolValue() ??
+                  ?.toBoolValue() ??
               true;
         }
 
@@ -204,7 +229,7 @@ class AppModelGenerator extends Generator {
         if (field.initValue == null &&
             field.initListValue == null &&
             field.initMapValue == null) {
-          if (field.serializeField != null && !field.serializeField) {
+          if (field.serializeField != null && !field.serializeField!) {
             return '''
             @nullable
             @BuiltValueField(serialize: ${field.serializeField})
@@ -217,7 +242,7 @@ class AppModelGenerator extends Generator {
           ''';
           }
         } else {
-          if (field.serializeField != null && !field.serializeField) {
+          if (field.serializeField != null && !field.serializeField!) {
             return '''
             @BuiltValueField(serialize: ${field.serializeField})
             $declaration
@@ -236,7 +261,7 @@ class AppModelGenerator extends Generator {
   ) {
     String initializer =
         'static void _initializeBuilder(${appModelName}Builder builder) => builder\n';
-    List<String> initFields = appModelFields.map((field) {
+    List<String?> initFields = appModelFields.map((field) {
       if (field.initValue != null ||
           field.initListValue != null ||
           field.initMapValue != null) {

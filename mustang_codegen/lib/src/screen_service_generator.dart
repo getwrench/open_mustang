@@ -36,16 +36,21 @@ class ScreenServiceGenerator extends Generator {
 
     List<String> importStates = [];
     String screenState = annotation
-        .read('screenState')
-        .typeValue
-        .element
-        .displayName
-        .replaceFirst(r'$', '');
+            .read('screenState')
+            .typeValue
+            .element
+            ?.displayName
+            .replaceFirst(r'$', '') ??
+        '';
+
+    if (screenState.isEmpty) {
+      return '';
+    }
+
     importStates.add("import '${Utils.class2File(screenState)}.state.dart';");
 
     String pkgName = buildStep.inputId.package;
     String appSerializer = 'app_serializer';
-    String commonAlias = 'wrench_flutter_common';
 
     return '''
       import 'package:mustang_core/mustang_core.dart';
@@ -209,7 +214,8 @@ class ScreenServiceGenerator extends Generator {
   }
 
   void _validate(Element element, ConstantReader annotation) {
-    List<String> modelImports = Utils.getRawImports(element.library.imports);
+    List<String> modelImports =
+        Utils.getRawImports(element.library?.imports ?? []);
     if (modelImports
             .indexWhere((element) => element.contains('material.dart')) !=
         -1) {
@@ -219,12 +225,13 @@ class ScreenServiceGenerator extends Generator {
       );
     }
 
-    if (!annotation
-        .read('screenState')
-        .typeValue
-        .element
-        .displayName
-        .startsWith(r'$')) {
+    if (annotation.read('screenState').typeValue.element != null &&
+        !annotation
+            .read('screenState')
+            .typeValue
+            .element!
+            .displayName
+            .startsWith(r'$')) {
       throw InvalidGenerationSourceError(
         'Error: State class name should start with \$',
         todo: 'Missing \$ in the State class name',

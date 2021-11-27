@@ -79,7 +79,7 @@ class ScreenStateGenerator extends Generator {
   }
 
   void _validate(Element element) {
-    Utils.getRawImports(element.library.imports).forEach((import) {
+    Utils.getRawImports(element.library?.imports ?? []).forEach((import) {
       if (import.contains('\.model\.dart')) {
         throw InvalidGenerationSourceError(
             'Error: Do not import generated Model class inside State: $import',
@@ -104,7 +104,7 @@ class ScreenStateGenerator extends Generator {
 
     ClassElement stateClass = element as ClassElement;
     stateClass.fields.forEach((element) {
-      if (element.type.element.displayName == 'dynamic') {
+      if (element.type.element?.displayName == 'dynamic') {
         throw InvalidGenerationSourceError(
           'Error: Import is missing for the field',
           todo: 'Add import for the field',
@@ -133,8 +133,9 @@ class ScreenStateGenerator extends Generator {
             element: element);
       }
 
-      if (element.type.element.metadata.isEmpty &&
-          !element.type.element.declaration
+      if (element.type.element != null &&
+          element.type.element!.metadata.isEmpty &&
+          !element.type.element!.declaration
               .toString()
               .contains('implements Built')) {
         throw InvalidGenerationSourceError(
@@ -143,8 +144,11 @@ class ScreenStateGenerator extends Generator {
             element: element);
       }
 
-      if (element.type.element.metadata.isNotEmpty &&
-          element.type.element.metadata.first.element.name.toLowerCase() !=
+      if (element.type.element != null &&
+          element.type.element!.metadata.isNotEmpty &&
+          element.type.element!.metadata.first.element != null &&
+          (element.type.element!.metadata.first.element!.name?.toLowerCase() ??
+                  '') !=
               '$AppModel'.toLowerCase()) {
         throw InvalidGenerationSourceError(
             'Error: Only models are allowed as fields in State class',

@@ -60,8 +60,8 @@ class WrenchCache {
       Map<String, String> cacheData =
           (await lazyBox.get(key))?.cast<String, String>() ?? {};
       cacheData.keys.forEach((modelKey) {
-        WrenchStore.persistObject(modelKey, cacheData[modelKey] ?? '{}');
-        callback(WrenchStore.update, modelKey, cacheData[modelKey] ?? '{}');
+        WrenchStore.persistObject(modelKey, cacheData[modelKey]!);
+        callback(WrenchStore.update, modelKey, cacheData[modelKey]!);
       });
     }
   }

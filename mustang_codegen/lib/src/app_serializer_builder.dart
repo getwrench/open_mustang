@@ -27,10 +27,12 @@ class AppSerializerBuilder implements Builder {
     await for (AssetId assetId
         in buildStep.findAssets(Glob('$serializerPath/*.model.dart'))) {
       LibraryElement library = await buildStep.resolver.libraryFor(assetId);
-      String modelName = library.topLevelElements.first.name;
-      modelNames.add(modelName);
-      modelStrNames.add("'$modelName'");
-      imports.add("import '${assetId.uri}';");
+      String modelName = library.topLevelElements.first.name ?? '';
+      if (modelName.isNotEmpty) {
+        modelNames.add(modelName);
+        modelStrNames.add("'$modelName'");
+        imports.add("import '${assetId.uri}';");
+      }
     }
 
     modelNames.sort();

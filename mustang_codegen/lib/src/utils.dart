@@ -4,7 +4,7 @@ class Utils {
   static String class2File(String className) {
     RegExp exp = RegExp(r'(?<=[0-9a-z])[A-Z]');
     return className
-        .replaceAllMapped(exp, (Match m) => ('_' + m.group(0)))
+        .replaceAllMapped(exp, (Match m) => ('_' + (m.group(0) ?? '')))
         .toLowerCase();
   }
 
@@ -27,8 +27,8 @@ class Utils {
     List<String> importsList = [];
     elements.forEach((importElement) {
       String importedLib =
-          '${importElement.importedLibrary.definingCompilationUnit.declaration}';
-      if (!importedLib.contains('mustang_core')) {
+          '${importElement.importedLibrary?.definingCompilationUnit.declaration ?? ''}';
+      if (importedLib.isNotEmpty && !importedLib.contains('mustang_core')) {
         if (importedLib.startsWith('dart:')) {
           importsList.add("import '$importedLib';");
         } else if (importedLib.contains('/models/')) {
@@ -46,7 +46,7 @@ class Utils {
   static List<String> getRawImports(List<ImportElement> elements) {
     return elements
         .map((importElement) =>
-            '${importElement.importedLibrary.definingCompilationUnit.declaration}')
+            '${importElement.importedLibrary?.definingCompilationUnit.declaration ?? ''}')
         .toList();
   }
 

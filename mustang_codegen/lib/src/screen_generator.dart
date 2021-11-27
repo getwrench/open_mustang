@@ -12,11 +12,13 @@ class ScreenGenerator extends Generator {
     }
 
     String declaration = library.element.topLevelElements
-        .map((e) => e.declaration.getDisplayString(withNullability: false))
-        .toList()
-        .first;
+            .map((e) => e.declaration?.getDisplayString(withNullability: false))
+            .toList()
+            .first ??
+        '';
 
-    if (declaration.contains('extends StatelessWidget') ||
+    if (declaration.isNotEmpty &&
+            declaration.contains('extends StatelessWidget') ||
         declaration.contains('extends StatefulWidget')) {
       _validate(library.element);
     }
@@ -25,8 +27,8 @@ class ScreenGenerator extends Generator {
   }
 
   void _validate(Element element) {
-    Utils.getRawImports(element.library.imports).forEach((import) {
-      if (import.contains('mustang_core\.dart')) {
+    Utils.getRawImports(element.library?.imports ?? []).forEach((import) {
+      if (import.isNotEmpty && import.contains('mustang_core\.dart')) {
         throw InvalidGenerationSourceError(
             'Error: Screen class should not import mustang_core.dart',
             element: element);

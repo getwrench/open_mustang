@@ -6,6 +6,10 @@ class ScreenService {
   });
 
   final Object screenState;
+
+  @deprecated
   final Object? rootState;
+
+  @deprecated
   final String? rootStateDir;
 }

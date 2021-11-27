@@ -11,8 +11,8 @@ class AppModelField {
   final String name;
   final String type;
   final Object? initValue;
-  final List<Object>? initListValue;
-  final Map<Object, Object>? initMapValue;
+  final List<Object?>? initListValue;
+  final Map<Object, Object?>? initMapValue;
   final bool? serializeField;
 
   @override
