@@ -9,7 +9,7 @@ class ScreenServiceGenerator extends Generator {
   @override
   String generate(LibraryReader library, BuildStep buildStep) {
     Iterable<AnnotatedElement> services =
-        library.annotatedWith(TypeChecker.fromRuntime(ScreenService));
+        library.annotatedWith(const TypeChecker.fromRuntime(ScreenService));
     StringBuffer serviceBuffer = StringBuffer();
     if (services.isEmpty) {
       return '$serviceBuffer';
@@ -67,16 +67,16 @@ class ScreenServiceGenerator extends Generator {
         
       extension \$$serviceName on $serviceName {
         void updateState() {
-          $screenState screenState = WrenchStore.get<$screenState>();
+          $screenState? screenState = WrenchStore.get<$screenState>();
           if (screenState?.mounted ?? false) {
-            screenState.update();
+            screenState!.update();
           }
         }
         
         void updateState1<T>(T t, {
           reload = true,
         }) {
-          $screenState screenState = WrenchStore.get<$screenState>();
+          $screenState? screenState = WrenchStore.get<$screenState>();
           if (screenState?.mounted ?? false) {
             WrenchStore.update(t);
             WrenchStore.persistObject(
@@ -84,7 +84,7 @@ class ScreenServiceGenerator extends Generator {
               jsonEncode($appSerializer.serializers.serialize(t)),
             );
             if (reload) {
-              screenState.update();
+              screenState1!.update();
             }
           }
         }
@@ -92,7 +92,7 @@ class ScreenServiceGenerator extends Generator {
         void updateState2<T, S>(T t, S s, {
           reload = true,
         }) {
-          $screenState screenState = WrenchStore.get<$screenState>();
+          $screenState? screenState = WrenchStore.get<$screenState>();
           if (screenState?.mounted ?? false) {
             WrenchStore.update2(t, s);
             WrenchStore.persistObject(
@@ -104,7 +104,7 @@ class ScreenServiceGenerator extends Generator {
               jsonEncode($appSerializer.serializers.serialize(s)),
             );
             if (reload) {
-              screenState.update();
+              screenState!.update();
             }
           }
         }
@@ -112,7 +112,7 @@ class ScreenServiceGenerator extends Generator {
         void updateState3<T, S, U>(T t, S s, U u, {
           reload = true,
         }) {
-          $screenState screenState = WrenchStore.get<$screenState>();
+          $screenState? screenState = WrenchStore.get<$screenState>();
           if (screenState?.mounted ?? false) {
             WrenchStore.update3(t, s, u);
             WrenchStore.persistObject(
@@ -128,7 +128,7 @@ class ScreenServiceGenerator extends Generator {
               jsonEncode($appSerializer.serializers.serialize(u)),
             );
             if (reload) {
-              screenState.update();
+              screenState!.update();
             }
           }
         }
@@ -136,7 +136,7 @@ class ScreenServiceGenerator extends Generator {
         void updateState4<T, S, U, V>(T t, S s, U u, V v, {
           reload = true,
         }) {
-          $screenState screenState = WrenchStore.get<$screenState>();
+          $screenState? screenState = WrenchStore.get<$screenState>();
           if (screenState?.mounted ?? false) {
             WrenchStore.update4(t, s, u, v);
             WrenchStore.persistObject(
@@ -156,7 +156,7 @@ class ScreenServiceGenerator extends Generator {
               jsonEncode($appSerializer.serializers.serialize(v)),
             );
             if (reload) {
-              screenState.update();
+              screenState!.update();
             }
           }
         }
@@ -164,7 +164,7 @@ class ScreenServiceGenerator extends Generator {
         T memoizeScreen<T>(T Function() service) {
           \$${screenState}Cache screenStateCache =
               WrenchStore.get<\$${screenState}Cache>();
-          $screenState screenState = WrenchStore.get<$screenState>();
+          $screenState? screenState = WrenchStore.get<$screenState>();
           
           if (screenStateCache == null) {
             T t = service();
@@ -185,7 +185,7 @@ class ScreenServiceGenerator extends Generator {
           reload = true,
         }) {
           WrenchStore.delete<\$${screenState}Cache>();
-          $screenState screenState = WrenchStore.get<$screenState>();
+          $screenState? screenState = WrenchStore.get<$screenState>();
           if (screenState?.mounted ?? false) {
             if (reload) { 
               screenState.update();

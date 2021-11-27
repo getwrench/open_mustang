@@ -25,7 +25,7 @@ class Utils {
 
   static List<String> getImports(List<ImportElement> elements, String package) {
     List<String> importsList = [];
-    elements.forEach((importElement) {
+    for (ImportElement importElement in elements) {
       String importedLib =
           '${importElement.importedLibrary?.definingCompilationUnit.declaration ?? ''}';
       if (importedLib.isNotEmpty && !importedLib.contains('mustang_core')) {
@@ -33,13 +33,13 @@ class Utils {
           importsList.add("import '$importedLib';");
         } else if (importedLib.contains('/models/')) {
           importsList.add(
-              "import 'package:${importedLib.substring(1).replaceAll('/lib/', '/').replaceFirst('\.dart', '\.model.dart')}';");
+              "import 'package:${importedLib.substring(1).replaceAll('/lib/', '/').replaceFirst('.dart', '.model.dart')}';");
         } else {
           importsList.add(
               "import 'package:${importedLib.substring(1).replaceAll('/lib/', '/')}';");
         }
       }
-    });
+    }
     return importsList;
   }
 

@@ -9,7 +9,7 @@ class ScreenStateGenerator extends Generator {
   String generate(LibraryReader library, BuildStep buildStep) {
     StringBuffer stateBuffer = StringBuffer();
     Iterable<AnnotatedElement> states =
-        library.annotatedWith(TypeChecker.fromRuntime(ScreenState));
+        library.annotatedWith(const TypeChecker.fromRuntime(ScreenState));
     if (states.isEmpty) {
       return '$stateBuffer';
     }
@@ -34,15 +34,15 @@ class ScreenStateGenerator extends Generator {
     ClassElement stateClass = element as ClassElement;
     List<String> stateModelFields = [];
 
-    stateClass.fields.forEach((fieldElement) {
+    for (FieldElement fieldElement in stateClass.fields) {
       String fieldType = fieldElement.type
           .getDisplayString(withNullability: false)
           .replaceFirst(r'$', '');
       String fieldName = fieldElement.name;
       String declaration =
-          '$fieldType get $fieldName => WrenchStore.get<$fieldType>();';
+          '$fieldType? get $fieldName => WrenchStore.get<$fieldType>();';
       stateModelFields.add(declaration);
-    });
+    }
     List<String> stateImports = Utils.getImports(
       element.library.imports,
       buildStep.inputId.package,
@@ -59,7 +59,7 @@ class ScreenStateGenerator extends Generator {
           WrenchStore.update(this);
         }
         
-        bool mounted;
+        bool? mounted;
         
         ${stateModelFields.join('\n')}
         
@@ -80,7 +80,7 @@ class ScreenStateGenerator extends Generator {
 
   void _validate(Element element) {
     Utils.getRawImports(element.library?.imports ?? []).forEach((import) {
-      if (import.contains('\.model\.dart')) {
+      if (import.contains('.model.dart')) {
         throw InvalidGenerationSourceError(
             'Error: Do not import generated Model class inside State: $import',
             todo: 'Import Model class annotated with @AppModel instead',
@@ -103,7 +103,7 @@ class ScreenStateGenerator extends Generator {
     }
 
     ClassElement stateClass = element as ClassElement;
-    stateClass.fields.forEach((element) {
+    for (FieldElement element in stateClass.fields) {
       if (element.type.element?.displayName == 'dynamic') {
         throw InvalidGenerationSourceError(
           'Error: Import is missing for the field',
@@ -155,6 +155,6 @@ class ScreenStateGenerator extends Generator {
             todo: 'Use only Models as fields',
             element: element);
       }
-    });
+    }
   }
 }

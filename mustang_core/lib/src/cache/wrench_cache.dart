@@ -59,10 +59,10 @@ class WrenchCache {
     if (lazyBox.isOpen) {
       Map<String, String> cacheData =
           (await lazyBox.get(key))?.cast<String, String>() ?? {};
-      cacheData.keys.forEach((modelKey) {
+      for (String modelKey in cacheData.keys) {
         WrenchStore.persistObject(modelKey, cacheData[modelKey]!);
         callback(WrenchStore.update, modelKey, cacheData[modelKey]!);
-      });
+      }
     }
   }
 

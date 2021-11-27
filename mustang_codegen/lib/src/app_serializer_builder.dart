@@ -37,9 +37,9 @@ class AppSerializerBuilder implements Builder {
 
     modelNames.sort();
     modelStrNames.sort();
-    modelNames.forEach((modelName) {
+    for (String modelName in modelNames) {
       deserializerCases.writeln(_deserializeForModel(modelName));
-    });
+    }
 
     String pkgName = buildStep.inputId.package;
 

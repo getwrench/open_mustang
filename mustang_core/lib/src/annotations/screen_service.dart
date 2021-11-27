@@ -7,9 +7,9 @@ class ScreenService {
 
   final Object screenState;
 
-  @deprecated
+  @Deprecated('Not supported')
   final Object? rootState;
 
-  @deprecated
+  @Deprecated('Not supported')
   final String? rootStateDir;
 }

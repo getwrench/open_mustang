@@ -9,7 +9,7 @@ class AppModelGenerator extends Generator {
   @override
   String generate(LibraryReader library, BuildStep buildStep) {
     Iterable<AnnotatedElement> appModels =
-        library.annotatedWith(TypeChecker.fromRuntime(AppModel));
+        library.annotatedWith(const TypeChecker.fromRuntime(AppModel));
     StringBuffer appModelBuffer = StringBuffer();
 
     if (appModels.isEmpty) {
@@ -82,7 +82,7 @@ class AppModelGenerator extends Generator {
     }
 
     ClassElement appModelClass = element as ClassElement;
-    appModelClass.fields.forEach((element) {
+    for (FieldElement element in appModelClass.fields) {
       // No getter/setter
       if (element.isSynthetic) {
         throw InvalidGenerationSourceError(
@@ -107,7 +107,7 @@ class AppModelGenerator extends Generator {
             todo: 'Use BuiltList/BuiltMap',
             element: element);
       }
-    });
+    }
   }
 
   List<AppModelField> _parseFields(ClassElement appModelClass) {
@@ -127,10 +127,11 @@ class AppModelGenerator extends Generator {
         Object? initValue;
         List<Object?>? initListValue;
         Map<Object, Object?>? initMapValue;
-        final annotations =
-            TypeChecker.fromRuntime(InitField).annotationsOf(fieldElement);
-        final serializeAnnotation =
-            TypeChecker.fromRuntime(SerializeField).annotationsOf(fieldElement);
+        final Iterable annotations = const TypeChecker.fromRuntime(InitField)
+            .annotationsOf(fieldElement);
+        final Iterable serializeAnnotation =
+            const TypeChecker.fromRuntime(SerializeField)
+                .annotationsOf(fieldElement);
 
         if (annotations.isNotEmpty) {
           switch (typeToMatch) {

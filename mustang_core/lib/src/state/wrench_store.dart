@@ -161,11 +161,11 @@ class WrenchStore {
     if (persistent) {
       Box box = Hive.box(hiveBox);
       if (box.isOpen) {
-        box.keys.forEach((key) {
+        for (dynamic key in box.keys) {
           if (serializerNames.contains(key)) {
             callback(WrenchStore.update, key, box.get(key));
           }
-        });
+        }
       }
     }
   }

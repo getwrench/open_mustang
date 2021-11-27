@@ -28,7 +28,7 @@ class ScreenGenerator extends Generator {
 
   void _validate(Element element) {
     Utils.getRawImports(element.library?.imports ?? []).forEach((import) {
-      if (import.isNotEmpty && import.contains('mustang_core\.dart')) {
+      if (import.isNotEmpty && import.contains('mustang_core.dart')) {
         throw InvalidGenerationSourceError(
             'Error: Screen class should not import mustang_core.dart',
             element: element);
