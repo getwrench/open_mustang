@@ -224,11 +224,11 @@ class AppModelGenerator extends Generator {
   ) {
     return appModelFields.map(
       (field) {
-        String declaration =
-            '${field.type.replaceFirst('\$', '')} get ${field.name};\n';
         if (field.initValue == null &&
             field.initListValue == null &&
             field.initMapValue == null) {
+          String declaration =
+              '${field.type.replaceFirst('\$', '')}? get ${field.name};\n';
           if (field.serializeField != null && !field.serializeField!) {
             return '''
             @nullable
@@ -242,6 +242,8 @@ class AppModelGenerator extends Generator {
           ''';
           }
         } else {
+          String declaration =
+              '${field.type.replaceFirst('\$', '')} get ${field.name};\n';
           if (field.serializeField != null && !field.serializeField!) {
             return '''
             @BuiltValueField(serialize: ${field.serializeField})
