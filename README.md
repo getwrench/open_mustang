@@ -317,6 +317,7 @@ so that the in-memory and persisted app state remain consistent.
           url: https://github.com/rajvengala/open_mustang.git
           path: mustang_core
           ref: master
+      path_provider: ^2.0.6
 
     dev_dependencies:
       ...
