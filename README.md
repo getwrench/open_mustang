@@ -8,7 +8,7 @@ A framework to build Flutter applications. Following features are available out 
 - Cache
 - File layout and naming standards
 - Reduces boilerplate
-- Generates source templates using `cli` (https://bitbucket.org/lunchclub/open-mustang-cli/src/master)
+- Generates source templates using `cli` (url: https://github.com/rajvengala/open_mustang_cli)
 
 ## Contents
 - [Framework Components](#markdown-header-framework-components)
@@ -289,7 +289,7 @@ so that the in-memory and persisted app state remain consistent.
     
 - Install Mustang CLI
   ```bash
-    dart pub global activate -sgit git@bitbucket.org:lunchclub/open_mustang_cli.git
+    dart pub global activate -sgit https://github.com/rajvengala/open_mustang_cli.git
   ```
   
 - Create Flutter project
@@ -314,7 +314,7 @@ so that the in-memory and persisted app state remain consistent.
       built_value: ^8.1.3
       mustang_core:
         git:
-          url: git@bitbucket.org:lunchclub/open_mustang.git
+          url: https://github.com/rajvengala/open_mustang.git
           path: mustang_core
           ref: master
 
@@ -323,7 +323,7 @@ so that the in-memory and persisted app state remain consistent.
       build_runner: ^2.1.4
       mustang_codegen:
         git:
-          url: git@bitbucket.org:lunchclub/open_mustang.git
+          url: https://github.com/rajvengala/open_mustang.git
           path: mustang_codegen
           ref: master    
   ```
@@ -437,8 +437,3 @@ so that the in-memory and persisted app state remain consistent.
   
     ...  
   ```
-    
-### Resources
-- Presentation: https://docs.google.com/presentation/d/19VSU_TsbtzKUtKsblheX399KsqTTjPV_AWZNE2vthqM/edit?usp=sharing
-- Video: https://drive.google.com/file/d/1zoTbw5pjLIBxlJD6NquAmHeGVuA4R8co/view?usp=sharing  
-
