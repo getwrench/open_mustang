@@ -346,7 +346,7 @@ so that the in-memory and persisted app state remain consistent.
   ```dart
     class $Counter {
       @InitField(0)
-      int? value;
+      late int value;
     }
   ```
   
