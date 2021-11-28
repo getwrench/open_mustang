@@ -7,8 +7,7 @@ A framework to build Flutter applications. Following features are available out 
 - Persistence
 - Cache
 - File layout and naming standards
-- Reduces boilerplate
-- Generates source templates using `cli` (https://github.com/rajvengala/open_mustang_cli)
+- Reduces boilerplate with `cli` (https://github.com/rajvengala/open_mustang_cli)
 
 ## Contents
 - [Framework Components](#framework-components)
