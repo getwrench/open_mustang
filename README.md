@@ -58,6 +58,10 @@ permanently. However, there are cases where it is desirable to persist and resto
 Enabling persistence is simple and works transparently.
     
 ```dart
+import 'package:xxx/src/models/serializers.dart' as app_serializer;
+
+WidgetsFlutterBinding.ensureInitialized();
+
 // In main.dart before calling runApp method,
 // 1. Enable persistence like below
 WrenchStore.config(
@@ -69,8 +73,8 @@ WrenchStore.config(
 Directory dir = await getApplicationDocumentsDirectory();
 await WrenchStore.initPersistence(dir.path);
 
-// 3. Restore persisted state into WrenchStore
-await WrenchStore.restoreState(.., ..);
+// 3. Restore persisted state before the app starts
+await WrenchStore.restoreState(app_serializer.json2Type, app_serializer.serializerNames);
 ```
 
 With the above change, `app state` (`WrenchStore`) is persisted to the disk and will be restored into `WrenchStore` when the app is started.
