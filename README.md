@@ -8,20 +8,19 @@ A framework to build Flutter applications. Following features are available out 
 - Cache
 - File layout and naming standards
 - Reduces boilerplate
-- Generates source templates using `cli` (url: https://github.com/rajvengala/open_mustang_cli)
+- Generates source templates using `cli` (https://github.com/rajvengala/open_mustang_cli)
 
 ## Contents
-- [Framework Components](#markdown-header-framework-components)
-- [Component Communication](#markdown-header-component-communication)
-- [Persistence](#markdown-header-persistence)
-- [Cache](#markdown-header-cache)
-- [Model](#markdown-header-model)
-- [State](#markdown-header-state)
-- [Service](#markdown-header-service)
-- [Screen](#markdown-header-screen)
-- [Folder Structure](#markdown-header-folder-structure)
-- [Quick Start](#markdown-header-quick-start)
-- [Resources](#markdown-header-resources)
+- [Framework Components](#framework-components)
+- [Component Communication](#component-communication)
+- [Persistence](#persistence)
+- [Cache](#cache)
+- [Model](#model)
+- [State](#state)
+- [Service](#service)
+- [Screen](#screen)
+- [Folder Structure](#folder-structure)
+- [Quick Start](#quick-start)
 
 ### Framework Components
 - **Screen** - Screen is a reusable widget. It usually represents a screen in the app or a page in Browser. 
