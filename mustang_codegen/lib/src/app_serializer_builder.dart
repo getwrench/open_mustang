@@ -102,7 +102,7 @@ void json2Type(void Function<T>(T t) update, String modelName, String jsonStr) {
         serializers.deserializeWith(
           $modelName.serializer,
           json.decode(jsonStr),
-        ),
+        )!,
       );
       return;''';
   }
