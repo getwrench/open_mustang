@@ -98,12 +98,13 @@ void json2Type(void Function<T>(T t) update, String modelName, String jsonStr) {
   static String _deserializeForModel(String modelName) {
     return '''
     case '$modelName':
-      update(
-        serializers.deserializeWith(
-          $modelName.serializer,
-          json.decode(jsonStr),
-        )!,
+      var model = serializers.deserializeWith(
+        $modelName.serializer,
+        json.decode(jsonStr),
       );
+      if (model != null) {
+        update(model);
+      }
       return;''';
   }
 }
