@@ -9,12 +9,6 @@ import 'package:mustang_core/src/cache/wrench_cache.dart';
 ///
 /// Only 1 instance of a type exists at any point of time.
 class WrenchStore {
-  // Flag to switch between List and HashMap
-  static bool large = false;
-
-  // List is used to store objects when large flag is disabled
-  static final List<Object?> _store = [];
-
   // HashMap is used to store objects when large flag is enabled
   static final HashMap<String, Object?> _hashStore = HashMap();
 
@@ -22,39 +16,21 @@ class WrenchStore {
   static bool persistent = false;
 
   // Hive Box Name to store the model data
-  static String hiveBox = '';
+  static String? hiveBox;
 
   /// Looks up instance of type [T], if exists. Returns null if instance of
   /// type [T] is not found.
   static T? get<T>() {
-    T? t;
-    if (large) {
-      t = _hashStore[T.toString()] as T?;
-    } else {
-      t = _store.firstWhere(
-        (element) => element is T,
-        orElse: () => null,
-      ) as T?;
-    }
-    return t;
+    return _hashStore[T.toString()] as T?;
   }
 
   /// Saves instance [t] after removing, if exists, an instance of [T]
   static void update<T>(T t) {
-    if (large) {
-      _hashStore.update(
-        T.toString(),
-        (_) => t,
-        ifAbsent: () => t,
-      );
-    } else {
-      int objectIndex = _store.indexWhere((element) => element is T);
-      if (objectIndex != -1) {
-        _store.insert(objectIndex, t);
-      } else {
-        _store.add(t);
-      }
-    }
+    _hashStore.update(
+      T.toString(),
+      (_) => t,
+      ifAbsent: () => t,
+    );
   }
 
   /// Saves instances [t] and [s] after removing, if exists,
@@ -84,22 +60,14 @@ class WrenchStore {
 
   /// Removes instance of type [T], if exists
   static void delete<T>() {
-    if (large) {
-      _hashStore.remove(T.toString());
-    } else {
-      _store.removeWhere((element) => element is T);
-    }
+    _hashStore.remove(T.toString());
   }
 
   /// Delete all objects from the store
   static void nuke() async {
-    if (large) {
-      _hashStore.clear();
-    } else {
-      _store.clear();
-    }
-    if (persistent) {
-      Box box = Hive.box(hiveBox);
+    _hashStore.clear();
+    if (persistent && hiveBox != null) {
+      Box box = Hive.box(hiveBox!);
       if (box.isOpen) {
         await box.deleteAll(box.keys);
       }
@@ -107,26 +75,17 @@ class WrenchStore {
   }
 
   static void config({
-    bool isLarge = false,
     bool isPersistent = false,
-    String persistentStoreName = '',
+    String? storeName,
   }) async {
-    if (isPersistent) {
-      assert(
-        persistentStoreName.isNotEmpty,
-        'Missing persistent directory location',
-      );
-    }
-
-    large = isLarge;
     persistent = isPersistent;
-    hiveBox = persistentStoreName;
+    hiveBox = storeName;
   }
 
   /// Writes serialized object to a file
   static Future<void> persistObject(String key, String value) async {
-    if (persistent) {
-      Box box = Hive.box(hiveBox);
+    if (persistent && hiveBox != null) {
+      Box box = Hive.box(hiveBox!);
       if (box.isOpen) {
         await box.put(key, value);
       }
@@ -135,11 +94,11 @@ class WrenchStore {
 
   /// Creates directory [boxDir] in the file system to save serialized objects
   static Future<void> initPersistence([String? storeLocation]) async {
-    if (persistent) {
+    if (persistent && hiveBox != null) {
       if (storeLocation != null && (Platform.isIOS || Platform.isAndroid)) {
         Hive.init(storeLocation);
       }
-      await Hive.openBox(hiveBox);
+      await Hive.openBox(hiveBox!);
 
       // Cache Initialization
       WrenchCache.configCache('${hiveBox}Cache');
@@ -158,8 +117,8 @@ class WrenchStore {
         callback,
     List<String> serializerNames,
   ) async {
-    if (persistent) {
-      Box box = Hive.box(hiveBox);
+    if (persistent && hiveBox != null) {
+      Box box = Hive.box(hiveBox!);
       if (box.isOpen) {
         for (dynamic key in box.keys) {
           if (serializerNames.contains(key)) {
@@ -171,8 +130,8 @@ class WrenchStore {
   }
 
   static Future<void> deletePersistedState(List<String> deleteModels) async {
-    if (persistent) {
-      Box box = Hive.box(hiveBox);
+    if (persistent && hiveBox != null) {
+      Box box = Hive.box(hiveBox!);
       if (box.isOpen) {
         await box.deleteAll(deleteModels);
       }

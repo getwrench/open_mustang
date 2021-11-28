@@ -63,9 +63,8 @@ Enabling persistence is simple and works transparently.
 // In main.dart before calling runApp method,
 // 1. Enable persistence like below
 WrenchStore.config(
-  isLarge: true,
   isPersistent: true,
-  persistentStoreName: 'myapp',
+  storeName: 'myapp',
 );
 
 // 2. Initialize persistence
