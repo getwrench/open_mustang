@@ -127,22 +127,22 @@ so that the in-memory and persisted app state remain consistent.
     ```dart
     @appModel
     class $User {
-      String name;
+      late String name;
     
-      int? age;
+      late int age;
     
       @InitField(false)
-      bool? admin; 
+      late bool admin; 
     
       @InitField(['user', 'default'])
-      BuiltList<String>? roles;
+      late BuiltList<String> roles;
       
-      $Address? address;  // $Address is another model annotated with @appModel
+      late $Address address;  // $Address is another model annotated with @appModel
       
-      BuiltList<$Vehicle>? vehicles;  // Use immutable versions of List/Map inside Model classes
+      late BuiltList<$Vehicle> vehicles;  // Use immutable versions of List/Map inside Model classes
       
       @SerializeField(false)
-      String? errorMsg; // errorMsg field will not be included when $User model is persisted 
+      late String errorMsg; // errorMsg field will not be included when $User model is persisted 
     }
     ```
   
@@ -155,9 +155,9 @@ so that the in-memory and persisted app state remain consistent.
     ```dart      
     @screenState
     class $ExampleScreenState {
-      $User user;
+      late $User user;
       
-      $Vehicle vehicle;
+      late $Vehicle vehicle;
     }
     ```
     
