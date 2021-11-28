@@ -60,9 +60,9 @@ class ScreenServiceGenerator extends Generator {
       ${importStates.join('\n')}
       
       class \$${screenState}Cache<T> {
-        const \$${screenState}Cache(this.t);
+        const \$${screenState}Cache([this.t]);
       
-        final T t;
+        final T? t;
       }
         
       extension \$$serviceName on $serviceName {
@@ -172,7 +172,7 @@ class ScreenServiceGenerator extends Generator {
             WrenchStore.update(screenStateCache);
             if (t is Future) {
               t.whenComplete(() {
-                if (!(screenState?.mounted ?? false)) {
+                if (!(screenState.mounted)) {
                   WrenchStore.delete<\$${screenState}Cache>();
                 }
               });
