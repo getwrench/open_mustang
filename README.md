@@ -386,7 +386,7 @@ so that the in-memory and persisted app state remain consistent.
               children: [
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: const Text('$counter'),
+                  child: Text('$counter'),
                 ),
                 ElevatedButton(
                   onPressed: CounterService().increment,
