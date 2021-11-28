@@ -40,7 +40,7 @@ class ScreenStateGenerator extends Generator {
           .replaceFirst(r'$', '');
       String fieldName = fieldElement.name;
       String declaration =
-          '$fieldType? get $fieldName => WrenchStore.get<$fieldType>();';
+          '$fieldType get $fieldName => WrenchStore.get<$fieldType>() ?? $fieldType();';
       stateModelFields.add(declaration);
     }
     List<String> stateImports = Utils.getImports(
@@ -59,12 +59,12 @@ class ScreenStateGenerator extends Generator {
           WrenchStore.update(this);
         }
         
-        bool? mounted;
+        bool mounted = false;
         
         ${stateModelFields.join('\n')}
         
         void update() {
-          if (mounted ?? false) {
+          if (mounted) {
             notifyListeners(); 
           }
         }
