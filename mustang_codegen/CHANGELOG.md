@@ -8,3 +8,6 @@
 
 ## 1.0.2
 - Updated README, pubspec.yaml
+
+## 1.0.3
+- Updated README, pubspec.yaml
