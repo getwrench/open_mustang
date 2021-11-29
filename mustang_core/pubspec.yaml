@@ -8,7 +8,7 @@ description: >
   - File layout and naming standards
   - Reduces boilerplate with `open_mustang_cli` (https://pub.dev/packages/open_mustang_cli)
 
-version: 1.0.0
+version: 1.0.1
 repository: https://github.com/getwrench/open_mustang/mustang_core.dart
 
 environment:
