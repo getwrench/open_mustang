@@ -1,5 +1,4 @@
 # Mustang
-![Logo](./mustang.gif)
 
 A framework to build Flutter applications. Following features are available out of the box.
 
