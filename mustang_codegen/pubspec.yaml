@@ -1,7 +1,7 @@
 name: mustang_codegen
 description: Codegen for Mustang.
 version: 1.0.0
-homepage: https://github.com/rajvengala/open_mustang
+homepage: https://github.com/getwrench/open_mustang
 publish_to: none
 
 environment:
@@ -14,7 +14,7 @@ dependencies:
   glob: ^2.0.2
   mustang_core:
     git:
-      url: https://github.com/rajvengala/open_mustang.git
+      url: https://github.com/getwrench/open_mustang.git
       path: mustang_core
       ref: master
   path: ^1.8.0
