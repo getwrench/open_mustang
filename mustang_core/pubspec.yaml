@@ -1,7 +1,7 @@
 name: mustang_core
 description: A starting point for Dart libraries or applications.
 version: 1.0.0
-homepage: https://github.com/rajvengala/open_mustang
+homepage: https://github.com/getwrench/open_mustang
 publish_to: none
 
 environment:
