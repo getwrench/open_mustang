@@ -312,7 +312,7 @@ so that the in-memory and persisted app state remain consistent.
       ...
       built_collection: ^5.1.1
       built_value: ^8.1.3
-      mustang_core: ^1.0.3
+      mustang_core: ^1.0.2
       path_provider: ^2.0.6
 
     dev_dependencies:
