@@ -7,7 +7,7 @@ A framework to build Flutter applications. Following features are available out 
 - Persistence
 - Cache
 - File layout and naming standards
-- Reduces boilerplate with `cli` (https://github.com/rajvengala/open_mustang_cli)
+- Reduces boilerplate with `cli` (https://github.com/getwrench/open_mustang_cli)
 
 ## Contents
 - [Framework Components](#framework-components)
@@ -290,7 +290,7 @@ so that the in-memory and persisted app state remain consistent.
     
 - Install Mustang CLI
   ```bash
-    dart pub global activate -sgit https://github.com/rajvengala/open_mustang_cli.git
+    dart pub global activate -sgit https://github.com/getwrench/open_mustang_cli.git
   ```
   
 - Create Flutter project
@@ -315,7 +315,7 @@ so that the in-memory and persisted app state remain consistent.
       built_value: ^8.1.3
       mustang_core:
         git:
-          url: https://github.com/rajvengala/open_mustang.git
+          url: https://github.com/getwrench/open_mustang.git
           path: mustang_core
           ref: master
       path_provider: ^2.0.6
@@ -325,7 +325,7 @@ so that the in-memory and persisted app state remain consistent.
       build_runner: ^2.1.4
       mustang_codegen:
         git:
-          url: https://github.com/rajvengala/open_mustang.git
+          url: https://github.com/getwrench/open_mustang.git
           path: mustang_codegen
           ref: master    
   ```
