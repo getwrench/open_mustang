@@ -1,15 +1,10 @@
 name: mustang_core
 description: >
-  A framework to build Flutter applications. Following features are available out of the box.
+  A framework to build Flutter applications. It provides state management, persistence, caching and
+  opinionated project structure.
 
-  - State Management
-  - Persistence
-  - Cache
-  - File layout and naming standards
-  - Reduces boilerplate with `open_mustang_cli` (https://pub.dev/packages/open_mustang_cli)
-
-version: 1.0.1
-repository: https://github.com/getwrench/open_mustang/mustang_core.dart
+version: 1.0.3
+repository: https://github.com/getwrench/open_mustang
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
