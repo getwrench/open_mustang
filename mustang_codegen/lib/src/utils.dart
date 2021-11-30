@@ -1,6 +1,18 @@
+import 'dart:io';
+import 'dart:math';
+
 import 'package:analyzer/dart/element/element.dart';
+import 'package:path/path.dart' as p;
+import 'package:yaml/yaml.dart';
 
 class Utils {
+  // mustang config file
+  static const String configFile = 'mustang.yaml';
+  // Keys in mustang-cli.yaml
+  static const String serializerKey = 'serializer';
+  static const String screenKey = 'screen';
+  static const String screenImportsKey = 'imports';
+
   static String class2File(String className) {
     RegExp exp = RegExp(r'(?<=[0-9a-z])[A-Z]');
     return className
@@ -32,8 +44,16 @@ class Utils {
         if (importedLib.startsWith('dart:')) {
           importsList.add("import '$importedLib';");
         } else if (importedLib.contains('/models/')) {
-          importsList.add(
-              "import 'package:${importedLib.substring(1).replaceAll('/lib/', '/').replaceFirst('.dart', '.model.dart')}';");
+          if (importedLib.contains('.model.dart')) {
+            // Supports the case where some of the models inside Model classes
+            // are built_value classes but are not generated using
+            // @appModel annotation
+            importsList.add(
+                "import 'package:${importedLib.substring(1).replaceAll('/lib/', '/')}';");
+          } else {
+            importsList.add(
+                "import 'package:${importedLib.substring(1).replaceAll('/lib/', '/').replaceFirst('.dart', '.model.dart')}';");
+          }
         } else {
           importsList.add(
               "import 'package:${importedLib.substring(1).replaceAll('/lib/', '/')}';");
@@ -48,6 +68,46 @@ class Utils {
         .map((importElement) =>
             '${importElement.importedLibrary?.definingCompilationUnit.declaration ?? ''}')
         .toList();
+  }
+
+  static String? getCustomSerializerPackage() {
+    String? userHomeDir = homeDir();
+    String configFilePath = '';
+    if (userHomeDir != null) {
+      configFilePath = p.join(userHomeDir, configFile);
+    }
+    if (configFilePath.isNotEmpty && File(configFilePath).existsSync()) {
+      File configFile = File(configFilePath);
+      String rawConfig = configFile.readAsStringSync();
+
+      dynamic yamlConfig = loadYaml(rawConfig);
+      if (yamlConfig[serializerKey] != null) {
+        return yamlConfig[serializerKey];
+      }
+    }
+    return null;
+  }
+
+  static String? homeDir() {
+    Map<String, String> envVars = Platform.environment;
+    if (Platform.isMacOS) {
+      return envVars['HOME'];
+    }
+
+    if (Platform.isLinux) {
+      return envVars['HOME'];
+    }
+
+    if (Platform.isWindows) {
+      return envVars['UserProfile'];
+    }
+  }
+
+  static String generateRandomString(int len) {
+    Random random = Random();
+    const chars = 'abcdefghijklmnopqrstuvwxyz';
+    return List.generate(len, (index) => chars[random.nextInt(chars.length)])
+        .join();
   }
 
   static String defaultGeneratorComment =
