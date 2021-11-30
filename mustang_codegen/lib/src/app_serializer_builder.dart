@@ -35,15 +35,25 @@ class AppSerializerBuilder implements Builder {
       }
     }
 
+    // get the current app package
+    String pkgName = buildStep.inputId.package;
+    AssetId outFile = AssetId(pkgName, '$serializerPath/$serializerFile');
+
+    // If an app has 2nd serializer (usually the case when there is a
+    // separate repo with it's own models and serializer for all those models,
+    // say repo A), then the consumer of repo A needs to have an `import A`
+    // in the generated serializer.dart
+    String? customSerializerPackage = await Utils.getCustomSerializerPackage();
+    if (customSerializerPackage != null &&
+        !customSerializerPackage.startsWith('package:$pkgName')) {
+      imports.add("import '$customSerializerPackage';");
+    }
+
     modelNames.sort();
     modelStrNames.sort();
     for (String modelName in modelNames) {
       deserializerCases.writeln(_deserializeForModel(modelName));
     }
-
-    String pkgName = buildStep.inputId.package;
-
-    AssetId outFile = AssetId(pkgName, '$serializerPath/$serializerFile');
 
     String out = _generate(
       imports.join('\n'),
