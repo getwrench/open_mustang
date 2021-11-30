@@ -11,3 +11,6 @@
 
 ## 1.0.3
 - Updated README, pubspec.yaml
+
+## 1.0.5
+- Added support for config.yaml to generate custom framework code
