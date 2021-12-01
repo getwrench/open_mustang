@@ -1,5 +1,4 @@
 import 'dart:collection';
-import 'dart:io';
 
 import 'package:hive/hive.dart';
 import 'package:mustang_core/src/cache/wrench_cache.dart';
@@ -93,9 +92,10 @@ class WrenchStore {
   }
 
   /// Creates directory [boxDir] in the file system to save serialized objects
-  static Future<void> initPersistence([String? storeLocation]) async {
+  /// [storeLocation] is optional for Web
+  static Future<void> initPersistence(String? storeLocation) async {
     if (persistent && hiveBox != null) {
-      if (storeLocation != null && (Platform.isIOS || Platform.isAndroid)) {
+      if (storeLocation != null) {
         Hive.init(storeLocation);
       }
       await Hive.openBox(hiveBox!);
