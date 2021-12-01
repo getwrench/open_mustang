@@ -1,5 +1,4 @@
-import 'dart:io';
-
+import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:mustang_core/src/state/wrench_store.dart';
 
@@ -17,7 +16,7 @@ class WrenchCache {
 
   /// Creates [storeLocation] in the file system to save serialized objects
   static Future<void> initCache([String? storeLocation]) async {
-    if (storeLocation != null && (Platform.isIOS || Platform.isAndroid)) {
+    if (storeLocation != null && !kIsWeb) {
       Hive.init(storeLocation);
     }
     await Hive.openLazyBox(cacheName);

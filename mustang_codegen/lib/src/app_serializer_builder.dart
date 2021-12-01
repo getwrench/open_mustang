@@ -43,7 +43,7 @@ class AppSerializerBuilder implements Builder {
     // separate repo with it's own models and serializer for all those models,
     // say repo A), then the consumer of repo A needs to have an `import A`
     // in the generated serializer.dart
-    String? customSerializerPackage = await Utils.getCustomSerializerPackage();
+    String? customSerializerPackage = Utils.getCustomSerializerPackage();
     if (customSerializerPackage != null &&
         !customSerializerPackage.startsWith('package:$pkgName')) {
       imports.add("import '$customSerializerPackage';");
