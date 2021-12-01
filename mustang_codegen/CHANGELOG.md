@@ -14,3 +14,6 @@
 
 ## 1.0.4
 - Added support for config.yaml to generate custom framework code
+
+## 1.0.5
+- Removed flutter dev dependency
