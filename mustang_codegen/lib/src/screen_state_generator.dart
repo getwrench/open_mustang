@@ -28,7 +28,7 @@ class ScreenStateGenerator extends Generator {
     ConstantReader annotation,
     BuildStep buildStep,
   ) {
-    _validate(element);
+    _validate(element, buildStep);
 
     String stateName = element.displayName.replaceFirst(r'$', '');
     ClassElement stateClass = element as ClassElement;
@@ -78,8 +78,34 @@ class ScreenStateGenerator extends Generator {
     ''';
   }
 
-  void _validate(Element element) {
+  void _validate(Element element, BuildStep buildStep) {
+    String currentPkgName = buildStep.inputId.package;
+
     Utils.getRawImports(element.library?.imports ?? []).forEach((import) {
+      // Fields of State should be models from the same package i.e. from **/src/models
+      // directory, unless there is a dependent package with it's own models
+      // and those models need to be used in the State class
+      if (!import.contains('$currentPkgName/lib/src/models') &&
+          !import.contains('built_collection.dart') &&
+          !import.contains('mustang_core.dart') &&
+          !import.contains('dart:core')) {
+        String? customSerializerPackage = Utils.getCustomSerializerPackage();
+        List<String> importTokens = import.split('/');
+        String importPackage = '';
+        if (importTokens.length > 1) {
+          importPackage = importTokens.elementAt(1);
+        }
+        if (customSerializerPackage == null ||
+            (importPackage.isNotEmpty &&
+                !customSerializerPackage
+                    .startsWith('package:$importPackage'))) {
+          throw InvalidGenerationSourceError(
+              'Invalid import $import. Only models src/models directory are allowed as fields in State class',
+              todo: 'Import Model class annotated with @AppModel instead',
+              element: element);
+        }
+      }
+
       if (import.contains('.model.dart')) {
         throw InvalidGenerationSourceError(
             'Error: Do not import generated Model class inside State: $import',
