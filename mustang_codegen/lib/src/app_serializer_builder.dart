@@ -30,7 +30,7 @@ class AppSerializerBuilder implements Builder {
       String modelName = library.topLevelElements.first.name ?? '';
       if (modelName.isNotEmpty) {
         modelNames.add(modelName);
-        modelStrNames.add("'$modelName'");
+        modelStrNames.add("'\$$modelName'");
         imports.add("import '${assetId.uri}';");
       }
     }
@@ -99,15 +99,13 @@ final List<String> serializerNames = [
 ];
     
 void json2Type(void Function<T>(T t) update, String modelName, String jsonStr) {
-  switch (modelName) {
   $deserializers
-  }
 }''';
   }
 
   static String _deserializeForModel(String modelName) {
     return '''
-    case '$modelName':
+    if(modelName == '\$$modelName') {
       var model = serializers.deserializeWith(
         $modelName.serializer,
         json.decode(jsonStr),
@@ -115,6 +113,7 @@ void json2Type(void Function<T>(T t) update, String modelName, String jsonStr) {
       if (model != null) {
         update(model);
       }
-      return;''';
+      return;
+    }''';
   }
 }

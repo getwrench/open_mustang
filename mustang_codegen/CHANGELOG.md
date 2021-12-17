@@ -20,3 +20,6 @@
 
 ## 1.0.6
 - Add validation to force fields in the `State` to be models in `src/models` folder
+
+## 1.0.7
+- Bug - Caching/Persistence fails when web application is built in release mode
