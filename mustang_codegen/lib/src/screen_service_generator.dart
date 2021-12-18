@@ -65,6 +65,8 @@ class ScreenServiceGenerator extends Generator {
       import 'package:mustang_core/mustang_core.dart';
       import '$importService.dart';
       import 'dart:convert';
+      import 'dart:developer';
+      import 'package:flutter/foundation.dart';
       import 'package:$pkgName/src/models/serializers.dart' as $appSerializerAlias;
       $customSerializer
       ${importStates.join('\n')}
@@ -90,6 +92,11 @@ class ScreenServiceGenerator extends Generator {
           if (screenState.mounted) {
             WrenchStore.update(t);
             ${_generatePersistObjectTemplate('T', appSerializerAlias, customSerializerAlias)}
+            if (kDebugMode) {
+              postEvent('mustang', {
+                '\$T': ${_generateCacheObjectJsonArg('T', appSerializerAlias, customSerializerAlias)},
+              });
+            }
             if (reload) {
               screenState.update();
             }
@@ -104,6 +111,14 @@ class ScreenServiceGenerator extends Generator {
             WrenchStore.update2(t, s);
             ${_generatePersistObjectTemplate('T', appSerializerAlias, customSerializerAlias)}
             ${_generatePersistObjectTemplate('S', appSerializerAlias, customSerializerAlias)}
+            if (kDebugMode) {
+              postEvent('mustang', {
+                '\$T': ${_generateCacheObjectJsonArg('T', appSerializerAlias, customSerializerAlias)},
+              });
+              postEvent('mustang', {
+                '\$S': ${_generateCacheObjectJsonArg('S', appSerializerAlias, customSerializerAlias)},
+              });
+            }
             if (reload) {
               screenState.update();
             }
@@ -119,6 +134,17 @@ class ScreenServiceGenerator extends Generator {
             ${_generatePersistObjectTemplate('T', appSerializerAlias, customSerializerAlias)}
             ${_generatePersistObjectTemplate('S', appSerializerAlias, customSerializerAlias)}
             ${_generatePersistObjectTemplate('U', appSerializerAlias, customSerializerAlias)}
+            if (kDebugMode) {
+              postEvent('mustang', {
+                '\$T': ${_generateCacheObjectJsonArg('T', appSerializerAlias, customSerializerAlias)},
+              });
+              postEvent('mustang', {
+                '\$S': ${_generateCacheObjectJsonArg('S', appSerializerAlias, customSerializerAlias)},
+              });
+              postEvent('mustang', {
+                '\$U': ${_generateCacheObjectJsonArg('U', appSerializerAlias, customSerializerAlias)},
+              });
+            }
             if (reload) {
               screenState.update();
             }
@@ -135,6 +161,20 @@ class ScreenServiceGenerator extends Generator {
             ${_generatePersistObjectTemplate('S', appSerializerAlias, customSerializerAlias)}
             ${_generatePersistObjectTemplate('U', appSerializerAlias, customSerializerAlias)}
             ${_generatePersistObjectTemplate('V', appSerializerAlias, customSerializerAlias)}
+            if (kDebugMode) {
+              postEvent('mustang', {
+                '\$T': ${_generateCacheObjectJsonArg('T', appSerializerAlias, customSerializerAlias)},
+              });
+              postEvent('mustang', {
+                '\$S': ${_generateCacheObjectJsonArg('S', appSerializerAlias, customSerializerAlias)},
+              });
+              postEvent('mustang', {
+                '\$U': ${_generateCacheObjectJsonArg('U', appSerializerAlias, customSerializerAlias)},
+              });
+              postEvent('mustang', {
+                '\$V': ${_generateCacheObjectJsonArg('V', appSerializerAlias, customSerializerAlias)},
+              });
+            }
             if (reload) {
               screenState.update();
             }
@@ -223,11 +263,11 @@ class ScreenServiceGenerator extends Generator {
     if (customSerializerAlias.isNotEmpty) {
       return '''
         jsonEncode($appSerializerAlias.serializerNames.contains('\$$type')
-                  ? $appSerializerAlias.serializers.serialize(t)
-                  : $customSerializerAlias.serializers.serialize(t))
+                  ? $appSerializerAlias.serializers.serialize(${type.toLowerCase()})
+                  : $customSerializerAlias.serializers.serialize(${type.toLowerCase()}))
     ''';
     } else {
-      return '''jsonEncode($appSerializerAlias.serializers.serialize(t))''';
+      return '''jsonEncode($appSerializerAlias.serializers.serialize(${type.toLowerCase()}))''';
     }
   }
 
