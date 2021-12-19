@@ -23,3 +23,6 @@
 
 ## 1.0.7
 - Bug - Caching/Persistence fails when web application is built in release mode
+
+## 1.0.8
+- New - Post state change events to Dart VM Client in debug mode, when subscribed
