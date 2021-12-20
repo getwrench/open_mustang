@@ -209,7 +209,7 @@ class ScreenServiceGenerator extends Generator {
             if (kDebugMode) {
               postEvent('${Utils.debugEventKind}', {
                 'modelName': '\${\$${screenState}Cache}',
-                'modelStr': screenStateCache.toJson(),
+                'modelStr': jsonEncode(screenStateCache.toJson()),
               });
             }
             if (t is Future) {
@@ -219,7 +219,7 @@ class ScreenServiceGenerator extends Generator {
                   if (kDebugMode) {
                     postEvent('${Utils.debugEventKind}', {
                       'modelName': '\${\$${screenState}Cache}', 
-                      'modelStr': null,
+                      'modelStr': '{}',
                     });
                   }
                 }
@@ -236,7 +236,7 @@ class ScreenServiceGenerator extends Generator {
           if (kDebugMode) {
             postEvent('${Utils.debugEventKind}', {
               'modelName': '\${\$${screenState}Cache}',
-              'modelStr': null,
+              'modelStr': '{}',
             });
           }
           $screenState screenState = WrenchStore.get<$screenState>() ?? $screenState();

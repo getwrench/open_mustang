@@ -49,6 +49,7 @@ class ScreenStateGenerator extends Generator {
     );
 
     return '''
+      import 'dart:convert';
       import 'dart:developer';
       import 'package:flutter/foundation.dart';
       import 'package:mustang_core/mustang_core.dart';
@@ -61,7 +62,7 @@ class ScreenStateGenerator extends Generator {
           if (kDebugMode) {
             postEvent('${Utils.debugEventKind}', {
               'modelName': '\$$stateName', 
-              'modelStr': toJson(),
+              'modelStr': jsonEncode(toJson()),
             });
           }
         }
@@ -88,7 +89,7 @@ class ScreenStateGenerator extends Generator {
           if (kDebugMode) {
             postEvent('${Utils.debugEventKind}', {
               'modelName': '\$$stateName', 
-              'modelStr': null,
+              'modelStr': '{}',
             });
           }
           super.dispose();
