@@ -30,3 +30,5 @@
 ## 1.0.9
 - New - Add debug hooks for generated state classes
 
+## 1.0.10
+- Fix - Generated state class are not captured in VM client
