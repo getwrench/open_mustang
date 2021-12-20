@@ -49,6 +49,7 @@ class ScreenStateGenerator extends Generator {
     );
 
     return '''
+      import 'dart:developer';
       import 'package:flutter/foundation.dart';
       import 'package:mustang_core/mustang_core.dart';
       ${stateImports.join('\n')}
@@ -57,9 +58,21 @@ class ScreenStateGenerator extends Generator {
         $stateName() {
           mounted = true;
           WrenchStore.update(this);
+          if (kDebugMode) {
+            postEvent('${Utils.debugEventKind}', {
+              'modelName': '\$$stateName', 
+              'modelStr': toJson(),
+            });
+          }
         }
         
         bool mounted = false;
+        
+        Map<String, dynamic> toJson() {
+          return {
+            'mounted': mounted
+          };
+        }
         
         ${stateModelFields.join('\n')}
         
@@ -72,6 +85,12 @@ class ScreenStateGenerator extends Generator {
         @override
         void dispose() {
           mounted = false;
+          if (kDebugMode) {
+            postEvent('${Utils.debugEventKind}', {
+              'modelName': '\$$stateName', 
+              'modelStr': null,
+            });
+          }
           super.dispose();
         }
       }

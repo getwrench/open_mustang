@@ -84,8 +84,6 @@ class ScreenServiceGenerator extends Generator {
       }
         
       extension \$$serviceName on $serviceName {
-        static const String _debugEventKind = 'mustang';
-        
         void updateState() {
           $screenState screenState = WrenchStore.get<$screenState>() ?? $screenState();
           if (screenState.mounted) {
@@ -101,7 +99,7 @@ class ScreenServiceGenerator extends Generator {
             WrenchStore.update(t);
             ${_generatePersistObjectTemplate('T', appSerializerAlias, customSerializerAlias)}
             if (kDebugMode) {
-              postEvent(_debugEventKind, {
+              postEvent('${Utils.debugEventKind}', {
                 'modelName': '\$T',
                 'modelStr': ${_generateCacheObjectJsonArg('T', appSerializerAlias, customSerializerAlias)},
               });
@@ -121,11 +119,11 @@ class ScreenServiceGenerator extends Generator {
             ${_generatePersistObjectTemplate('T', appSerializerAlias, customSerializerAlias)}
             ${_generatePersistObjectTemplate('S', appSerializerAlias, customSerializerAlias)}
             if (kDebugMode) {
-              postEvent(_debugEventKind, {
+              postEvent('${Utils.debugEventKind}', {
                 'modelName': '\$T',
                 'modelStr': ${_generateCacheObjectJsonArg('T', appSerializerAlias, customSerializerAlias)},
               });
-              postEvent(_debugEventKind, {
+              postEvent('${Utils.debugEventKind}', {
                 'modelName': '\$S',
                 'modelStr': ${_generateCacheObjectJsonArg('S', appSerializerAlias, customSerializerAlias)},
               });
@@ -146,15 +144,15 @@ class ScreenServiceGenerator extends Generator {
             ${_generatePersistObjectTemplate('S', appSerializerAlias, customSerializerAlias)}
             ${_generatePersistObjectTemplate('U', appSerializerAlias, customSerializerAlias)}
             if (kDebugMode) {
-              postEvent(_debugEventKind, {
+              postEvent('${Utils.debugEventKind}', {
                 'modelName': '\$T',
                 'modelStr': ${_generateCacheObjectJsonArg('T', appSerializerAlias, customSerializerAlias)},
               });
-              postEvent(_debugEventKind, {
+              postEvent('${Utils.debugEventKind}', {
                 'modelName': '\$S',
                 'modelStr': ${_generateCacheObjectJsonArg('S', appSerializerAlias, customSerializerAlias)},
               });
-              postEvent(_debugEventKind, {
+              postEvent('${Utils.debugEventKind}', {
                 'modelName': '\$U',
                 'modelStr': ${_generateCacheObjectJsonArg('U', appSerializerAlias, customSerializerAlias)},
               });
@@ -176,19 +174,19 @@ class ScreenServiceGenerator extends Generator {
             ${_generatePersistObjectTemplate('U', appSerializerAlias, customSerializerAlias)}
             ${_generatePersistObjectTemplate('V', appSerializerAlias, customSerializerAlias)}
             if (kDebugMode) {
-              postEvent(_debugEventKind, {
+              postEvent('${Utils.debugEventKind}', {
                 'modelName': '\$T',
                 'modelStr': ${_generateCacheObjectJsonArg('T', appSerializerAlias, customSerializerAlias)},
               });
-              postEvent(_debugEventKind, {
+              postEvent('${Utils.debugEventKind}', {
                 'modelName': '\$S',
                 'modelStr': ${_generateCacheObjectJsonArg('S', appSerializerAlias, customSerializerAlias)},
               });
-              postEvent(_debugEventKind, {
+              postEvent('${Utils.debugEventKind}', {
                 'modelName': '\$U',
                 'modelStr': ${_generateCacheObjectJsonArg('U', appSerializerAlias, customSerializerAlias)},
               });
-              postEvent(_debugEventKind, {
+              postEvent('${Utils.debugEventKind}', {
                 'modelName': '\$V',
                 'modelStr': ${_generateCacheObjectJsonArg('V', appSerializerAlias, customSerializerAlias)},
               });
@@ -209,7 +207,7 @@ class ScreenServiceGenerator extends Generator {
             screenStateCache = \$${screenState}Cache(t);
             WrenchStore.update(screenStateCache);
             if (kDebugMode) {
-              postEvent(_debugEventKind, {
+              postEvent('${Utils.debugEventKind}', {
                 'modelName': '\${\$${screenState}Cache}',
                 'modelStr': screenStateCache.toJson(),
               });
@@ -219,7 +217,7 @@ class ScreenServiceGenerator extends Generator {
                 if (!(screenState.mounted)) {
                   WrenchStore.delete<\$${screenState}Cache>();
                   if (kDebugMode) {
-                    postEvent(_debugEventKind, {
+                    postEvent('${Utils.debugEventKind}', {
                       'modelName': '\${\$${screenState}Cache}', 
                       'modelStr': null,
                     });
@@ -236,7 +234,7 @@ class ScreenServiceGenerator extends Generator {
         }) {
           WrenchStore.delete<\$${screenState}Cache>();
           if (kDebugMode) {
-            postEvent(_debugEventKind, {
+            postEvent('${Utils.debugEventKind}', {
               'modelName': '\${\$${screenState}Cache}',
               'modelStr': null,
             });

@@ -6,6 +6,8 @@ import 'package:path/path.dart' as p;
 import 'package:yaml/yaml.dart';
 
 class Utils {
+  static const String debugEventKind = 'mustang';
+
   // mustang config file
   static const String configFile = 'mustang.yaml';
   // Keys in mustang-cli.yaml
