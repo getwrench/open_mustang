@@ -26,3 +26,7 @@
 
 ## 1.0.8
 - New - Post state change events to Dart VM Client in debug mode, when subscribed
+
+## 1.0.9
+- New - Add debug hooks for generated state classes
+
