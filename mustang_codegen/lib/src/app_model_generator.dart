@@ -82,6 +82,14 @@ class AppModelGenerator extends Generator {
     }
 
     ClassElement appModelClass = element as ClassElement;
+    // class annotated with appModel should be abstract
+    if (!appModelClass.isAbstract) {
+      throw InvalidGenerationSourceError(
+          'Error: class annotated with appModel should be abstract',
+          todo: 'Make the class abstract',
+          element: element);
+    }
+
     for (FieldElement element in appModelClass.fields) {
       // No getter/setter
       if (element.isSynthetic) {

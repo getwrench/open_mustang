@@ -32,3 +32,6 @@
 
 ## 1.0.10
 - Fix - Generated state class are not captured in VM client
+
+## 1.0.11
+- Model, State and Service are all made abstract

@@ -127,7 +127,7 @@ so that the in-memory and persisted app state remain consistent.
     
     ```dart
     @appModel
-    class $User {
+    abstract class $User {
       late String name;
     
       late int age;
@@ -152,10 +152,9 @@ so that the in-memory and persisted app state remain consistent.
 - State name should start with `$`
 - Fields of the class must be `Model` classes
 
-  
     ```dart      
     @screenState
-    class $ExampleScreenState {
+    abstract class $ExampleScreenState {
       late $User user;
       
       late $Vehicle vehicle;
@@ -168,7 +167,7 @@ so that the in-memory and persisted app state remain consistent.
   
     ```dart
     @ScreenService(screenState: $ExampleScreenState)
-    class ExampleScreenService {
+    abstract class $ExampleScreenService {
       void getUser() {
         User user = WrenchStore.get<User>() ?? User();
           updateState1(user);
@@ -222,7 +221,7 @@ so that the in-memory and persisted app state remain consistent.
 - Use `StateProvider` widget to re-build the `Screen` automatically when there is a change in `State`
   
     ```dart
-    ...
+    
     Widget build(BuildContext context) {
       return StateProvider<HomeScreenState>(
           state: HomeScreenState(),
@@ -318,7 +317,7 @@ so that the in-memory and persisted app state remain consistent.
     dev_dependencies:
       ...
       build_runner: ^2.1.4
-      mustang_codegen: ^1.0.3    
+      mustang_codegen: ^1.0.11    
   ```
   
 - Install dependencies
@@ -344,12 +343,12 @@ so that the in-memory and persisted app state remain consistent.
     }
   ```
   
-- Update the generated `counter_screen.dart` screen
+- Update `counter_screen.dart` screen
   ```dart
     import 'package:flutter/material.dart';
     import 'package:mustang_core/mustang_widgets.dart';
     
-    import 'counter_service.dart';
+    import 'counter_service.service.dart';
     import 'counter_state.state.dart';
     
     class CounterScreen extends StatelessWidget {
@@ -395,7 +394,7 @@ so that the in-memory and persisted app state remain consistent.
     }
   ```
   
-- Update the generated `counter_service.dart` service
+- Update `counter_service.dart` service
   ```dart
     import 'package:mustang_core/mustang_core.dart';
     import 'package:quick_start/src/models/counter.model.dart';
@@ -416,7 +415,7 @@ so that the in-memory and persisted app state remain consistent.
 - Update `main.dart`
   ```dart
     ...
-  
+ 
     Widget build(BuildContext context) {
       return MaterialApp(
         title: 'Flutter Demo',

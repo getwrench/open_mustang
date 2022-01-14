@@ -32,6 +32,7 @@ class ScreenServiceGenerator extends Generator {
     _validate(element, annotation);
 
     String serviceName = element.displayName;
+    String generatedServiceName = element.displayName.replaceFirst(r'$', '');
     String importService = p.basenameWithoutExtension(buildStep.inputId.path);
 
     List<String> importStates = [];
@@ -71,8 +72,8 @@ class ScreenServiceGenerator extends Generator {
       $customSerializer
       ${importStates.join('\n')}
       
-      class \$${screenState}Cache<T> {
-        const \$${screenState}Cache([this.t]);
+      class _\$${screenState}Cache<T> {
+        const _\$${screenState}Cache([this.t]);
         
         Map<String, dynamic> toJson() {
           return {
@@ -81,6 +82,9 @@ class ScreenServiceGenerator extends Generator {
         }
       
         final T? t;
+      }
+      
+      class $generatedServiceName extends $serviceName {
       }
         
       extension \$$serviceName on $serviceName {
@@ -198,27 +202,27 @@ class ScreenServiceGenerator extends Generator {
         }
         
         T memoizeScreen<T>(T Function() service) {
-          \$${screenState}Cache screenStateCache =
-              WrenchStore.get<\$${screenState}Cache>() ?? const \$${screenState}Cache();
+          _\$${screenState}Cache screenStateCache =
+              WrenchStore.get<_\$${screenState}Cache>() ?? const _\$${screenState}Cache();
           $screenState screenState = WrenchStore.get<$screenState>() ?? $screenState();
           
           if (screenStateCache.t == null) {
             T t = service();
-            screenStateCache = \$${screenState}Cache(t);
+            screenStateCache = _\$${screenState}Cache(t);
             WrenchStore.update(screenStateCache);
             if (kDebugMode) {
               postEvent('${Utils.debugEventKind}', {
-                'modelName': '\${\$${screenState}Cache}',
+                'modelName': '\${_\$${screenState}Cache}',
                 'modelStr': jsonEncode(screenStateCache.toJson()),
               });
             }
             if (t is Future) {
               t.whenComplete(() {
                 if (!(screenState.mounted)) {
-                  WrenchStore.delete<\$${screenState}Cache>();
+                  WrenchStore.delete<_\$${screenState}Cache>();
                   if (kDebugMode) {
                     postEvent('${Utils.debugEventKind}', {
-                      'modelName': '\${\$${screenState}Cache}', 
+                      'modelName': '\${_\$${screenState}Cache}', 
                       'modelStr': '{}',
                     });
                   }
@@ -232,10 +236,10 @@ class ScreenServiceGenerator extends Generator {
         void clearMemoizedScreen({
           reload = true,
         }) {
-          WrenchStore.delete<\$${screenState}Cache>();
+          WrenchStore.delete<_\$${screenState}Cache>();
           if (kDebugMode) {
             postEvent('${Utils.debugEventKind}', {
-              'modelName': '\${\$${screenState}Cache}',
+              'modelName': '\${_\$${screenState}Cache}',
               'modelStr': '{}',
             });
           }
@@ -306,6 +310,13 @@ class ScreenServiceGenerator extends Generator {
   }
 
   void _validate(Element element, ConstantReader annotation) {
+    if (!element.displayName.startsWith(r'$')) {
+      throw InvalidGenerationSourceError(
+          'ScreenService class name should start with \$',
+          todo: 'Prefix class name with \$',
+          element: element);
+    }
+
     List<String> modelImports =
         Utils.getRawImports(element.library?.imports ?? []);
     if (modelImports
@@ -315,6 +326,15 @@ class ScreenServiceGenerator extends Generator {
         'Error: Service class should not import flutter library',
         element: element,
       );
+    }
+
+    // class annotated with ScreenService should be abstract
+    ClassElement appServiceClass = element as ClassElement;
+    if (!appServiceClass.isAbstract) {
+      throw InvalidGenerationSourceError(
+          'Error: class annotated with ScreenService should be abstract',
+          todo: 'Make the class abstract',
+          element: element);
     }
 
     if (annotation.read('screenState').typeValue.element != null &&

@@ -149,6 +149,14 @@ class ScreenStateGenerator extends Generator {
     }
 
     ClassElement stateClass = element as ClassElement;
+    // class annotated with screenState should be abstract
+    if (!stateClass.isAbstract) {
+      throw InvalidGenerationSourceError(
+          'Error: class annotated with screenState should be abstract',
+          todo: 'Make the class abstract',
+          element: element);
+    }
+
     for (FieldElement element in stateClass.fields) {
       if (element.type.element?.displayName == 'dynamic') {
         throw InvalidGenerationSourceError(
