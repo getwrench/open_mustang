@@ -119,7 +119,7 @@ so that the in-memory and persisted app state remain consistent.
   Returns `true` if an identifier `key` exists in the Cache, `false` otherwise.
 
 ### Model
-- A Class annotated with `appModel`
+- An abstract class annotated with `appModel`
 - Model name should start with `$`
 - Initialize fields with `InitField` annotation
 - Methods/Getters/Setters are `NOT` supported inside `Model` classes
@@ -148,7 +148,7 @@ so that the in-memory and persisted app state remain consistent.
     ```
   
 ### State
-- A class annotated with `screenState`
+- An abstract class annotated with `screenState`
 - State name should start with `$`
 - Fields of the class must be `Model` classes
 
@@ -162,7 +162,8 @@ so that the in-memory and persisted app state remain consistent.
     ```
     
 ### Service
-- A class annotated with `ScreenService`
+- An abstract class annotated with `ScreenService`
+- Service name should start with `$`
 - Provide `State` class as an argument to `ScreenService` annotation, to create an association between `State` and `Service` as shown below.
   
     ```dart
