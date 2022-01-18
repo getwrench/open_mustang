@@ -1,5 +1,6 @@
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
+import 'package:mustang_codegen/src/service_method_visitor.dart';
 import 'package:mustang_codegen/src/utils.dart';
 import 'package:mustang_core/mustang_core.dart';
 import 'package:path/path.dart' as p;
@@ -48,7 +49,17 @@ class ScreenServiceGenerator extends Generator {
       return '';
     }
 
+    List<String> overriders = [];
+
+    element.visitChildren(
+      ServiceMethodVisitor(
+        overrides: overriders,
+        imports: importStates,
+      ),
+    );
+
     importStates.add("import '${Utils.class2File(screenState)}.state.dart';");
+    importStates = importStates.toSet().toList();
 
     String pkgName = buildStep.inputId.package;
     String appSerializerAlias = 'app_serializer';
@@ -85,6 +96,7 @@ class ScreenServiceGenerator extends Generator {
       }
       
       class $generatedServiceName extends $serviceName {
+        ${overriders.join('\n')}
       }
         
       extension \$$serviceName on $serviceName {
