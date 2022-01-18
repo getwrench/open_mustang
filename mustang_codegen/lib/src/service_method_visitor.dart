@@ -13,12 +13,10 @@ class ServiceMethodVisitor extends SimpleElementVisitor {
 
   @override
   visitMethodElement(MethodElement element) {
-    List<ElementAnnotation> annotations = element.declaration.metadata;
+    List<ElementAnnotation> annotations =
+        element.declaration.metadata.reversed.toList();
+    List<String> onException = [];
     if (annotations.isNotEmpty) {
-      DartType type = annotations.first.computeConstantValue()!.type!;
-      String annotationImport = type.element?.location?.encoding ?? '';
-      annotationImport = annotationImport.split(';').first;
-      imports.add("import '$annotationImport';");
       String methodName = '${element.displayName}(';
       if (element.parameters.isNotEmpty) {
         element.parameters.toList().forEach((parameter) {
@@ -42,6 +40,46 @@ class ServiceMethodVisitor extends SimpleElementVisitor {
         });
       }
       methodName = '$methodName)';
+
+      String nestedHooks = '''
+      return super.$methodName;
+      ''';
+
+      for (ElementAnnotation annotation in annotations) {
+        DartType type = annotation.computeConstantValue()!.type!;
+        String annotationImport = type.element?.location?.encoding ?? '';
+        annotationImport = annotationImport.split(';').first;
+        imports.add("import '$annotationImport';");
+        nestedHooks = '''
+      if(${type.getDisplayString(withNullability: false)}Hook().preHook()) {
+        $nestedHooks
+      }
+      return ${type.getDisplayString(withNullability: false)}Hook().postHook();
+        ''';
+        onException.add('''
+      ${type.getDisplayString(withNullability: false)}Hook().onException(e, stackTrace,)
+        ''');
+      }
+      String exceptions = '''
+        ${onException.first}
+      ''';
+      if(onException.length > 1) {
+        for (String exception in onException) {
+          exceptions = '''
+      if($exception) {
+        $exception;
+      }
+        ''';
+        }
+      }
+      nestedHooks = '''
+      try {
+        $nestedHooks
+      } catch (e, stackTrace) {
+        $exceptions
+      }
+      ''';
+
       String declaration = element.declaration.toString();
       declaration = declaration.split('*').join('');
       Map<String, String> methodsWithDeclaration = {};
@@ -52,14 +90,7 @@ class ServiceMethodVisitor extends SimpleElementVisitor {
         overrides.add('''
       @override
       ${method.key}  ${element.isAsynchronous ? "async" : ""} {
-        try {
-          if(${type.getDisplayString(withNullability: false)}Hook().preHook()) {
-            return super.${method.value};
-          }
-          return ${type.getDisplayString(withNullability: false)}Hook().postHook();
-        } catch (e, stackTrace) {
-          return ${type.getDisplayString(withNullability: false)}Hook().onException(e, stackTrace,);
-        }
+        $nestedHooks
       }
       ''');
       }

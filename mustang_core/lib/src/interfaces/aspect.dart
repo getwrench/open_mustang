@@ -3,5 +3,5 @@ abstract class Aspect {
 
   void postHook();
 
-  void onException(Object e, StackTrace stackTrace);
+  bool onException(Object e, StackTrace stackTrace);
 }
