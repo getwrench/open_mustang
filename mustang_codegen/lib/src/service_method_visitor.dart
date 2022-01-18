@@ -1,6 +1,8 @@
+import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:analyzer/dart/element/visitor.dart';
+import 'package:source_gen/source_gen.dart';
 
 class ServiceMethodVisitor extends SimpleElementVisitor {
   ServiceMethodVisitor({
@@ -47,6 +49,25 @@ class ServiceMethodVisitor extends SimpleElementVisitor {
 
       for (ElementAnnotation annotation in annotations) {
         DartType type = annotation.computeConstantValue()!.type!;
+
+        /// taken from [library.annotatedWith] implementation
+        final DartObject? annotationObject =
+            TypeChecker.fromStatic(type).firstAnnotationOfExact(element);
+        AnnotatedElement annotatedElement = AnnotatedElement(
+          ConstantReader(annotationObject),
+          element,
+        );
+        String? errorMessage = annotatedElement.annotation
+            .read('errorMessage')
+            .literalValue as String?;
+        if (errorMessage?.isEmpty ?? true) {
+          errorMessage = element.location?.encoding
+                  .split('\$')
+                  .last
+                  .split(';')
+                  .join(':') ??
+              '';
+        }
         String annotationImport = type.element?.location?.encoding ?? '';
         annotationImport = annotationImport.split(';').first;
         imports.add("import '$annotationImport';");
@@ -57,17 +78,17 @@ class ServiceMethodVisitor extends SimpleElementVisitor {
       return ${type.getDisplayString(withNullability: false)}Hook().postHook();
         ''';
         onException.add('''
-      ${type.getDisplayString(withNullability: false)}Hook().onException(e, stackTrace,)
+      ${type.getDisplayString(withNullability: false)}Hook().onException(e, stackTrace, message: '$errorMessage',)
         ''');
       }
       String exceptions = '''
         ${onException.first}
       ''';
-      if(onException.length > 1) {
-        for (String exception in onException) {
+      if (onException.length > 1) {
+        for (String exception in onException.sublist(1)) {
           exceptions = '''
       if($exception) {
-        $exception;
+        $exceptions;
       }
         ''';
         }

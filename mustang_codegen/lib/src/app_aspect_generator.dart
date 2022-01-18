@@ -44,7 +44,9 @@ import 'package:$pkgName/src/aspects/$importAspect.dart';
 class ${generatedAspectName}Hook extends $aspectName {}
 
 class $generatedAspectName {
-  const $generatedAspectName();
+  const $generatedAspectName({this.errorMessage});
+  
+  final String? errorMessage;
 }
 
 const $generatedAspectNameLowerCase = $generatedAspectName();
