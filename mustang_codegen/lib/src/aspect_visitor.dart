@@ -2,7 +2,9 @@ import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/visitor.dart';
 import 'package:mustang_core/mustang_core.dart';
 
-/// Visits an generated aspect file and finds available hooks
+/// Visits a generated aspect file and finds available hooks
+/// used in [HookOverrideGenerator] to find which hooks are available
+/// for a generated aspect
 class AspectVisitor extends SimpleElementVisitor {
   const AspectVisitor(this.availableMethods);
 
