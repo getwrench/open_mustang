@@ -1,4 +1,16 @@
 builders:
+  aspect_builder:
+    import: 'package:mustang_codegen/builder.dart'
+    builder_factories: [ 'appAspectLibraryBuilder' ]
+    build_extensions: { '.dart': [ '.aspect.dart' ] }
+    auto_apply: root_package
+    build_to: source
+    defaults: {
+      generate_for: {
+        exclude: [ '**/aspects/*.aspect.dart' ],
+        include: [ '**/aspects/*.dart' ]
+      }
+    }
   model_builder:
     import: 'package:mustang_codegen/builder.dart'
     builder_factories: [ 'appModelLibraryBuilder' ]
@@ -65,18 +77,6 @@ builders:
     defaults: {
       generate_for: {
         include: [ '**/screens/**/*_state.dart' ]
-      }
-    }
-  aspect_builder:
-    import: 'package:mustang_codegen/builder.dart'
-    builder_factories: [ 'appAspectLibraryBuilder' ]
-    build_extensions: { '.dart': [ '.aspect.dart' ] }
-    auto_apply: root_package
-    build_to: source
-    defaults: {
-      generate_for: {
-        exclude: ['**/aspects/*.aspect.dart' ],
-        include: [ '**/aspects/*.dart' ]
       }
     }
 

@@ -1,5 +1,6 @@
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
+import 'package:mustang_codegen/src/hook_generator.dart';
 import 'package:mustang_core/mustang_core.dart';
 import 'package:path/path.dart' as p;
 import 'package:source_gen/source_gen.dart';
@@ -8,7 +9,7 @@ class AppAspectGenerator extends Generator {
   @override
   String generate(LibraryReader library, BuildStep buildStep) {
     Iterable<AnnotatedElement> aspects =
-        library.annotatedWith(const TypeChecker.fromRuntime(Hook));
+        library.annotatedWith(const TypeChecker.fromRuntime(Aspect));
     StringBuffer serviceBuffer = StringBuffer();
     if (aspects.isEmpty) {
       return '$serviceBuffer';
@@ -35,21 +36,66 @@ class AppAspectGenerator extends Generator {
     String importAspect = p.basenameWithoutExtension(buildStep.inputId.path);
 
     String pkgName = buildStep.inputId.package;
-    String generatedAspectNameLowerCase =
-        '${generatedAspectName[0].toLowerCase()}${generatedAspectName.substring(1)}';
+
+    List<String> beforeHooks = [];
+    List<String> afterHooks = [];
+    List<String> aroundHooks = [];
+
+    element.visitChildren(HookGenerator(
+      beforeHooks,
+      afterHooks,
+      aroundHooks,
+    ));
+
+    String before = '''''';
+
+    if (beforeHooks.isNotEmpty) {
+      before = '''
+      void before() {
+        ${beforeHooks.join('\n')}
+      }
+      ''';
+    }
+
+    String after = '''''';
+
+    if (afterHooks.isNotEmpty) {
+      before = '''
+      void after() {
+        ${afterHooks.join('\n')}
+      }
+      ''';
+    }
+
+    String around = '''''';
+
+    if (aroundHooks.isNotEmpty) {
+      around = '''
+      void around(void Function() sourceMethod) {
+        ${aroundHooks.join('\n')}
+      }
+      ''';
+    }
 
     return '''   
-import 'package:$pkgName/src/aspects/$importAspect.dart';
-
-class ${generatedAspectName}Hook extends $aspectName {}
-
-class $generatedAspectName {
-  const $generatedAspectName({this.errorMessage});
-  
-  final String? errorMessage;
-}
-
-const $generatedAspectNameLowerCase = $generatedAspectName();
+      import 'package:mustang_core/mustang_core.dart';
+      import 'package:$pkgName/src/aspects/$importAspect.dart';
+      
+      class ${generatedAspectName}Hook extends $aspectName {
+        $before
+        
+        $after
+        
+        $around
+      }
+      
+      class $generatedAspectName {
+        const $generatedAspectName({
+          required this.jointPoint,
+        });
+        
+        final JointPoint jointPoint;
+      }
     ''';
   }
 
@@ -61,11 +107,11 @@ const $generatedAspectNameLowerCase = $generatedAspectName();
           element: element);
     }
 
-    // class annotated with ScreenService should be abstract
+    // class annotated with @aspect should be abstract
     ClassElement appServiceClass = element as ClassElement;
     if (!appServiceClass.isAbstract) {
       throw InvalidGenerationSourceError(
-          'Error: class annotated with hook should be abstract',
+          'Error: class annotated with aspect should be abstract',
           todo: 'Make the class abstract',
           element: element);
     }

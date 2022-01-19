@@ -90,6 +90,27 @@ class Utils {
     return null;
   }
 
+  /// Input: MethodElement
+  /// Output: Method with all its input arguments
+  /// Example Output: validateToken(userId: userId, token: token)
+  static String methodWithExecutionArgs(MethodElement element) {
+    String methodName = 'super.${element.displayName}(';
+    if (element.parameters.isNotEmpty) {
+      element.parameters.toList().forEach((parameter) {
+        String import = parameter.type.element?.location?.encoding ?? '';
+        if (parameter.declaration.isOptional) {
+          methodName =
+          '$methodName${parameter.displayName}: ${parameter.displayName}, ';
+        } else {
+          methodName = '$methodName${parameter.displayName}, ';
+        }
+        import = import.split(';').first;
+      });
+    }
+    methodName = '$methodName)';
+    return methodName;
+  }
+
   static String? homeDir() {
     Map<String, String> envVars = Platform.environment;
     if (Platform.isMacOS) {
