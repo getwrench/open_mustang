@@ -60,7 +60,7 @@ class AppAspectGenerator extends Generator {
     String after = '''''';
 
     if (afterHooks.isNotEmpty) {
-      before = '''
+      after = '''
       void after() {
         ${afterHooks.join('\n')}
       }
