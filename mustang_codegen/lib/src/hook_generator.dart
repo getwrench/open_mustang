@@ -4,6 +4,8 @@ import 'package:analyzer/dart/element/visitor.dart';
 import 'package:source_gen/source_gen.dart';
 
 /// Visits all the methods for the aspect and generates appropriate hooks
+/// user by [AppAspectGenerator] to find methods annotated with
+/// @before, @after, @around in user written aspect
 class HookGenerator extends SimpleElementVisitor {
   const HookGenerator(
     this.before,

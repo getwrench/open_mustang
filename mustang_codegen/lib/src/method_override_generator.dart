@@ -8,9 +8,10 @@ import 'package:mustang_core/mustang_core.dart';
 import 'package:source_gen/source_gen.dart';
 
 /// Visits all the methods of a service and generates appropriate code
-/// for overriding parent method(s)
-class HookOverrideGenerator extends SimpleElementVisitor {
-  HookOverrideGenerator({
+/// for overriding parent methods. This visitor is called in
+/// [ScreenServiceGenerator] to override methods that are annotated
+class MethodOverrideGenerator extends SimpleElementVisitor {
+  MethodOverrideGenerator({
     required this.overrides,
     required this.imports,
   });
@@ -56,7 +57,7 @@ class HookOverrideGenerator extends SimpleElementVisitor {
           LibraryElement? lib = annotationObject.type?.element?.library;
           List<JointPoint> generatedMethodNames = [];
           lib?.topLevelElements
-              .firstWhere((element) => element.displayName.contains('Hook'))
+              .firstWhere((element) => element.displayName.contains('\$\$'))
               .visitChildren(
                 AspectVisitor(
                   generatedMethodNames,
@@ -80,17 +81,17 @@ class HookOverrideGenerator extends SimpleElementVisitor {
             switch (jointPoint) {
               case JointPoint.before:
                 beforeHooks.add('''
-                ${type.getDisplayString(withNullability: false)}Hook().before();
+                \$\$${type.getDisplayString(withNullability: false)}().before();
               ''');
                 break;
               case JointPoint.after:
                 afterHooks.add('''
-                ${type.getDisplayString(withNullability: false)}Hook().after();
+                \$\$${type.getDisplayString(withNullability: false)}().after();
               ''');
                 break;
               case JointPoint.around:
                 aroundHooks.add('''
-            ${type.getDisplayString(withNullability: false)}Hook().around(
+            \$\$${type.getDisplayString(withNullability: false)}().around(
           ''');
             }
           } else {

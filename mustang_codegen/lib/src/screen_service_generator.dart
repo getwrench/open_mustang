@@ -1,6 +1,6 @@
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
-import 'package:mustang_codegen/src/hook_override_generator.dart';
+import 'package:mustang_codegen/src/method_override_generator.dart';
 import 'package:mustang_codegen/src/utils.dart';
 import 'package:mustang_core/mustang_core.dart';
 import 'package:path/path.dart' as p;
@@ -52,7 +52,7 @@ class ScreenServiceGenerator extends Generator {
     List<String> overriders = [];
 
     element.visitChildren(
-      HookOverrideGenerator(
+      MethodOverrideGenerator(
         overrides: overriders,
         imports: importStates,
       ),

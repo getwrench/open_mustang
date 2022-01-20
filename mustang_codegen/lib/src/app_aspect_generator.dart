@@ -81,7 +81,7 @@ class AppAspectGenerator extends Generator {
       import 'package:mustang_core/mustang_core.dart';
       import 'package:$pkgName/src/aspects/$importAspect.dart';
       
-      class ${generatedAspectName}Hook extends $aspectName {
+      class \$\$$generatedAspectName extends $aspectName {
         $before
         
         $after
