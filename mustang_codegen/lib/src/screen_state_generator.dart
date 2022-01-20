@@ -85,6 +85,7 @@ class ScreenStateGenerator extends Generator {
         
         @override
         void dispose() {
+          ConnectivityService.dispose();
           mounted = false;
           if (kDebugMode) {
             postEvent('${Utils.debugEventKind}', {

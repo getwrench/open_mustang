@@ -23,8 +23,8 @@ class ConnectivityService {
     }
   }
 
-  void dispose() {
-    _streamController.close();
+  static void dispose() {
+    ConnectivityService._()._streamController.close();
   }
 }
 
