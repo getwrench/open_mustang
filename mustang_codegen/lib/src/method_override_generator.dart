@@ -25,7 +25,10 @@ class MethodOverrideGenerator extends SimpleElementVisitor {
     // if there are no annotations skip this method
     if (annotations.isNotEmpty) {
       List<DartType> methodAnnotations = [];
-      String methodWithExecutionArgs = Utils.methodWithExecutionArgs(element);
+      String methodWithExecutionArgs = Utils.methodWithExecutionArgs(
+        element,
+        imports,
+      );
       List<String> beforeHooks = [];
       List<String> afterHooks = [];
       List<String> aroundHooks = [];
@@ -76,8 +79,10 @@ class MethodOverrideGenerator extends SimpleElementVisitor {
           JointPoint jointPoint = JointPoint.values[index];
           if (generatedMethodNames.contains(jointPoint)) {
             String annotationImport = type.element?.location?.encoding ?? '';
-            annotationImport = annotationImport.split(';').first;
-            imports.add("import '$annotationImport';");
+            if (annotationImport.isNotEmpty) {
+              annotationImport = annotationImport.split(';').first;
+              imports.add("import '$annotationImport';");
+            }
             switch (jointPoint) {
               case JointPoint.before:
                 beforeHooks.add('''

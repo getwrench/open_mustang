@@ -10,6 +10,7 @@ class Utils {
 
   // mustang config file
   static const String configFile = 'mustang.yaml';
+
   // Keys in mustang-cli.yaml
   static const String serializerKey = 'serializer';
   static const String screenKey = 'screen';
@@ -93,18 +94,24 @@ class Utils {
   /// Input: MethodElement
   /// Output: Method with all its input arguments
   /// Example Output: validateToken(userId: userId, token: token)
-  static String methodWithExecutionArgs(MethodElement element) {
+  static String methodWithExecutionArgs(
+    MethodElement element,
+    List<String> imports,
+  ) {
     String methodName = 'super.${element.displayName}(';
     if (element.parameters.isNotEmpty) {
       element.parameters.toList().forEach((parameter) {
         String import = parameter.type.element?.location?.encoding ?? '';
         if (parameter.declaration.isOptional) {
           methodName =
-          '$methodName${parameter.displayName}: ${parameter.displayName}, ';
+              '$methodName${parameter.displayName}: ${parameter.displayName}, ';
         } else {
           methodName = '$methodName${parameter.displayName}, ';
         }
-        import = import.split(';').first;
+        if (import.isNotEmpty) {
+          import = import.split(';').first;
+          imports.add("import '$import';");
+        }
       });
     }
     methodName = '$methodName)';
