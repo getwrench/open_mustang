@@ -266,7 +266,13 @@ class ScreenServiceGenerator extends Generator {
         bool itemExistsInCache(String key) {
           return WrenchCache.itemExists(key);
         }
-  
+        
+        Stream<bool> getConnectionStatus() async* {
+          await for (ConnectivityStatus status
+              in ConnectivityService.connectivityStatus()) {
+            yield (status == ConnectivityStatus.offline) ? false : true;
+          }
+        }
     }
     ''';
   }
