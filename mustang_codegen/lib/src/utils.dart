@@ -102,15 +102,15 @@ class Utils {
     if (element.parameters.isNotEmpty) {
       element.parameters.toList().forEach((parameter) {
         String import = parameter.type.element?.location?.encoding ?? '';
-        if (parameter.declaration.isOptional) {
+        if (import.isNotEmpty) {
+          import = import.split(';').first;
+          imports.add("import '$import';");
+        }
+        if (parameter.declaration.isNamed) {
           methodName =
               '$methodName${parameter.displayName}: ${parameter.displayName}, ';
         } else {
           methodName = '$methodName${parameter.displayName}, ';
-        }
-        if (import.isNotEmpty) {
-          import = import.split(';').first;
-          imports.add("import '$import';");
         }
       });
     }
