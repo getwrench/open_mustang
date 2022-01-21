@@ -85,6 +85,12 @@ class ScreenServiceGenerator extends Generator {
       }
       
       class $generatedServiceName extends $serviceName {
+         void subscribeToConnectivityEvent() async {
+            await for (var status
+                in ConnectivityService.subscribeToConnectivityStream()) {
+              updateState();
+            }
+         }
       }
         
       extension \$$serviceName on $serviceName {
@@ -265,13 +271,6 @@ class ScreenServiceGenerator extends Generator {
         
         bool itemExistsInCache(String key) {
           return WrenchCache.itemExists(key);
-        }
-        
-        Stream<bool> getConnectionStatus() async* {
-          await for (ConnectivityStatus status
-              in ConnectivityService.connectivityStatus()) {
-            yield (status == ConnectivityStatus.offline) ? false : true;
-          }
         }
     }
     ''';
