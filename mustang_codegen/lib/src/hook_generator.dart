@@ -23,7 +23,7 @@ class HookGenerator extends SimpleElementVisitor {
           if (!element.returnType.isDartAsyncFuture) {
             throw InvalidGenerationSourceError(
               'async method must return a future ',
-              todo: 'Use @invoke for only 1 method',
+              todo: 'use Future<T> as return type',
               element: element,
             );
           }
