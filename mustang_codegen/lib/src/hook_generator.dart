@@ -5,19 +5,13 @@ import 'package:source_gen/source_gen.dart';
 
 /// Visits all the methods for the aspect and generates appropriate hooks.
 /// It is used by [AppAspectGenerator] to find methods annotated with
-/// @before, @after, @around in user written aspect
+/// @invoke in user written aspect
 class HookGenerator extends SimpleElementVisitor {
   const HookGenerator(
-    this.before,
-    this.after,
     this.around,
   );
 
-  final List<String> before;
-
   final List<String> around;
-
-  final List<String> after;
 
   @override
   visitMethodElement(MethodElement element) {
@@ -25,40 +19,25 @@ class HookGenerator extends SimpleElementVisitor {
     if (element.metadata.isNotEmpty) {
       DartType? type = element.metadata.first.computeConstantValue()?.type;
       if (type != null) {
+        if (element.isAsynchronous) {
+          if (!element.returnType.isDartAsyncFuture) {
+            throw InvalidGenerationSourceError(
+              'async method must return a future ',
+              todo: 'Use @invoke for only 1 method',
+              element: element,
+            );
+          }
+        }
         switch (type.getDisplayString(withNullability: false)) {
-          case ('Around'):
+          case ('Invoke'):
             if (around.isEmpty) {
               around.add('''
-            super.${element.displayName}(sourceMethod);
+            ${element.isAsynchronous ? 'await' : ''} super.${element.displayName}(sourceMethod);
           ''');
             } else {
               throw InvalidGenerationSourceError(
-                  'Only 1 @around annotation allowed per aspect ',
-                  todo: 'Use @around for only 1 method',
-                  element: element);
-            }
-            break;
-          case ('Before'):
-            if (before.isEmpty) {
-              before.add('''
-            super.${element.displayName}();
-          ''');
-            } else {
-              throw InvalidGenerationSourceError(
-                  'Only 1 @before annotation allowed per aspect',
-                  todo: 'Use @before for only 1 method',
-                  element: element);
-            }
-            break;
-          case ('After'):
-            if (after.isEmpty) {
-              after.add('''
-            super.${element.displayName}();
-          ''');
-            } else {
-              throw InvalidGenerationSourceError(
-                  'Only 1 @after annotation allowed per aspect ',
-                  todo: 'Use @after for only 1 method',
+                  'Only 1 @invoke annotation allowed per aspect ',
+                  todo: 'Use @invoke for only 1 method',
                   element: element);
             }
             break;

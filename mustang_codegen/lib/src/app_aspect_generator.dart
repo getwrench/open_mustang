@@ -33,69 +33,39 @@ class AppAspectGenerator extends Generator {
 
     String aspectName = element.displayName;
     String generatedAspectName = element.displayName.replaceFirst(r'$', '');
+    String generatedAspectNameWithLowerCase = '${generatedAspectName[0].toLowerCase()}${generatedAspectName.substring(1)}';
     String importAspect = p.basenameWithoutExtension(buildStep.inputId.path);
 
     String pkgName = buildStep.inputId.package;
 
-    List<String> beforeHooks = [];
-    List<String> afterHooks = [];
     List<String> aroundHooks = [];
 
     element.visitChildren(HookGenerator(
-      beforeHooks,
-      afterHooks,
       aroundHooks,
     ));
 
-    String before = '''''';
-
-    if (beforeHooks.isNotEmpty) {
-      before = '''
-      void before() {
-        ${beforeHooks.join('\n')}
-      }
-      ''';
-    }
-
-    String after = '''''';
-
-    if (afterHooks.isNotEmpty) {
-      after = '''
-      void after() {
-        ${afterHooks.join('\n')}
-      }
-      ''';
-    }
-
-    String around = '''''';
-
-    if (aroundHooks.isNotEmpty) {
-      around = '''
-      void around(void Function() sourceMethod) {
-        ${aroundHooks.join('\n')}
-      }
-      ''';
+    if (aroundHooks.isEmpty) {
+      throw InvalidGenerationSourceError(
+          'Error: could not find any method annotated with @invoke',
+          todo: 'annotate a method with @invoke',
+          element: element,);
     }
 
     return '''   
       import 'package:mustang_core/mustang_core.dart';
       import 'package:$pkgName/src/aspects/$importAspect.dart';
       
-      class \$\$$generatedAspectName extends $aspectName {
-        $before
-        
-        $after
-        
-        $around
+      class \$\$$generatedAspectName extends $aspectName {        
+        Future<void> around(Function sourceMethod) async {
+         ${aroundHooks.join('\n')}
+        }
       }
       
       class $generatedAspectName {
-        const $generatedAspectName({
-          required this.jointPoint,
-        });
-        
-        final JointPoint jointPoint;
+        const $generatedAspectName();
       }
+      
+      const $generatedAspectNameWithLowerCase = $generatedAspectName();
     ''';
   }
 

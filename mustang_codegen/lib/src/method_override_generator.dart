@@ -1,10 +1,7 @@
-import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:analyzer/dart/element/visitor.dart';
-import 'package:mustang_codegen/src/aspect_visitor.dart';
 import 'package:mustang_codegen/src/utils.dart';
-import 'package:mustang_core/mustang_core.dart';
 import 'package:source_gen/source_gen.dart';
 
 /// Visits all the methods of a service and generates appropriate code
@@ -29,8 +26,6 @@ class MethodOverrideGenerator extends SimpleElementVisitor {
         element,
         imports,
       );
-      List<String> beforeHooks = [];
-      List<String> afterHooks = [];
       List<String> aroundHooks = [];
       for (ElementAnnotation annotation in annotations) {
         DartType? type = annotation.computeConstantValue()?.type;
@@ -51,111 +46,49 @@ class MethodOverrideGenerator extends SimpleElementVisitor {
               element: element);
         }
 
-        // taken from [library.annotatedWith] implementation
-        // finds the implementation for [annotation] and visits its
-        // methods to look for the appropriate hook
-        final DartObject? annotationObject =
-            TypeChecker.fromStatic(type).firstAnnotationOfExact(element);
-        if (annotationObject != null) {
-          LibraryElement? lib = annotationObject.type?.element?.library;
-          List<JointPoint> generatedMethodNames = [];
-          lib?.topLevelElements
-              .firstWhere((element) => element.displayName.contains('\$\$'))
-              .visitChildren(
-                AspectVisitor(
-                  generatedMethodNames,
-                ),
-              );
-          AnnotatedElement annotatedElement = AnnotatedElement(
-            ConstantReader(annotationObject),
-            element,
-          );
-          int? index = annotatedElement.annotation
-                  .read('jointPoint')
-                  .objectValue
-                  .getField('index')
-                  ?.toIntValue() ??
-              0;
-          JointPoint jointPoint = JointPoint.values[index];
-          if (generatedMethodNames.contains(jointPoint)) {
-            String annotationImport = type.element?.location?.encoding ?? '';
-            if (annotationImport.isNotEmpty) {
-              annotationImport = annotationImport.split(';').first;
-              imports.add("import '$annotationImport';");
-            }
-            switch (jointPoint) {
-              case JointPoint.before:
-                beforeHooks.add('''
-                \$\$${type.getDisplayString(withNullability: false)}().before();
-              ''');
-                break;
-              case JointPoint.after:
-                afterHooks.add('''
-                \$\$${type.getDisplayString(withNullability: false)}().after();
-              ''');
-                break;
-              case JointPoint.around:
-                aroundHooks.add('''
-            \$\$${type.getDisplayString(withNullability: false)}().around(
-          ''');
-            }
-          } else {
-            switch (jointPoint) {
-              case JointPoint.around:
-                throw InvalidGenerationSourceError(
-                    'No method annotated with @around in \$$type',
-                    todo: 'Add @around to a method',
-                    element: element);
-              case JointPoint.before:
-                throw InvalidGenerationSourceError(
-                    'No method annotated with @before in \$$type',
-                    todo: 'Add @before to a method',
-                    element: element);
-              case JointPoint.after:
-                throw InvalidGenerationSourceError(
-                    'No method annotated with @after in \$$type',
-                    todo: 'Add @after to a method',
-                    element: element);
-            }
-          }
+        String annotationImport = type.element?.location?.encoding ?? '';
+        if (annotationImport.isNotEmpty) {
+          annotationImport = annotationImport.split(';').first;
+          imports.add("import '$annotationImport';");
         }
+        aroundHooks.add('''
+            ${element.isAsynchronous ? 'await' : ''} \$\$${type.getDisplayString(withNullability: false)}().around(
+          ''');
       }
       String nestedAroundMethods = _nestAroundMethods(
-        methodWithExecutionArgs,
-        aroundHooks,
-      );
+          methodWithExecutionArgs, aroundHooks,
+          isAsync: element.isAsynchronous);
 
       String declaration =
           element.declaration.getDisplayString(withNullability: false);
       overrides.add('''
               @override
               $declaration  ${element.isAsynchronous ? "async" : ""} {
-                ${beforeHooks.join('')}
                 ${aroundHooks.isEmpty ? methodWithExecutionArgs : nestedAroundMethods};
-                ${afterHooks.join('')}
               }
             ''');
-      overrides = overrides.toSet().toList();
       return super.visitMethodElement(element);
     }
   }
 
   String _nestAroundMethods(
     String methodWithExecutionArgs,
-    List<String> aroundHooks,
-  ) {
+    List<String> aroundHooks, {
+    bool isAsync = false,
+  }) {
     String aroundHook = '''
-      $methodWithExecutionArgs
+      ${isAsync ? 'await' : ''} $methodWithExecutionArgs
       ''';
     for (String s in aroundHooks.reversed) {
       aroundHook = '''
-          $s() => $aroundHook
+          $s ${isAsync ? '() async {' : '() =>'} $aroundHook
         ''';
     }
     String closing =
-        List.generate(aroundHooks.length, (index) => ')').join(',');
+        List.generate(aroundHooks.length, (index) => isAsync ? ';})' : ')')
+            .join(isAsync ? '' : ',');
     aroundHook = '''
-        $aroundHook,$closing
+        $aroundHook$closing
       ''';
     return aroundHook;
   }
