@@ -33,22 +33,26 @@ class AppAspectGenerator extends Generator {
 
     String aspectName = element.displayName;
     String generatedAspectName = element.displayName.replaceFirst(r'$', '');
-    String generatedAspectNameWithLowerCase = '${generatedAspectName[0].toLowerCase()}${generatedAspectName.substring(1)}';
+    String generatedAspectNameWithLowerCase =
+        '${generatedAspectName[0].toLowerCase()}${generatedAspectName.substring(1)}';
     String importAspect = p.basenameWithoutExtension(buildStep.inputId.path);
 
     String pkgName = buildStep.inputId.package;
 
     List<String> aroundHooks = [];
+    List<bool> isAsync = [false];
 
     element.visitChildren(HookGenerator(
       aroundHooks,
+      isAsync,
     ));
 
     if (aroundHooks.isEmpty) {
       throw InvalidGenerationSourceError(
-          'Error: could not find any method annotated with @invoke',
-          todo: 'annotate a method with @invoke',
-          element: element,);
+        'Error: could not find any method annotated with @invoke',
+        todo: 'annotate a method with @invoke',
+        element: element,
+      );
     }
 
     return '''   
@@ -56,7 +60,7 @@ class AppAspectGenerator extends Generator {
       import 'package:$pkgName/src/aspects/$importAspect.dart';
       
       class \$\$$generatedAspectName extends $aspectName {        
-        Future<void> around(Function sourceMethod) async {
+        ${isAsync.last ? 'Future<void>' : 'void'} around(Function sourceMethod) ${isAsync.last ? 'async' : ''} {
          ${aroundHooks.join('\n')}
         }
       }

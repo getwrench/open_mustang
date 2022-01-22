@@ -7,11 +7,11 @@ import 'package:source_gen/source_gen.dart';
 /// It is used by [AppAspectGenerator] to find methods annotated with
 /// @invoke in user written aspect
 class HookGenerator extends SimpleElementVisitor {
-  const HookGenerator(
-    this.around,
-  );
+  const HookGenerator(this.around, this.isAsync);
 
   final List<String> around;
+
+  final List<bool> isAsync;
 
   @override
   visitMethodElement(MethodElement element) {
@@ -20,6 +20,7 @@ class HookGenerator extends SimpleElementVisitor {
       DartType? type = element.metadata.first.computeConstantValue()?.type;
       if (type != null) {
         if (element.isAsynchronous) {
+          isAsync.add(element.isAsynchronous);
           if (!element.returnType.isDartAsyncFuture) {
             throw InvalidGenerationSourceError(
               'async method must return a future ',
