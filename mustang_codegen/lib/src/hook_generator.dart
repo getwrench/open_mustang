@@ -6,7 +6,7 @@ import 'package:source_gen/source_gen.dart';
 
 /// Visits all the methods for the aspect and generates appropriate hooks.
 /// It is used by [AppAspectGenerator] to find methods annotated with
-/// @invoke in user written aspect
+/// @invokeOnAsync and @invokeOnSync in user written aspect
 class HookGenerator extends SimpleElementVisitor {
   const HookGenerator(
     this.aroundOnSync,

@@ -40,36 +40,36 @@ class AppAspectGenerator extends Generator {
 
     String pkgName = buildStep.inputId.package;
 
-    List<String> aroundOnSyncHooks = [];
-    List<String> aroundOnAsyncHooks = [];
+    List<String> invokeOnSyncHooks = [];
+    List<String> invokeOnAsyncHooks = [];
 
     element.visitChildren(HookGenerator(
-      aroundOnSyncHooks,
-      aroundOnAsyncHooks,
+      invokeOnSyncHooks,
+      invokeOnAsyncHooks,
     ));
 
     _validateHooksPresent(
       element,
-      aroundOnSyncHooks,
-      aroundOnAsyncHooks,
+      invokeOnSyncHooks,
+      invokeOnAsyncHooks,
     );
 
-    String aroundOnSyncMethod = '''''';
+    String invokeOnSyncMethod = '''''';
 
-    if (aroundOnSyncHooks.isNotEmpty) {
-      aroundOnSyncMethod = '''
+    if (invokeOnSyncHooks.isNotEmpty) {
+      invokeOnSyncMethod = '''
         void ${CodeGenConstants.invokeOnSync}(Function sourceMethod) {
-           ${aroundOnSyncHooks.join('\n')}
+           ${invokeOnSyncHooks.join('\n')}
         }
       ''';
     }
 
-    String aroundOnAsyncMethod = '''''';
+    String invokeOnAsyncMethod = '''''';
 
-    if (aroundOnAsyncHooks.isNotEmpty) {
-      aroundOnAsyncMethod = '''
+    if (invokeOnAsyncHooks.isNotEmpty) {
+      invokeOnAsyncMethod = '''
         Future<void> ${CodeGenConstants.invokeOnAsync}(Function sourceMethod) async {
-           ${aroundOnAsyncHooks.join('\n')}
+           ${invokeOnAsyncHooks.join('\n')}
         }
       ''';
     }
@@ -79,9 +79,9 @@ class AppAspectGenerator extends Generator {
       import 'package:$pkgName/src/aspects/$importAspect.dart';
       
       class \$\$$generatedAspectName extends $aspectName {        
-        $aroundOnSyncMethod
+        $invokeOnSyncMethod
         
-        $aroundOnAsyncMethod
+        $invokeOnAsyncMethod
       }
       
       class $generatedAspectName {
