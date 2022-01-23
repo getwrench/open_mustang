@@ -1,6 +1,9 @@
+import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:analyzer/dart/element/visitor.dart';
+import 'package:mustang_codegen/src/aspect_visitor.dart';
+import 'package:mustang_codegen/src/codegen_constants.dart';
 import 'package:mustang_codegen/src/utils.dart';
 import 'package:source_gen/source_gen.dart';
 
@@ -29,31 +32,38 @@ class MethodOverrideGenerator extends SimpleElementVisitor {
       List<String> aroundHooks = [];
       for (ElementAnnotation annotation in annotations) {
         DartType? type = annotation.computeConstantValue()?.type;
-
+        _validateAnnotation(type, methodAnnotations, element);
         if (type != null) {
-          if (!methodAnnotations.contains(type)) {
-            methodAnnotations.add(type);
-          } else {
-            throw InvalidGenerationSourceError(
-                'methods may not have duplicate annotations',
-                todo: 'Create new aspect if required',
-                element: element);
-          }
-        } else {
-          throw InvalidGenerationSourceError(
-              'No valid implementation found for one or many aspects',
-              todo: 'Make sure generated aspect files don\'t have errors',
-              element: element);
-        }
+          // taken from [library.annotatedWith] implementation
+          // finds the implementation for [annotation] and visits its
+          // methods to look for the appropriate hook
+          final DartObject? annotationObject =
+              TypeChecker.fromStatic(type).firstAnnotationOfExact(element);
+          _validateAnnotationImpl(element, type, annotationObject);
+          if (annotationObject != null) {
+            List<String> availableHooks = [];
+            LibraryElement? lib = annotationObject.type?.element?.library;
+            lib?.topLevelElements
+                .firstWhere((element) => element.displayName.contains('\$\$'))
+                .visitChildren(AspectVisitor(availableHooks));
 
-        String annotationImport = type.element?.location?.encoding ?? '';
-        if (annotationImport.isNotEmpty) {
-          annotationImport = annotationImport.split(';').first;
-          imports.add("import '$annotationImport';");
+            String annotationImport = type.element?.location?.encoding ?? '';
+            if (annotationImport.isNotEmpty) {
+              annotationImport = annotationImport.split(';').first;
+              imports.add("import '$annotationImport';");
+            }
+
+            _validateHookImpl(element, availableHooks, type);
+
+            String methodName = element.isAsynchronous
+                ? CodeGenConstants.invokeOnAsync
+                : CodeGenConstants.invokeOnSync;
+            String await = element.isAsynchronous ? 'await' : '';
+            aroundHooks.add('''
+              $await \$\$${type.getDisplayString(withNullability: false)}().$methodName(
+            ''');
+          }
         }
-        aroundHooks.add('''
-            ${element.isAsynchronous ? 'await' : ''} \$\$${type.getDisplayString(withNullability: false)}().around(
-          ''');
       }
       String nestedAroundMethods = _nestAroundMethods(
           methodWithExecutionArgs, aroundHooks,
@@ -61,9 +71,10 @@ class MethodOverrideGenerator extends SimpleElementVisitor {
 
       String declaration =
           element.declaration.getDisplayString(withNullability: false);
+      String async = element.isAsynchronous ? 'async' : '';
       overrides.add('''
               @override
-              $declaration  ${element.isAsynchronous ? "async" : ""} {
+              $declaration $async {
                 ${aroundHooks.isEmpty ? methodWithExecutionArgs : nestedAroundMethods};
               }
             ''');
@@ -91,5 +102,63 @@ class MethodOverrideGenerator extends SimpleElementVisitor {
         $aroundHook$closing
       ''';
     return aroundHook;
+  }
+
+  void _validateAnnotation(
+    DartType? type,
+    List<DartType> methodAnnotations,
+    MethodElement element,
+  ) {
+    if (type != null) {
+      if (!methodAnnotations.contains(type)) {
+        methodAnnotations.add(type);
+      } else {
+        throw InvalidGenerationSourceError(
+            'methods should not have duplicate annotations',
+            todo: 'Create new aspect if required',
+            element: element);
+      }
+    } else {
+      throw InvalidGenerationSourceError(
+          'No valid implementation found for one or many aspects',
+          todo: 'Make sure generated aspect files don\'t have errors',
+          element: element);
+    }
+  }
+
+  void _validateHookImpl(
+    MethodElement element,
+    List<String> availableHooks,
+    DartType annotationType,
+  ) {
+    if (element.isAsynchronous &&
+        !availableHooks.contains(CodeGenConstants.invokeOnAsync)) {
+      throw InvalidGenerationSourceError(
+          'No method annotated with @${CodeGenConstants.invokeOnAsync} in \$$annotationType',
+          todo: 'Make sure generated aspect files don\'t have errors',
+          element: element);
+    }
+
+    if (!element.isAsynchronous &&
+        !availableHooks.contains(CodeGenConstants.invokeOnSync)) {
+      throw InvalidGenerationSourceError(
+          'No method annotated with @${CodeGenConstants.invokeOnSync} in \$$annotationType',
+          todo: 'Make sure generated aspect files don\'t have errors',
+          element: element);
+    }
+  }
+
+  void _validateAnnotationImpl(
+    MethodElement element,
+    DartType annotationType,
+    DartObject? annotationObject,
+  ) {
+    if (annotationObject == null) {
+      throw InvalidGenerationSourceError(
+        'No implementation found for \$$annotationType',
+        todo: 'Make sure generated aspect files don\'t have errors',
+        element: element,
+      );
+    }
   }
 }

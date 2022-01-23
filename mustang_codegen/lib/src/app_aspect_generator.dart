@@ -1,5 +1,6 @@
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
+import 'package:mustang_codegen/src/codegen_constants.dart';
 import 'package:mustang_codegen/src/hook_generator.dart';
 import 'package:mustang_core/mustang_core.dart';
 import 'package:path/path.dart' as p;
@@ -39,20 +40,38 @@ class AppAspectGenerator extends Generator {
 
     String pkgName = buildStep.inputId.package;
 
-    List<String> aroundHooks = [];
-    List<bool> isAsync = [false];
+    List<String> aroundOnSyncHooks = [];
+    List<String> aroundOnAsyncHooks = [];
 
     element.visitChildren(HookGenerator(
-      aroundHooks,
-      isAsync,
+      aroundOnSyncHooks,
+      aroundOnAsyncHooks,
     ));
 
-    if (aroundHooks.isEmpty) {
-      throw InvalidGenerationSourceError(
-        'Error: could not find any method annotated with @invoke',
-        todo: 'annotate a method with @invoke',
-        element: element,
-      );
+    _validateHooksPresent(
+      element,
+      aroundOnSyncHooks,
+      aroundOnAsyncHooks,
+    );
+
+    String aroundOnSyncMethod = '''''';
+
+    if (aroundOnSyncHooks.isNotEmpty) {
+      aroundOnSyncMethod = '''
+        void ${CodeGenConstants.invokeOnSync}(Function sourceMethod) {
+           ${aroundOnSyncHooks.join('\n')}
+        }
+      ''';
+    }
+
+    String aroundOnAsyncMethod = '''''';
+
+    if (aroundOnAsyncHooks.isNotEmpty) {
+      aroundOnAsyncMethod = '''
+        Future<void> ${CodeGenConstants.invokeOnAsync}(Function sourceMethod) async {
+           ${aroundOnAsyncHooks.join('\n')}
+        }
+      ''';
     }
 
     return '''   
@@ -60,9 +79,9 @@ class AppAspectGenerator extends Generator {
       import 'package:$pkgName/src/aspects/$importAspect.dart';
       
       class \$\$$generatedAspectName extends $aspectName {        
-        ${isAsync.last ? 'Future<void>' : 'void'} around(Function sourceMethod) ${isAsync.last ? 'async' : ''} {
-         ${aroundHooks.join('\n')}
-        }
+        $aroundOnSyncMethod
+        
+        $aroundOnAsyncMethod
       }
       
       class $generatedAspectName {
@@ -71,6 +90,21 @@ class AppAspectGenerator extends Generator {
       
       const $generatedAspectNameWithLowerCase = $generatedAspectName();
     ''';
+  }
+
+  void _validateHooksPresent(
+    Element element,
+    List<String> aroundOnSyncHooks,
+    List<String> aroundOnAsyncHooks,
+  ) {
+    if (aroundOnSyncHooks.isEmpty && aroundOnAsyncHooks.isEmpty) {
+      throw InvalidGenerationSourceError(
+        'Error: could not find any method annotated with @${CodeGenConstants.invokeOnSync} or @${CodeGenConstants.invokeOnAsync}',
+        todo:
+            'annotate a method with @${CodeGenConstants.invokeOnSync} or @${CodeGenConstants.invokeOnAsync}',
+        element: element,
+      );
+    }
   }
 
   void _validate(Element element, ConstantReader annotation) {
