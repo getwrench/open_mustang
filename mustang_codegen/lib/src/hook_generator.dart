@@ -32,12 +32,12 @@ class HookGenerator extends SimpleElementVisitor {
         switch (type.getDisplayString(withNullability: false)) {
           case 'InvokeOnAsync':
             aroundOnAsync.add('''
-                super.${element.displayName}(sourceMethod);
+                ${element.isAsynchronous ? 'await' : ''} super.${element.displayName}(sourceMethod);
               ''');
             break;
           case 'InvokeOnSync':
             aroundOnSync.add('''
-                ${element.isAsynchronous ? 'await' : ''} super.${element.displayName}(sourceMethod);
+                super.${element.displayName}(sourceMethod);
               ''');
             break;
         }
