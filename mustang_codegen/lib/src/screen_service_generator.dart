@@ -85,12 +85,11 @@ class ScreenServiceGenerator extends Generator {
       }
       
       class $generatedServiceName extends $serviceName {
-         void subscribeToConnectivityEvent() async {
-            await for (var status
-                in ConnectivityService.subscribeToConnectivityStream()) {
-              updateState();
-            }
-         }
+         void subscribeToEvent() async {
+          await for (bool status in ConnectivityService.subscribeToMustangStream()) {
+            updateState();
+          }
+        }
       }
         
       extension \$$serviceName on $serviceName {

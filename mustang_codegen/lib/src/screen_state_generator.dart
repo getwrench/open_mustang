@@ -85,7 +85,7 @@ class ScreenStateGenerator extends Generator {
         
         @override
         void dispose() {
-          ConnectivityService.dispose();
+          MustangObservable.dispose();
           mounted = false;
           if (kDebugMode) {
             postEvent('${Utils.debugEventKind}', {
