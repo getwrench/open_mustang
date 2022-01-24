@@ -13,8 +13,7 @@ class MustangObservable {
 
   static void initStream<T>(Stream stream, T t) async {
     stream.listen((event) {
-      _streamController.sink.add([event, t]);
-      // print('event:$event-----${t}=======');
+      _streamController.sink.add(EventType(event: event, model: t));
     });
   }
 
@@ -27,4 +26,14 @@ class MustangObservable {
   static void dispose() {
     _streamController.close();
   }
+}
+
+class EventType<T> {
+  EventType({
+    required this.event,
+    required this.model,
+  });
+
+  dynamic event;
+  T model;
 }
