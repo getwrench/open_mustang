@@ -85,11 +85,20 @@ class ScreenServiceGenerator extends Generator {
       }
       
       class $generatedServiceName extends $serviceName {
-         void subscribeToEvent() async {
-          await for (bool status in ConnectivityService.subscribeToMustangStream()) {
-            updateState();
+          static bool _isSubscribedToStream = false;
+          
+          $generatedServiceName() {
+            if (!_isSubscribedToStream) {
+              subscribeToEvent();
+              _isSubscribedToStream = true;
+            }
           }
-        }
+          
+          void subscribeToEvent<T>() async {
+            await for (EventType model in MustangObservable.eventStream()) {
+              updateState1(model.t);
+            }
+          }
       }
         
       extension \$$serviceName on $serviceName {
