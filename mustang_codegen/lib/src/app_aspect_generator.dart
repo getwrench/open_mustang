@@ -40,51 +40,32 @@ class AppAspectGenerator extends Generator {
 
     String pkgName = buildStep.inputId.package;
 
-    List<String> invokeOnSyncHooks = [];
-    List<String> invokeOnAsyncHooks = [];
+    List<String> invokeHooks = [];
+    List<String> imports = [];
 
     element.visitChildren(HookGenerator(
-      invokeOnSyncHooks,
-      invokeOnAsyncHooks,
+      invokeHooks,
+      imports,
     ));
 
     _validateHooksPresent(
       element,
-      invokeOnSyncHooks,
-      invokeOnAsyncHooks,
+      invokeHooks,
     );
 
-    String invokeOnSyncMethod = '''''';
-
-    if (invokeOnSyncHooks.isNotEmpty) {
-      invokeOnSyncMethod = '''
-        void ${CodeGenConstants.invokeOnSync}(Function sourceMethod) {
-           ${invokeOnSyncHooks.join('\n')}
-        }
-      ''';
-    }
-
-    String invokeOnAsyncMethod = '''''';
-
-    if (invokeOnAsyncHooks.isNotEmpty) {
-      invokeOnAsyncMethod = '''
-        Future<void> ${CodeGenConstants.invokeOnAsync}(Function sourceMethod) async {
-           ${invokeOnAsyncHooks.join('\n')}
-        }
-      ''';
-    }
+    imports = imports.toSet().toList();
 
     return '''   
       import 'package:mustang_core/mustang_core.dart';
       import 'package:$pkgName/src/aspects/$importAspect.dart';
       
+      ${imports.join('\n')}
+      
       class \$\$$generatedAspectName extends $aspectName {        
-        $invokeOnSyncMethod
-        
-        $invokeOnAsyncMethod
+        ${invokeHooks.join('')}
       }
       
-      class $generatedAspectName {
+      class $generatedAspectName implements AspectBuilder {
         const $generatedAspectName();
       }
       
@@ -94,14 +75,13 @@ class AppAspectGenerator extends Generator {
 
   void _validateHooksPresent(
     Element element,
-    List<String> aroundOnSyncHooks,
-    List<String> aroundOnAsyncHooks,
+    List<String> invokeHooks,
   ) {
-    if (aroundOnSyncHooks.isEmpty && aroundOnAsyncHooks.isEmpty) {
+    if (invokeHooks.isEmpty) {
       throw InvalidGenerationSourceError(
-        'Error: could not find any method annotated with @${CodeGenConstants.invokeOnSync} or @${CodeGenConstants.invokeOnAsync}',
+        'Error: could not find any method annotated with @${CodeGenConstants.invoke}',
         todo:
-            'annotate a method with @${CodeGenConstants.invokeOnSync} or @${CodeGenConstants.invokeOnAsync}',
+            'annotate a method with @${CodeGenConstants.invoke}',
         element: element,
       );
     }

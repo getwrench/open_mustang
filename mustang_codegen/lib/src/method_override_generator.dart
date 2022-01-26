@@ -5,6 +5,7 @@ import 'package:analyzer/dart/element/visitor.dart';
 import 'package:mustang_codegen/src/aspect_visitor.dart';
 import 'package:mustang_codegen/src/codegen_constants.dart';
 import 'package:mustang_codegen/src/utils.dart';
+import 'package:mustang_core/mustang_core.dart';
 import 'package:source_gen/source_gen.dart';
 
 /// Visits all the methods of a service and generates appropriate code
@@ -24,61 +25,220 @@ class MethodOverrideGenerator extends SimpleElementVisitor {
     List<ElementAnnotation> annotations = element.declaration.metadata.toList();
     // if there are no annotations skip this method
     if (annotations.isNotEmpty) {
-      List<DartType> methodAnnotations = [];
       String methodWithExecutionArgs = Utils.methodWithExecutionArgs(
         element,
         imports,
       );
+      List<String> beforeHooks = [];
+      List<String> afterHooks = [];
       List<String> aroundHooks = [];
-      for (ElementAnnotation annotation in annotations) {
-        DartType? type = annotation.computeConstantValue()?.type;
-        _validateAnnotation(type, methodAnnotations, element);
-        if (type != null) {
-          // taken from [library.annotatedWith] implementation
-          // finds the implementation for [annotation] and visits its
-          // methods to look for the appropriate hook
-          final DartObject? annotationObject =
-              TypeChecker.fromStatic(type).firstAnnotationOfExact(element);
-          _validateAnnotationImpl(element, type, annotationObject);
-          if (annotationObject != null) {
-            List<String> availableHooks = [];
-            LibraryElement? lib = annotationObject.type?.element?.library;
-            lib?.topLevelElements
-                .firstWhere((element) => element.displayName.contains('\$\$'))
-                .visitChildren(AspectVisitor(availableHooks));
+      List<String> onExceptionHooks = [];
 
-            String annotationImport = type.element?.location?.encoding ?? '';
-            if (annotationImport.isNotEmpty) {
-              annotationImport = annotationImport.split(';').first;
-              imports.add("import '$annotationImport';");
-            }
+      final DartObject? beforeAnnotationObject =
+          TypeChecker.fromRuntime(Before).firstAnnotationOfExact(element);
+      _generateBeforeHooks(beforeAnnotationObject, beforeHooks, imports);
 
-            _validateHookImpl(element, availableHooks, type);
+      final DartObject? afterAnnotationObject =
+          TypeChecker.fromRuntime(After).firstAnnotationOfExact(element);
+      _generateAfterHooks(afterAnnotationObject, afterHooks, imports);
 
-            String methodName = element.isAsynchronous
-                ? CodeGenConstants.invokeOnAsync
-                : CodeGenConstants.invokeOnSync;
-            String await = element.isAsynchronous ? 'await' : '';
-            aroundHooks.add('''
-              $await \$\$${type.getDisplayString(withNullability: false)}().$methodName(
-            ''');
-          }
-        }
-      }
+      final DartObject? aroundAnnotationObject =
+          TypeChecker.fromRuntime(Around).firstAnnotationOfExact(element);
+      _generateAroundHooks(aroundAnnotationObject, aroundHooks, imports);
+
+      final DartObject? onExceptionAnnotationObject =
+          TypeChecker.fromRuntime(OnException).firstAnnotationOfExact(element);
+      _generateOnExceptionHooks(
+        onExceptionAnnotationObject,
+        onExceptionHooks,
+        imports,
+      );
+
       String nestedAroundMethods = _nestAroundMethods(
-          methodWithExecutionArgs, aroundHooks,
-          isAsync: element.isAsynchronous);
+        methodWithExecutionArgs,
+        aroundHooks,
+        isAsync: element.isAsynchronous,
+      );
 
       String declaration =
           element.declaration.getDisplayString(withNullability: false);
       String async = element.isAsynchronous ? 'async' : '';
-      overrides.add('''
-              @override
-              $declaration $async {
-                ${aroundHooks.isEmpty ? methodWithExecutionArgs : nestedAroundMethods};
-              }
-            ''');
+      String await = element.isAsynchronous ? 'await' : '';
+      if (onExceptionHooks.isNotEmpty) {
+        overrides.add('''
+          @override
+          $declaration $async {
+            try {
+              ${beforeHooks.join('')}
+              ${aroundHooks.isEmpty ? '$await $methodWithExecutionArgs' : nestedAroundMethods};
+              ${afterHooks.join('')}
+            } catch(e, stackTrace) {
+              ${onExceptionHooks.join('')}
+            }
+          }
+        ''');
+      } else {
+        overrides.add('''
+          @override
+          $declaration $async {
+            ${beforeHooks.join('')}
+            ${aroundHooks.isEmpty ? '$await $methodWithExecutionArgs' : nestedAroundMethods};
+            ${afterHooks.join('')}
+          }
+        ''');
+      }
       return super.visitMethodElement(element);
+    }
+  }
+
+  void _generateBeforeHooks(
+    DartObject? beforeAnnotationObject,
+    List<String> beforeHooks,
+    List<String> imports,
+  ) {
+    if (beforeAnnotationObject != null) {
+      List<DartObject> aspects =
+          beforeAnnotationObject.getField('aspects')?.toListValue() ?? [];
+      // add validation for when its empty
+      if (aspects.isNotEmpty) {
+        for (DartObject aspect in aspects) {
+          if (aspect.type?.getDisplayString(withNullability: false) != null) {
+            List<ParameterElement> invokeParameters = [];
+            Element? aspectExtensionObject = aspect
+                .type?.element?.library?.topLevelElements
+                .firstWhere((element) => element.displayName.contains('\$\$'));
+
+            aspectExtensionObject?.visitChildren(
+              AspectVisitor(invokeParameters),
+            );
+            _validateBeforeOrAfterAspectParameters(
+              invokeParameters,
+              aspect.type,
+            );
+            String annotationImport =
+                aspect.type?.element?.location?.encoding ?? '';
+            if (annotationImport.isNotEmpty) {
+              annotationImport = annotationImport.split(';').first;
+              imports.add("import '$annotationImport';");
+            }
+            String methodName = CodeGenConstants.invoke;
+            String aspectName =
+                '\$\$${aspect.type?.getDisplayString(withNullability: false)}';
+            beforeHooks.add('''
+              $aspectName().$methodName();
+            ''');
+          }
+        }
+      }
+    }
+  }
+
+  void _generateAfterHooks(
+    DartObject? afterAnnotationObject,
+    List<String> afterHooks,
+    List<String> imports,
+  ) {
+    if (afterAnnotationObject != null) {
+      List<DartObject> aspects =
+          afterAnnotationObject.getField('aspects')?.toListValue() ?? [];
+      // add validation for when its empty
+      if (aspects.isNotEmpty) {
+        for (DartObject aspect in aspects) {
+          if (aspect.type?.getDisplayString(withNullability: false) != null) {
+            List<ParameterElement> invokeParameters = [];
+            Element? aspectExtensionObject = aspect
+                .type?.element?.library?.topLevelElements
+                .firstWhere((element) => element.displayName.contains('\$\$'));
+
+            aspectExtensionObject?.visitChildren(
+              AspectVisitor(invokeParameters),
+            );
+            _validateBeforeOrAfterAspectParameters(
+              invokeParameters,
+              aspect.type,
+            );
+            String annotationImport =
+                aspect.type?.element?.location?.encoding ?? '';
+            if (annotationImport.isNotEmpty) {
+              annotationImport = annotationImport.split(';').first;
+              imports.add("import '$annotationImport';");
+            }
+            String methodName = CodeGenConstants.invoke;
+            String aspectName =
+                '\$\$${aspect.type?.getDisplayString(withNullability: false)}';
+            afterHooks.add('''
+              $aspectName().$methodName();
+            ''');
+          }
+        }
+      }
+    }
+  }
+
+  void _generateAroundHooks(
+    DartObject? aroundAnnotationObject,
+    List<String> aroundHooks,
+    List<String> imports, {
+    bool isAsync = false,
+  }) {
+    if (aroundAnnotationObject != null) {
+      DartObject? aspect = aroundAnnotationObject.getField('aspect');
+      // add validation for when its empty
+      if (aspect != null) {
+        if (aspect.type?.getDisplayString(withNullability: false) != null) {
+          List<ParameterElement> invokeParameters = [];
+          Element? aspectExtensionObject = aspect
+              .type?.element?.library?.topLevelElements
+              .firstWhere((element) => element.displayName.contains('\$\$'));
+
+          aspectExtensionObject?.visitChildren(AspectVisitor(invokeParameters));
+          _validateAroundInvokeParameters(invokeParameters, aspect.type);
+          String annotationImport =
+              aspect.type?.element?.location?.encoding ?? '';
+          if (annotationImport.isNotEmpty) {
+            annotationImport = annotationImport.split(';').first;
+            imports.add("import '$annotationImport';");
+          }
+          String methodName = CodeGenConstants.invoke;
+          String await = isAsync ? 'await' : '';
+          String aspectName =
+              '\$\$${aspect.type?.getDisplayString(withNullability: false)}';
+          aroundHooks.add('''
+              $await $aspectName().$methodName(
+            ''');
+        }
+      }
+    }
+  }
+
+  void _generateOnExceptionHooks(DartObject? onExceptionAnnotationObject,
+      List<String> onExceptionHooks, List<String> imports) {
+    if (onExceptionAnnotationObject != null) {
+      DartObject? aspect = onExceptionAnnotationObject.getField('aspect');
+      // add validation for when its empty
+      if (aspect != null) {
+        if (aspect.type?.getDisplayString(withNullability: false) != null) {
+          List<ParameterElement> invokeParameters = [];
+          Element? aspectExtensionObject = aspect
+              .type?.element?.library?.topLevelElements
+              .firstWhere((element) => element.displayName.contains('\$\$'));
+
+          aspectExtensionObject?.visitChildren(AspectVisitor(invokeParameters));
+          _validateOnExceptionInvokeParameters(invokeParameters, aspect.type);
+          String annotationImport =
+              aspect.type?.element?.location?.encoding ?? '';
+          if (annotationImport.isNotEmpty) {
+            annotationImport = annotationImport.split(';').first;
+            imports.add("import '$annotationImport';");
+          }
+          String methodName = CodeGenConstants.invoke;
+          String aspectName =
+              '\$\$${aspect.type?.getDisplayString(withNullability: false)}';
+          onExceptionHooks.add('''
+            $aspectName().$methodName(e, stackTrace);
+          ''');
+        }
+      }
     }
   }
 
@@ -104,60 +264,48 @@ class MethodOverrideGenerator extends SimpleElementVisitor {
     return aroundHook;
   }
 
-  void _validateAnnotation(
-    DartType? type,
-    List<DartType> methodAnnotations,
-    MethodElement element,
+  void _validateOnExceptionInvokeParameters(
+    List<ParameterElement> invokeParameters,
+    DartType? annotationType,
   ) {
-    if (type != null) {
-      if (!methodAnnotations.contains(type)) {
-        methodAnnotations.add(type);
-      } else {
-        throw InvalidGenerationSourceError(
-            'methods should not have duplicate annotations',
-            todo: 'Create new aspect if required',
-            element: element);
-      }
-    } else {
+    if (invokeParameters.isEmpty ||
+        ((invokeParameters.isNotEmpty && invokeParameters.length != 2))) {
       throw InvalidGenerationSourceError(
-          'No valid implementation found for one or many aspects',
-          todo: 'Make sure generated aspect files don\'t have errors',
-          element: element);
-    }
-  }
-
-  void _validateHookImpl(
-    MethodElement element,
-    List<String> availableHooks,
-    DartType annotationType,
-  ) {
-    if (element.isAsynchronous &&
-        !availableHooks.contains(CodeGenConstants.invokeOnAsync)) {
-      throw InvalidGenerationSourceError(
-          'No method annotated with @${CodeGenConstants.invokeOnAsync} in \$$annotationType',
-          todo: 'Make sure generated aspect files don\'t have errors',
-          element: element);
-    }
-
-    if (!element.isAsynchronous &&
-        !availableHooks.contains(CodeGenConstants.invokeOnSync)) {
-      throw InvalidGenerationSourceError(
-          'No method annotated with @${CodeGenConstants.invokeOnSync} in \$$annotationType',
-          todo: 'Make sure generated aspect files don\'t have errors',
-          element: element);
-    }
-  }
-
-  void _validateAnnotationImpl(
-    MethodElement element,
-    DartType annotationType,
-    DartObject? annotationObject,
-  ) {
-    if (annotationObject == null) {
-      throw InvalidGenerationSourceError(
-        'No implementation found for \$$annotationType',
+        '[\$$annotationType] OnException aspects must accept Object e and StackTrace stackTrace as arguments',
         todo: 'Make sure generated aspect files don\'t have errors',
-        element: element,
+      );
+    }
+  }
+
+  void _validateAroundInvokeParameters(
+    List<ParameterElement> invokeParameters,
+    DartType? annotationType,
+  ) {
+    if (invokeParameters.isEmpty) {
+      throw InvalidGenerationSourceError(
+        '[\$$annotationType] Around aspects must accept Function sourceMethod as an argument',
+        todo: 'Make sure generated aspect files don\'t have errors',
+      );
+    }
+
+    if (invokeParameters.isNotEmpty &&
+        invokeParameters.length > 1 &&
+        !invokeParameters.first.type.isDartCoreFunction) {
+      throw InvalidGenerationSourceError(
+        '[\$$annotationType] Around aspects must only accept Function sourceMethod as an argument. ${invokeParameters.length} Found: $invokeParameters}',
+        todo: 'Make sure generated aspect files don\'t have errors',
+      );
+    }
+  }
+
+  void _validateBeforeOrAfterAspectParameters(
+    List<ParameterElement> invokeParameters,
+    DartType? annotationType,
+  ) {
+    if (invokeParameters.isNotEmpty) {
+      throw InvalidGenerationSourceError(
+        '[\$$annotationType] Before or After aspect should not accept any arguments. ${invokeParameters.length} Found: $invokeParameters',
+        todo: 'Make sure generated aspect files don\'t have errors',
       );
     }
   }

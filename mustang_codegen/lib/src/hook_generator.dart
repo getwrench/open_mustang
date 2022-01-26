@@ -2,20 +2,21 @@ import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:analyzer/dart/element/visitor.dart';
 import 'package:mustang_codegen/src/codegen_constants.dart';
+import 'package:mustang_codegen/src/utils.dart';
 import 'package:source_gen/source_gen.dart';
 
 /// Visits all the methods for the aspect and generates appropriate hooks.
-/// It is used by [AppAspectGenerator] to find methods annotated with
-/// @invokeOnAsync and @invokeOnSync in user written aspect
+/// It is used by [AppAspectGenerator] to find method annotated with
+/// @invoke in user written aspect
 class HookGenerator extends SimpleElementVisitor {
   const HookGenerator(
-    this.aroundOnSync,
-    this.aroundOnAsync,
+    this.invokeHooks,
+    this.imports,
   );
 
-  final List<String> aroundOnAsync;
+  final List<String> invokeHooks;
 
-  final List<String> aroundOnSync;
+  final List<String> imports;
 
   @override
   visitMethodElement(MethodElement element) {
@@ -25,20 +26,21 @@ class HookGenerator extends SimpleElementVisitor {
       if (type != null) {
         _validation(
           element,
-          aroundOnAsync,
-          aroundOnSync,
+          invokeHooks,
           type.getDisplayString(withNullability: false),
         );
         switch (type.getDisplayString(withNullability: false)) {
-          case 'InvokeOnAsync':
-            aroundOnAsync.add('''
-                ${element.isAsynchronous ? 'await' : ''} super.${element.displayName}(sourceMethod);
-              ''');
-            break;
-          case 'InvokeOnSync':
-            aroundOnSync.add('''
-                super.${element.displayName}(sourceMethod);
-              ''');
+          case 'Invoke':
+            String methodWithExecutionArgs = Utils.methodWithExecutionArgs(
+              element,
+              imports,
+            );
+            String params = element.parameters.join(',');
+            invokeHooks.add('''
+              void ${CodeGenConstants.invoke}($params) ${element.isAsynchronous ? 'async' : ''} {         
+                ${element.isAsynchronous ? 'await' : ''} $methodWithExecutionArgs;
+              }
+            ''');
             break;
         }
       }
@@ -49,8 +51,7 @@ class HookGenerator extends SimpleElementVisitor {
 
   void _validation(
     MethodElement element,
-    List<String> aroundOnAsync,
-    List<String> aroundOnSync,
+    List<String> invokeHooks,
     String type,
   ) {
     if (element.isAsynchronous && !element.returnType.isDartAsyncFuture) {
@@ -61,18 +62,10 @@ class HookGenerator extends SimpleElementVisitor {
       );
     }
 
-    if (aroundOnAsync.isNotEmpty && type == 'InvokeOnAsync') {
+    if (invokeHooks.isNotEmpty && type == 'Invoke') {
       throw InvalidGenerationSourceError(
-        'Only 1 @${CodeGenConstants.invokeOnAsync} annotation allowed per aspect ',
-        todo: 'Use @${CodeGenConstants.invokeOnAsync} for only 1 method',
-        element: element,
-      );
-    }
-
-    if (aroundOnSync.isNotEmpty && type == 'InvokeOnSync') {
-      throw InvalidGenerationSourceError(
-        'Only 1 @${CodeGenConstants.invokeOnSync} annotation allowed per aspect ',
-        todo: 'Use @${CodeGenConstants.invokeOnSync} for only 1 method',
+        'Only 1 @${CodeGenConstants.invoke} annotation allowed per aspect ',
+        todo: 'Use @${CodeGenConstants.invoke} for only 1 method',
         element: element,
       );
     }

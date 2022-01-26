@@ -2,20 +2,18 @@ import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/visitor.dart';
 import 'package:mustang_codegen/src/codegen_constants.dart';
 
-/// Visits an generated aspect file and finds available hooks
+/// Visits an generated aspect file and finds all parameters
+/// for an aspect
 class AspectVisitor extends SimpleElementVisitor {
-  const AspectVisitor(this.availableHooks);
+  const AspectVisitor(this.invokeParameters);
 
-  final List<String> availableHooks;
+  final List<ParameterElement> invokeParameters;
 
   @override
   visitMethodElement(MethodElement element) {
     switch (element.displayName) {
-      case CodeGenConstants.invokeOnAsync:
-        availableHooks.add(CodeGenConstants.invokeOnAsync);
-        break;
-      case CodeGenConstants.invokeOnSync:
-        availableHooks.add(CodeGenConstants.invokeOnSync);
+      case CodeGenConstants.invoke:
+        invokeParameters.addAll(element.parameters.toList());
         break;
     }
     super.visitMethodElement(element);

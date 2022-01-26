@@ -1,10 +1,14 @@
 library mustang_core;
 
 export 'src/annotations/app_model.dart';
+export 'src/annotations/after.dart';
+export 'src/annotations/around.dart';
 export 'src/annotations/aspect.dart';
+export 'src/builders/aspect_builder.dart';
+export 'src/annotations/before.dart';
 export 'src/annotations/init_model_field.dart';
-export 'src/annotations/invoke_on_async.dart';
-export 'src/annotations/invoke_on_sync.dart';
+export 'src/annotations/invoke.dart';
+export 'src/annotations/on_exception.dart';
 export 'src/annotations/screen_service.dart';
 export 'src/annotations/screen_state.dart';
 export 'src/annotations/serialize_field.dart';
