@@ -37,7 +37,7 @@ class HookGenerator extends SimpleElementVisitor {
             );
             String params = element.parameters.join(',');
             invokeHooks.add('''
-              void ${CodeGenConstants.invoke}($params) ${element.isAsynchronous ? 'async' : ''} {         
+              ${element.isAsynchronous ? 'Future<void>' : 'void'} ${CodeGenConstants.invoke}($params) ${element.isAsynchronous ? 'async' : ''} {         
                 ${element.isAsynchronous ? 'await' : ''} $methodWithExecutionArgs;
               }
             ''');
