@@ -1,23 +1,17 @@
 import 'dart:async';
 
 class MustangObservable {
-  static final StreamController<EventType> _streamController =
-      StreamController<EventType>();
+  static final StreamController _streamController = StreamController();
 
   static void pushEvent<T>(T t) {
-    _streamController.sink.add(EventType<T>(t: t));
+    _streamController.add(t);
   }
 
-  static Stream eventStream() {
+  static Stream getEventStream() {
     return _streamController.stream;
   }
 
   static void dispose() {
     _streamController.close();
   }
-}
-
-class EventType<T> {
-  EventType({required this.t});
-  final T t;
 }
