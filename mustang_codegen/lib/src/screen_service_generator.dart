@@ -95,7 +95,7 @@ class ScreenServiceGenerator extends Generator {
           }
           
           void subscribeToEvent<T>() async {
-            await for (T event in MustangObservable.getEventStream()) {
+            await for (MustangEventModel event in MustangObservable.getEventStream()) {
               updateState1(event);
             }
           }
