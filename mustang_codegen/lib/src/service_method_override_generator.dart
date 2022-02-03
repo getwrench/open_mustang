@@ -11,8 +11,8 @@ import 'package:source_gen/source_gen.dart';
 /// Visits all the methods of a service and generates appropriate code
 /// for overriding parent methods. This visitor is called in
 /// [ScreenServiceGenerator] to override methods that are annotated
-class MethodOverrideGenerator extends SimpleElementVisitor {
-  MethodOverrideGenerator({
+class ServiceMethodOverrideGenerator extends SimpleElementVisitor {
+  ServiceMethodOverrideGenerator({
     required this.overrides,
     required this.imports,
   });
@@ -42,24 +42,13 @@ class MethodOverrideGenerator extends SimpleElementVisitor {
           TypeChecker.fromRuntime(After).firstAnnotationOfExact(element);
       _generateAfterHooks(afterAnnotationObject, afterHooks, imports);
 
-      List<bool> isAroundInvokeAsync = [false];
       final DartObject? aroundAnnotationObject =
           TypeChecker.fromRuntime(Around).firstAnnotationOfExact(element);
       _generateAroundHooks(
         aroundAnnotationObject,
         aroundHooks,
         imports,
-        isAroundInvokeAsync,
-      );
-      _validateAsyncInvokeAndSourceMethod(
-          element.isAsynchronous, isAroundInvokeAsync.last, element);
-
-      final DartObject? onExceptionAnnotationObject =
-          TypeChecker.fromRuntime(OnException).firstAnnotationOfExact(element);
-      _generateOnExceptionHooks(
-        onExceptionAnnotationObject,
-        onExceptionHooks,
-        imports,
+        isSourceMethodAsync: element.isAsynchronous,
       );
 
       String nestedAroundMethods = _nestAroundMethods(
@@ -117,7 +106,7 @@ class MethodOverrideGenerator extends SimpleElementVisitor {
                 .firstWhere((element) => element.displayName.contains('\$\$'));
 
             aspectExtensionObject?.visitChildren(
-              AspectVisitor(invokeParameters, []),
+              AspectVisitor(invokeParameters),
             );
             _validateBeforeOrAfterAspectParameters(
               invokeParameters,
@@ -159,7 +148,7 @@ class MethodOverrideGenerator extends SimpleElementVisitor {
                 .firstWhere((element) => element.displayName.contains('\$\$'));
 
             aspectExtensionObject?.visitChildren(
-              AspectVisitor(invokeParameters, []),
+              AspectVisitor(invokeParameters),
             );
             _validateBeforeOrAfterAspectParameters(
               invokeParameters,
@@ -186,9 +175,9 @@ class MethodOverrideGenerator extends SimpleElementVisitor {
   void _generateAroundHooks(
     DartObject? aroundAnnotationObject,
     List<String> aroundHooks,
-    List<String> imports,
-    List<bool> isAroundInvokeAsync,
-  ) {
+    List<String> imports, {
+    isSourceMethodAsync = false,
+  }) {
     if (aroundAnnotationObject != null) {
       DartObject? aspect = aroundAnnotationObject.getField('aspect');
       // add validation for when its empty
@@ -200,7 +189,6 @@ class MethodOverrideGenerator extends SimpleElementVisitor {
               .firstWhere((element) => element.displayName.contains('\$\$'));
           aspectExtensionObject?.visitChildren(AspectVisitor(
             invokeParameters,
-            isAroundInvokeAsync,
           ));
           _validateAroundInvokeParameters(invokeParameters, aspect.type);
           String annotationImport =
@@ -209,44 +197,14 @@ class MethodOverrideGenerator extends SimpleElementVisitor {
             annotationImport = annotationImport.split(';').first;
             imports.add("import '$annotationImport';");
           }
-          String methodName = CodeGenConstants.invoke;
+          String methodName = isSourceMethodAsync
+              ? CodeGenConstants.invokeOnAsync
+              : CodeGenConstants.invoke;
           String aspectName =
               '\$\$${aspect.type?.getDisplayString(withNullability: false)}';
           aroundHooks.add('''
               $aspectName().$methodName(
             ''');
-        }
-      }
-    }
-  }
-
-  void _generateOnExceptionHooks(DartObject? onExceptionAnnotationObject,
-      List<String> onExceptionHooks, List<String> imports) {
-    if (onExceptionAnnotationObject != null) {
-      DartObject? aspect = onExceptionAnnotationObject.getField('aspect');
-      // add validation for when its empty
-      if (aspect != null) {
-        if (aspect.type?.getDisplayString(withNullability: false) != null) {
-          List<ParameterElement> invokeParameters = [];
-          Element? aspectExtensionObject = aspect
-              .type?.element?.library?.topLevelElements
-              .firstWhere((element) => element.displayName.contains('\$\$'));
-
-          aspectExtensionObject
-              ?.visitChildren(AspectVisitor(invokeParameters, []));
-          _validateOnExceptionInvokeParameters(invokeParameters, aspect.type);
-          String annotationImport =
-              aspect.type?.element?.location?.encoding ?? '';
-          if (annotationImport.isNotEmpty) {
-            annotationImport = annotationImport.split(';').first;
-            imports.add("import '$annotationImport';");
-          }
-          String methodName = CodeGenConstants.invoke;
-          String aspectName =
-              '\$\$${aspect.type?.getDisplayString(withNullability: false)}';
-          onExceptionHooks.add('''
-            $aspectName().$methodName(e, stackTrace);
-          ''');
         }
       }
     }
@@ -274,34 +232,6 @@ class MethodOverrideGenerator extends SimpleElementVisitor {
     return aroundHook;
   }
 
-  void _validateAsyncInvokeAndSourceMethod(
-    bool isSourceMethodAsync,
-    bool isInvokeAsync,
-    MethodElement element,
-  ) {
-    if (!isSourceMethodAsync && isSourceMethodAsync != isInvokeAsync) {
-      throw InvalidGenerationSourceError(
-        '''Both ${element.displayName} and around aspect should be either async or synchronous
-but ${element.displayName} is ${isSourceMethodAsync ? 'async' : 'synchronous'} while Around aspect is ${isInvokeAsync ? 'async' : 'synchronous'}''',
-        todo: 'Make sure generated aspect files don\'t have errors',
-        element: element,
-      );
-    }
-  }
-
-  void _validateOnExceptionInvokeParameters(
-    List<ParameterElement> invokeParameters,
-    DartType? annotationType,
-  ) {
-    if (invokeParameters.isEmpty ||
-        ((invokeParameters.isNotEmpty && invokeParameters.length != 2))) {
-      throw InvalidGenerationSourceError(
-        '[\$$annotationType] OnException aspects must accept Object e and StackTrace stackTrace as arguments',
-        todo: 'Make sure generated aspect files don\'t have errors',
-      );
-    }
-  }
-
   void _validateAroundInvokeParameters(
     List<ParameterElement> invokeParameters,
     DartType? annotationType,
@@ -313,8 +243,7 @@ but ${element.displayName} is ${isSourceMethodAsync ? 'async' : 'synchronous'} w
       );
     }
 
-    if (invokeParameters.isNotEmpty &&
-        invokeParameters.length > 1 &&
+    if (invokeParameters.length > 1 &&
         !invokeParameters.first.type.isDartCoreFunction) {
       throw InvalidGenerationSourceError(
         '[\$$annotationType] Around aspects must only accept Function sourceMethod as an argument. ${invokeParameters.length} Found: $invokeParameters}',

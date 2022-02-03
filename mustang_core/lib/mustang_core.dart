@@ -8,7 +8,6 @@ export 'src/builders/aspect_builder.dart';
 export 'src/annotations/before.dart';
 export 'src/annotations/init_model_field.dart';
 export 'src/annotations/invoke.dart';
-export 'src/annotations/on_exception.dart';
 export 'src/annotations/screen_service.dart';
 export 'src/annotations/screen_state.dart';
 export 'src/annotations/serialize_field.dart';
