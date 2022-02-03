@@ -40,7 +40,7 @@ class AspectHookGenerator extends SimpleElementVisitor {
   ) {
     if (element.isAsynchronous && !element.returnType.isDartAsyncFuture) {
       throw InvalidGenerationSourceError(
-        'async method must return a future ',
+        'Error: async method must return a Future ',
         todo: 'use Future<T> as return type',
         element: element,
       );
@@ -48,7 +48,7 @@ class AspectHookGenerator extends SimpleElementVisitor {
 
     if (invokeHooks.length > 1) {
       throw InvalidGenerationSourceError(
-        'Only 1 @${CodeGenConstants.invoke} annotation allowed per aspect ',
+        'Error: Only 1 @${CodeGenConstants.invoke} annotation allowed per aspect. ${invokeHooks.length} Found: $invokeHooks',
         todo: 'Use @${CodeGenConstants.invoke} for only 1 method',
         element: element,
       );

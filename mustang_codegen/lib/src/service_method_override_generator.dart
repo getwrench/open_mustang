@@ -238,15 +238,17 @@ class ServiceMethodOverrideGenerator extends SimpleElementVisitor {
   ) {
     if (invokeParameters.isEmpty) {
       throw InvalidGenerationSourceError(
-        '[\$$annotationType] Around aspects must accept Function sourceMethod as an argument',
+        '''Error: [\$$annotationType] Around aspects must accept sourceMethod as an argument
+            example: void run(Function sourceMethod)''',
         todo: 'Make sure generated aspect files don\'t have errors',
       );
     }
 
-    if (invokeParameters.length > 1 &&
+    if (invokeParameters.length > 1 ||
         !invokeParameters.first.type.isDartCoreFunction) {
       throw InvalidGenerationSourceError(
-        '[\$$annotationType] Around aspects must only accept Function sourceMethod as an argument. ${invokeParameters.length} Found: $invokeParameters}',
+        '''Error: [\$$annotationType] Around aspects must only accept Function sourceMethod as an argument. ${invokeParameters.length} Found: $invokeParameters}
+            example: void run(Function sourceMethod)''',
         todo: 'Make sure generated aspect files don\'t have errors',
       );
     }
@@ -258,7 +260,7 @@ class ServiceMethodOverrideGenerator extends SimpleElementVisitor {
   ) {
     if (invokeParameters.isNotEmpty) {
       throw InvalidGenerationSourceError(
-        '[\$$annotationType] Before or After aspect should not accept any arguments. ${invokeParameters.length} Found: $invokeParameters',
+        'Error: [\$$annotationType] Before or After aspect should not accept any arguments. ${invokeParameters.length} Found: $invokeParameters',
         todo: 'Make sure generated aspect files don\'t have errors',
       );
     }
