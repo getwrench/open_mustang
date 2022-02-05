@@ -10,6 +10,9 @@ class AppModelGenerator extends Generator {
   String generate(LibraryReader library, BuildStep buildStep) {
     Iterable<AnnotatedElement> appModels =
         library.annotatedWith(const TypeChecker.fromRuntime(AppModel));
+    Iterable<AnnotatedElement> appEvents =
+        library.annotatedWith(const TypeChecker.fromRuntime(AppEvent));
+
     StringBuffer appModelBuffer = StringBuffer();
 
     if (appModels.isEmpty) {
@@ -20,6 +23,7 @@ class AppModelGenerator extends Generator {
       appModels.first.element,
       appModels.first.annotation,
       buildStep,
+      appEvents.isNotEmpty,
     ));
 
     return '$appModelBuffer';
@@ -29,6 +33,7 @@ class AppModelGenerator extends Generator {
     Element element,
     ConstantReader annotation,
     BuildStep buildStep,
+    bool isAppEvent,
   ) {
     _validate(element);
 
@@ -53,14 +58,24 @@ class AppModelGenerator extends Generator {
       buildStep.inputId.package,
     );
 
+    List<String> appEventImports = [];
+    if (isAppEvent) {
+      appEventImports.add("import 'package:mustang_core/mustang_core.dart';");
+    }
+
+    String modelClassStr = isAppEvent
+        ? 'abstract class $appModelName implements Built<$appModelName, ${appModelName}Builder>, AppEvent'
+        : 'abstract class $appModelName implements Built<$appModelName, ${appModelName}Builder>';
+
     return '''
       import 'package:built_value/built_value.dart';
       import 'package:built_value/serializer.dart';
       ${modelImports.join('\n')}
+      ${appEventImports.join('\n')}
       
       part '$appModelFilename.g.dart';
       
-      abstract class $appModelName implements Built<$appModelName, ${appModelName}Builder> {
+      $modelClassStr {
         $appModelName._();
         factory $appModelName([void Function(${appModelName}Builder) updates]) = _\$$appModelName;
       
