@@ -38,9 +38,14 @@ class AspectHookGenerator extends SimpleElementVisitor {
     List<MethodElement> invokeHooks,
     DartObject? type,
   ) {
-    if (element.isAsynchronous && !element.returnType.isDartAsyncFuture) {
+    if (!element.type.isDartAsyncFuture) {
       throw InvalidGenerationSourceError(
-        'Error: async method must return a Future ',
+        '''Error: All aspects must be be async and return a Future
+            example:
+              @invoke 
+              Future<void> run() async {
+                print('sample aspect');
+              }''',
         todo: 'use Future<T> as return type',
         element: element,
       );

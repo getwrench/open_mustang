@@ -32,7 +32,6 @@ class ServiceMethodOverrideGenerator extends SimpleElementVisitor {
       List<String> beforeHooks = [];
       List<String> afterHooks = [];
       List<String> aroundHooks = [];
-      List<String> onExceptionHooks = [];
 
       final DartObject? beforeAnnotationObject =
           TypeChecker.fromRuntime(Before).firstAnnotationOfExact(element);
@@ -51,6 +50,12 @@ class ServiceMethodOverrideGenerator extends SimpleElementVisitor {
         isSourceMethodAsync: element.isAsynchronous,
       );
 
+      if (beforeAnnotationObject != null ||
+          afterAnnotationObject != null ||
+          aroundAnnotationObject != null) {
+        _validateSourceMethodAsync(element);
+      }
+
       String nestedAroundMethods = _nestAroundMethods(
         methodWithExecutionArgs,
         aroundHooks,
@@ -61,25 +66,13 @@ class ServiceMethodOverrideGenerator extends SimpleElementVisitor {
           element.declaration.getDisplayString(withNullability: false);
       String async = element.isAsynchronous ? 'async' : '';
       String await = element.isAsynchronous ? 'await' : '';
-      if (onExceptionHooks.isNotEmpty) {
-        overrides.add('''
-          @override
-          $declaration $async {
-            try {
-              ${beforeHooks.join('')}
-              $await ${aroundHooks.isEmpty ? methodWithExecutionArgs : nestedAroundMethods};
-              ${afterHooks.join('')}
-            } catch(e, stackTrace) {
-              ${onExceptionHooks.join('')}
-            }
-          }
-        ''');
-      } else {
+
+      if (aroundHooks.isNotEmpty) {
         overrides.add('''
           @override
           $declaration $async {
             ${beforeHooks.join('')}
-            ${aroundHooks.isEmpty ? '$await $methodWithExecutionArgs' : nestedAroundMethods};
+            $await ${aroundHooks.isEmpty ? methodWithExecutionArgs : nestedAroundMethods};
             ${afterHooks.join('')}
           }
         ''');
@@ -230,6 +223,20 @@ class ServiceMethodOverrideGenerator extends SimpleElementVisitor {
         $aroundHook$closing
       ''';
     return aroundHook;
+  }
+
+  void _validateSourceMethodAsync(MethodElement element) {
+    if (!element.type.isDartAsyncFuture) {
+      throw InvalidGenerationSourceError(
+        '''Error: Annotated methods must be async and return a Future. 
+            example: 
+                @Before([sampleAspect])
+                Future<void> sourceMethod() async {
+                  print('Source method -> run'); 
+                }''',
+        todo: 'Make sure generated aspect files don\'t have errors',
+      );
+    }
   }
 
   void _validateAroundInvokeParameters(
