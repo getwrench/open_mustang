@@ -35,3 +35,6 @@
 
 ## 1.0.11
 - Model, State and Service are all made abstract
+
+## 1.0.12
+- Add codegen support for `Events` feature

@@ -14,3 +14,6 @@
 
 ## 1.0.4
 - Removed reference to dart:io package
+
+## 1.0.5
+- Add annotation support for `Events` feature
