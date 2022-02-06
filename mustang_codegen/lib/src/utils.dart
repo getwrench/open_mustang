@@ -98,7 +98,7 @@ class Utils {
     MethodElement element,
     List<String> imports,
   ) {
-    String methodName = 'super.${element.displayName}(';
+    String methodWithArguments = 'super.${element.displayName}(';
     if (element.parameters.isNotEmpty) {
       element.parameters.toList().forEach((parameter) {
         String import = parameter.type.element?.location?.encoding ?? '';
@@ -107,15 +107,16 @@ class Utils {
           imports.add("import '$import';");
         }
         if (parameter.declaration.isNamed) {
-          methodName =
-              '$methodName${parameter.displayName}: ${parameter.displayName}, ';
+          methodWithArguments =
+              '$methodWithArguments${parameter.displayName}: ${parameter.displayName}, ';
         } else {
-          methodName = '$methodName${parameter.displayName}, ';
+          methodWithArguments =
+              '$methodWithArguments${parameter.displayName}, ';
         }
       });
     }
-    methodName = '$methodName)';
-    return methodName;
+    methodWithArguments = '$methodWithArguments)';
+    return methodWithArguments;
   }
 
   static String? homeDir() {

@@ -2,9 +2,9 @@ import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:analyzer/dart/element/visitor.dart';
-import 'package:mustang_codegen/src/aspect_visitor.dart';
 import 'package:mustang_codegen/src/codegen_constants.dart';
 import 'package:mustang_codegen/src/utils.dart';
+import 'package:mustang_codegen/src/visitors/generated_aspect_visitor.dart';
 import 'package:mustang_core/mustang_core.dart';
 import 'package:source_gen/source_gen.dart';
 
@@ -35,15 +35,26 @@ class ServiceMethodOverrideGenerator extends SimpleElementVisitor {
 
       final DartObject? beforeAnnotationObject =
           TypeChecker.fromRuntime(Before).firstAnnotationOfExact(element);
-      _generateBeforeHooks(beforeAnnotationObject, beforeHooks, imports);
+      _generateBeforeHooks(
+        element,
+        beforeAnnotationObject,
+        beforeHooks,
+        imports,
+      );
 
       final DartObject? afterAnnotationObject =
           TypeChecker.fromRuntime(After).firstAnnotationOfExact(element);
-      _generateAfterHooks(afterAnnotationObject, afterHooks, imports);
+      _generateAfterHooks(
+        element,
+        afterAnnotationObject,
+        afterHooks,
+        imports,
+      );
 
       final DartObject? aroundAnnotationObject =
           TypeChecker.fromRuntime(Around).firstAnnotationOfExact(element);
       _generateAroundHooks(
+        element,
         aroundAnnotationObject,
         aroundHooks,
         imports,
@@ -82,6 +93,7 @@ class ServiceMethodOverrideGenerator extends SimpleElementVisitor {
   }
 
   void _generateBeforeHooks(
+    MethodElement element,
     DartObject? beforeAnnotationObject,
     List<String> beforeHooks,
     List<String> imports,
@@ -99,9 +111,12 @@ class ServiceMethodOverrideGenerator extends SimpleElementVisitor {
                 .firstWhere((element) => element.displayName.contains('\$\$'));
 
             aspectExtensionObject?.visitChildren(
-              AspectVisitor(invokeParameters),
+              GeneratedAspectVisitor(
+                invokeParameters,
+              ),
             );
             _validateBeforeOrAfterAspectParameters(
+              element,
               invokeParameters,
               aspect.type,
             );
@@ -115,7 +130,7 @@ class ServiceMethodOverrideGenerator extends SimpleElementVisitor {
             String aspectName =
                 '\$\$${aspect.type?.getDisplayString(withNullability: false)}';
             beforeHooks.add('''
-              $aspectName().$methodName();
+              await $aspectName().$methodName();
             ''');
           }
         }
@@ -124,6 +139,7 @@ class ServiceMethodOverrideGenerator extends SimpleElementVisitor {
   }
 
   void _generateAfterHooks(
+    MethodElement element,
     DartObject? afterAnnotationObject,
     List<String> afterHooks,
     List<String> imports,
@@ -141,9 +157,12 @@ class ServiceMethodOverrideGenerator extends SimpleElementVisitor {
                 .firstWhere((element) => element.displayName.contains('\$\$'));
 
             aspectExtensionObject?.visitChildren(
-              AspectVisitor(invokeParameters),
+              GeneratedAspectVisitor(
+                invokeParameters,
+              ),
             );
             _validateBeforeOrAfterAspectParameters(
+              element,
               invokeParameters,
               aspect.type,
             );
@@ -157,7 +176,7 @@ class ServiceMethodOverrideGenerator extends SimpleElementVisitor {
             String aspectName =
                 '\$\$${aspect.type?.getDisplayString(withNullability: false)}';
             afterHooks.add('''
-              $aspectName().$methodName();
+              await $aspectName().$methodName();
             ''');
           }
         }
@@ -166,6 +185,7 @@ class ServiceMethodOverrideGenerator extends SimpleElementVisitor {
   }
 
   void _generateAroundHooks(
+    MethodElement element,
     DartObject? aroundAnnotationObject,
     List<String> aroundHooks,
     List<String> imports, {
@@ -180,19 +200,20 @@ class ServiceMethodOverrideGenerator extends SimpleElementVisitor {
           Element? aspectExtensionObject = aspect
               .type?.element?.library?.topLevelElements
               .firstWhere((element) => element.displayName.contains('\$\$'));
-          aspectExtensionObject?.visitChildren(AspectVisitor(
+          aspectExtensionObject?.visitChildren(GeneratedAspectVisitor(
             invokeParameters,
           ));
-          _validateAroundInvokeParameters(invokeParameters, aspect.type);
+          _validateAroundInvokeParameters(
+            element,
+            invokeParameters,
+          );
           String annotationImport =
               aspect.type?.element?.location?.encoding ?? '';
           if (annotationImport.isNotEmpty) {
             annotationImport = annotationImport.split(';').first;
             imports.add("import '$annotationImport';");
           }
-          String methodName = isSourceMethodAsync
-              ? CodeGenConstants.invokeOnAsync
-              : CodeGenConstants.invoke;
+          String methodName = CodeGenConstants.invoke;
           String aspectName =
               '\$\$${aspect.type?.getDisplayString(withNullability: false)}';
           aroundHooks.add('''
@@ -226,49 +247,67 @@ class ServiceMethodOverrideGenerator extends SimpleElementVisitor {
   }
 
   void _validateSourceMethodAsync(MethodElement element) {
-    if (!element.type.isDartAsyncFuture) {
+    if (!element.returnType.isDartAsyncFuture) {
       throw InvalidGenerationSourceError(
         '''Error: Annotated methods must be async and return a Future. 
-            example: 
-                @Before([sampleAspect])
-                Future<void> sourceMethod() async {
-                  print('Source method -> run'); 
-                }''',
+  example: 
+      @Before([sampleAspect])
+      Future<void> sourceMethod() async {
+        print('Source method -> run'); 
+      }''',
         todo: 'Make sure generated aspect files don\'t have errors',
+        element: element,
       );
     }
   }
 
   void _validateAroundInvokeParameters(
+    MethodElement element,
     List<ParameterElement> invokeParameters,
-    DartType? annotationType,
   ) {
     if (invokeParameters.isEmpty) {
       throw InvalidGenerationSourceError(
-        '''Error: [\$$annotationType] Around aspects must accept sourceMethod as an argument
-            example: void run(Function sourceMethod)''',
+        '''Error: Around aspects must accept sourceMethod as an argument.
+  example:
+    @invoke 
+    Future<void> run(Function sourceMethod) async {
+      print('before sourceMethod');
+      await sourceMethod();
+      print('after sourceMethod');
+    }''',
         todo: 'Make sure generated aspect files don\'t have errors',
+        element: element,
       );
     }
 
     if (invokeParameters.length > 1 ||
         !invokeParameters.first.type.isDartCoreFunction) {
       throw InvalidGenerationSourceError(
-        '''Error: [\$$annotationType] Around aspects must only accept Function sourceMethod as an argument. ${invokeParameters.length} Found: $invokeParameters}
-            example: void run(Function sourceMethod)''',
+        '''Error: Around aspects must only accept sourceMethod as an argument.
+  example: 
+    @invoke 
+    Future<void> run(Function sourceMethod) async {
+      print('before sourceMethod ');
+      await sourceMethod();
+      print('after sourceMethod');
+    }
+    
+ ${invokeParameters.length} Found: ${invokeParameters.join(', ')}''',
         todo: 'Make sure generated aspect files don\'t have errors',
       );
     }
   }
 
   void _validateBeforeOrAfterAspectParameters(
+    MethodElement element,
     List<ParameterElement> invokeParameters,
     DartType? annotationType,
   ) {
     if (invokeParameters.isNotEmpty) {
       throw InvalidGenerationSourceError(
-        'Error: [\$$annotationType] Before or After aspect should not accept any arguments. ${invokeParameters.length} Found: $invokeParameters',
+        'Error: Method annotated with @invoke in \$$annotationType expects ${invokeParameters.join(', ')} as argument\nbut Before or After aspect should not accept any.',
         todo: 'Make sure generated aspect files don\'t have errors',
+        element: element,
       );
     }
   }

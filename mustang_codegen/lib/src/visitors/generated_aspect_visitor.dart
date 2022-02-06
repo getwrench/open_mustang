@@ -4,8 +4,8 @@ import 'package:mustang_codegen/src/codegen_constants.dart';
 
 /// Visits an generated aspect file and finds all parameters
 /// for an aspect
-class AspectVisitor extends SimpleElementVisitor {
-  const AspectVisitor(
+class GeneratedAspectVisitor extends SimpleElementVisitor {
+  const GeneratedAspectVisitor(
     this.invokeParameters,
   );
 

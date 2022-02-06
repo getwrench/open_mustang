@@ -1,8 +1,8 @@
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
 import 'package:mustang_codegen/src/codegen_constants.dart';
-import 'package:mustang_codegen/src/aspect_hook_generator.dart';
 import 'package:mustang_codegen/src/utils.dart';
+import 'package:mustang_codegen/src/visitors/aspect_hook_visitor.dart';
 import 'package:mustang_core/mustang_core.dart';
 import 'package:path/path.dart' as p;
 import 'package:source_gen/source_gen.dart';
@@ -44,9 +44,8 @@ class AppAspectGenerator extends Generator {
     List<MethodElement> invokeHooksMethods = [];
     List<String> imports = [];
 
-    element.visitChildren(AspectHookGenerator(
+    element.visitChildren(AspectHookVisitor(
       invokeHooksMethods,
-      imports,
     ));
 
     List<String> invokeHooks = [];
@@ -58,18 +57,12 @@ class AppAspectGenerator extends Generator {
         imports,
       );
       String params = aspectMethod.parameters.join(',');
-      if (aspectMethod.parameters.isNotEmpty) {
-        invokeHooks.add('''
-          Future<void> ${CodeGenConstants.invokeOnAsync}($params) async {         
-            ${aspectMethod.isAsynchronous ? 'await' : ''} $methodWithExecutionArgs;
-          }
-        ''');
-      }
+      if (aspectMethod.parameters.isNotEmpty) {}
       invokeHooks.add('''
-          void ${CodeGenConstants.invoke}($params) {         
-            $methodWithExecutionArgs;
-          }
-        ''');
+        Future<void> ${CodeGenConstants.invoke}($params) async {         
+          ${aspectMethod.isAsynchronous ? 'await' : ''} $methodWithExecutionArgs;
+        }
+      ''');
     }
 
     _validateHooksPresent(
@@ -89,7 +82,7 @@ class AppAspectGenerator extends Generator {
         ${invokeHooks.join('')}
       }
       
-      class $generatedAspectName implements AspectBuilder {
+      class $generatedAspectName implements AspectImpl {
         const $generatedAspectName();
       }
       
@@ -115,7 +108,16 @@ class AppAspectGenerator extends Generator {
       if (element.parameters.length > 1 ||
           !element.parameters.first.type.isDartCoreFunction) {
         throw InvalidGenerationSourceError(
-          'Error: Methods annotated with @invoke can only accept Function sourceMethod as argument. Found: ${element.parameters}',
+          '''Error: Methods annotated with @invoke can only accept sourceMethod as argument.
+  Example:
+    @invoke
+    Future<void> run(Function sourceMethod) async {
+      print('before sourceMethod');
+      await sourceMethod();
+      print('after sourceMethod');
+    }
+    
+${element.parameters.length} Found: ${element.parameters.join(', ')}''',
           todo: 'annotate a method with @${CodeGenConstants.invoke}',
           element: element,
         );
@@ -126,18 +128,20 @@ class AppAspectGenerator extends Generator {
   void _validate(Element element, ConstantReader annotation) {
     if (!element.displayName.startsWith(r'$')) {
       throw InvalidGenerationSourceError(
-          'Aspect class name should start with \$',
-          todo: 'Prefix class name with \$',
-          element: element);
+        'Aspect class name should start with \$',
+        todo: 'Prefix class name with \$',
+        element: element,
+      );
     }
 
     // class annotated with @aspect should be abstract
     ClassElement appServiceClass = element as ClassElement;
     if (!appServiceClass.isAbstract) {
       throw InvalidGenerationSourceError(
-          'Error: class annotated with aspect should be abstract',
-          todo: 'Make the class abstract',
-          element: element);
+        'Error: class annotated with aspect should be abstract',
+        todo: 'Make the class abstract',
+        element: element,
+      );
     }
   }
 }

@@ -8,15 +8,12 @@ import 'package:source_gen/source_gen.dart';
 /// Visits all the methods for the aspect and generates appropriate hooks.
 /// It is used by [AppAspectGenerator] to find method annotated with
 /// @invoke in user written aspect
-class AspectHookGenerator extends SimpleElementVisitor {
-  const AspectHookGenerator(
+class AspectHookVisitor extends SimpleElementVisitor {
+  const AspectHookVisitor(
     this.invokeHooks,
-    this.imports,
   );
 
   final List<MethodElement> invokeHooks;
-
-  final List<String> imports;
 
   @override
   visitMethodElement(MethodElement element) {
@@ -38,14 +35,14 @@ class AspectHookGenerator extends SimpleElementVisitor {
     List<MethodElement> invokeHooks,
     DartObject? type,
   ) {
-    if (!element.type.isDartAsyncFuture) {
+    if (!element.returnType.isDartAsyncFuture) {
       throw InvalidGenerationSourceError(
-        '''Error: All aspects must be be async and return a Future
-            example:
-              @invoke 
-              Future<void> run() async {
-                print('sample aspect');
-              }''',
+        '''Error: All aspects must be async and return a Future
+  example:
+    @invoke 
+    Future<void> run() async {
+      print('sample aspect');
+    }''',
         todo: 'use Future<T> as return type',
         element: element,
       );
@@ -53,7 +50,7 @@ class AspectHookGenerator extends SimpleElementVisitor {
 
     if (invokeHooks.length > 1) {
       throw InvalidGenerationSourceError(
-        'Error: Only 1 @${CodeGenConstants.invoke} annotation allowed per aspect. ${invokeHooks.length} Found: $invokeHooks',
+        'Error: Only 1 @${CodeGenConstants.invoke} annotation allowed per aspect. ${invokeHooks.length} Found: ${invokeHooks.join(', ')}',
         todo: 'Use @${CodeGenConstants.invoke} for only 1 method',
         element: element,
       );
