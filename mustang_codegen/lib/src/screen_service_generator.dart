@@ -1,14 +1,17 @@
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
 import 'package:mustang_codegen/src/service_method_override_generator.dart';
+import 'package:glob/glob.dart';
 import 'package:mustang_codegen/src/utils.dart';
 import 'package:mustang_core/mustang_core.dart';
 import 'package:path/path.dart' as p;
 import 'package:source_gen/source_gen.dart';
 
 class ScreenServiceGenerator extends Generator {
+  static const String appModelsDir = 'lib/src/models';
+
   @override
-  String generate(LibraryReader library, BuildStep buildStep) {
+  Future<String> generate(LibraryReader library, BuildStep buildStep) async {
     Iterable<AnnotatedElement> services =
         library.annotatedWith(const TypeChecker.fromRuntime(ScreenService));
     StringBuffer serviceBuffer = StringBuffer();
@@ -16,7 +19,7 @@ class ScreenServiceGenerator extends Generator {
       return '$serviceBuffer';
     }
 
-    serviceBuffer.writeln(_generate(
+    serviceBuffer.writeln(await _generate(
       services.first.element,
       services.first.annotation,
       buildStep,
@@ -25,11 +28,11 @@ class ScreenServiceGenerator extends Generator {
     return '$serviceBuffer';
   }
 
-  String _generate(
+  Future<String> _generate(
     Element element,
     ConstantReader annotation,
     BuildStep buildStep,
-  ) {
+  ) async {
     _validate(element, annotation);
 
     String serviceName = element.displayName;
@@ -73,6 +76,22 @@ class ScreenServiceGenerator extends Generator {
           "import '$customSerializerPackage' as $customSerializerAlias;";
     }
 
+    List<String> appEventModels = [];
+    List<String> appEventModelImports = [];
+    await for (AssetId assetId
+        in buildStep.findAssets(Glob('$appModelsDir/*[^model].dart'))) {
+      LibraryElement appModelLibrary =
+          await buildStep.resolver.libraryFor(assetId);
+      Iterable<AnnotatedElement> appEvents = LibraryReader(appModelLibrary)
+          .annotatedWith(const TypeChecker.fromRuntime(AppEvent));
+      if (appEvents.isNotEmpty) {
+        appEventModels.add(appEvents.first.element.name!);
+        String importPath =
+            assetId.uri.toString().replaceFirst('dart', 'model.dart');
+        appEventModelImports.add("import '$importPath';");
+      }
+    }
+
     return '''
       import 'package:mustang_core/mustang_core.dart';
       import '$importService.dart';
@@ -81,6 +100,8 @@ class ScreenServiceGenerator extends Generator {
       import 'package:flutter/foundation.dart';
       import 'package:$pkgName/src/models/serializers.dart' as $appSerializerAlias;
       $customSerializer
+      ${appEventModelImports.join('\n')}
+      
       ${importStates.join('\n')}
       
       class _\$${screenState}Cache<T> {
@@ -96,6 +117,20 @@ class ScreenServiceGenerator extends Generator {
       }
       
       class $generatedServiceName extends $serviceName {
+        static String _serviceName = '';
+          
+        $generatedServiceName() {
+          if (_serviceName != '$generatedServiceName') {
+            _serviceName = '$generatedServiceName';
+            subscribeToEvent();   
+          }
+        }
+          
+        Future<void> subscribeToEvent() async {
+          EventStream.reset();
+          ${_generateEventSubscription(appEventModels)}
+        }
+        
         ${overriders.join('\n')}
       }
         
@@ -281,6 +316,26 @@ class ScreenServiceGenerator extends Generator {
   
     }
     ''';
+  }
+
+  String _generateEventSubscription(List<String> appModelEvents) {
+    if (appModelEvents.isEmpty) {
+      return '';
+    }
+
+    String instanceCheckStr = '';
+    for (String appEventModel in appModelEvents) {
+      String modelName = appEventModel.replaceFirst('\$', '');
+      instanceCheckStr += '''
+        if (event is $modelName) {
+          $modelName m = event;
+          updateState1(m);
+        }
+      ''';
+    }
+    return '''await for (AppEvent event in EventStream.getStream()) {
+      $instanceCheckStr
+    }''';
   }
 
   String _generatePersistObjectTemplate(
