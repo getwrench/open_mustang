@@ -37,4 +37,7 @@
 - Model, State and Service are all made abstract
 
 ## 1.0.12
-- Add codegen support for `Events` feature
+- Framework introduced support to consume events
+
+## 1.0.13
+- Framework introduced support for `before`, `after`, `around` Aspects
