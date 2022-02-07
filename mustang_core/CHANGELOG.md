@@ -16,4 +16,7 @@
 - Removed reference to dart:io package
 
 ## 1.0.5
-- Add annotation support for `Events` feature
+- Framework introduced support to consume events
+
+## 1.0.6
+- Framework introduced support for `before`, `after`, `around` Aspects
