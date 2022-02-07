@@ -1,5 +1,6 @@
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
+import 'package:mustang_codegen/src/service_method_override_generator.dart';
 import 'package:glob/glob.dart';
 import 'package:mustang_codegen/src/utils.dart';
 import 'package:mustang_core/mustang_core.dart';
@@ -51,7 +52,17 @@ class ScreenServiceGenerator extends Generator {
       return '';
     }
 
+    List<String> overriders = [];
+
+    element.visitChildren(
+      ServiceMethodOverrideGenerator(
+        overrides: overriders,
+        imports: importStates,
+      ),
+    );
+
     importStates.add("import '${Utils.class2File(screenState)}.state.dart';");
+    importStates = importStates.toSet().toList();
 
     String pkgName = buildStep.inputId.package;
     String appSerializerAlias = 'app_serializer';
@@ -119,6 +130,8 @@ class ScreenServiceGenerator extends Generator {
           EventStream.reset();
           ${_generateEventSubscription(appEventModels)}
         }
+        
+        ${overriders.join('\n')}
       }
         
       extension \$$serviceName on $serviceName {

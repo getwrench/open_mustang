@@ -1,10 +1,16 @@
 import 'package:build/build.dart';
+import 'package:mustang_codegen/src/app_aspect_generator.dart';
 import 'package:mustang_codegen/src/app_model_generator.dart';
 import 'package:mustang_codegen/src/app_serializer_builder.dart';
 import 'package:mustang_codegen/src/screen_generator.dart';
 import 'package:mustang_codegen/src/screen_service_generator.dart';
 import 'package:mustang_codegen/src/screen_state_generator.dart';
 import 'package:source_gen/source_gen.dart';
+
+Builder appAspectLibraryBuilder(BuilderOptions options) => LibraryBuilder(
+  AppAspectGenerator(),
+  generatedExtension: '.aspect.dart',
+);
 
 Builder appModelLibraryBuilder(BuilderOptions options) => LibraryBuilder(
       AppModelGenerator(),

@@ -10,6 +10,7 @@ class Utils {
 
   // mustang config file
   static const String configFile = 'mustang.yaml';
+
   // Keys in mustang-cli.yaml
   static const String serializerKey = 'serializer';
   static const String screenKey = 'screen';
@@ -88,6 +89,34 @@ class Utils {
       }
     }
     return null;
+  }
+
+  /// Input: MethodElement
+  /// Output: Method with all its input arguments
+  /// Example Output: validateToken(userId: userId, token: token)
+  static String methodWithExecutionArgs(
+    MethodElement element,
+    List<String> imports,
+  ) {
+    String methodWithArguments = 'super.${element.displayName}(';
+    if (element.parameters.isNotEmpty) {
+      element.parameters.toList().forEach((parameter) {
+        String import = parameter.type.element?.location?.encoding ?? '';
+        if (import.isNotEmpty) {
+          import = import.split(';').first;
+          imports.add("import '$import';");
+        }
+        if (parameter.declaration.isNamed) {
+          methodWithArguments =
+              '$methodWithArguments${parameter.displayName}: ${parameter.displayName}, ';
+        } else {
+          methodWithArguments =
+              '$methodWithArguments${parameter.displayName}, ';
+        }
+      });
+    }
+    methodWithArguments = '$methodWithArguments)';
+    return methodWithArguments;
   }
 
   static String? homeDir() {
