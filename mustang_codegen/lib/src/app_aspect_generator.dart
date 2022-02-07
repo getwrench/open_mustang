@@ -57,7 +57,6 @@ class AppAspectGenerator extends Generator {
         imports,
       );
       String params = aspectMethod.parameters.join(',');
-      if (aspectMethod.parameters.isNotEmpty) {}
       invokeHooks.add('''
         Future<void> ${CodeGenConstants.invoke}($params) async {         
           ${aspectMethod.isAsynchronous ? 'await' : ''} $methodWithExecutionArgs;
