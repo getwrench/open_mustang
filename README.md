@@ -17,6 +17,7 @@ A framework to build Flutter applications. Following features are available out 
 - [Screen](#screen)
 - [Persistence](#persistence)
 - [Cache](#cache)
+- [Events](#events)
 - [Folder Structure](#folder-structure)
 - [Quick Start](#quick-start)
 
@@ -251,6 +252,46 @@ Since the `WrenchStore` allows only one instance of a type, there cannot be two 
   bool itemExistsInCache(String key)
   ```
   Returns `true` if an identifier `key` exists in the Cache, `false` otherwise.
+
+### Events
+
+![Events](./04-arch-with-events.png)
+
+There are use cases where application has to react to external events. An external 
+event is any event that is generated *not* as a result of user's interaction with the app.
+Following are some of the examples external events:
+- Internet connectivity
+- Data update events from the app backend
+- Push notifications
+
+Mustang allows the app to subscribe to such events. When subscribed, `Service` of the currently visible `Screen` receives
+event notifications and updates them in the Wrench Store. `Service` then triggers the `Screen` rebuild.
+It is important to keep in mind that every event is an instance of `Model`. And, to use a model as an event, it needs to be
+annotated with `@appEvent`. Following is an example of creating of an event inside `models` folder
+
+```dart
+@appModel
+@appEvent
+abstract class $TimerEvent {
+  @InitField(0)
+  late int value;
+}
+```
+
+Create a dart file in your application that can publish events. It is recommended to create these dart files
+outside `screens` folder as they are not tied to or related to any specific screen.
+
+```dart
+// Create an event 
+TimerEvent timerEvent = WrenchStore.get<TimerEvent>() ?? TimerEvent();
+timerEvent = timerEvent.rebuild((b) => b..value = (b.value ?? 0) + 1);
+// Publish the event
+EventStream.pushEvent(timerEvent);
+```
+
+Visible screen of the app automatically rebuilds itself after consuming the event. It is upto the screen
+to show appropriate UI based on the received vent.
+
 
 ### Folder Structure
 - Folder structure of a Flutter application created with this framework looks as below
