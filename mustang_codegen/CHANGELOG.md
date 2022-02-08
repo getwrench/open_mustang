@@ -41,3 +41,6 @@
 
 ## 1.0.13
 - Framework introduced support for `before`, `after`, `around` Aspects
+
+## 1.0.14
+- `mustang.yaml` config file should now be in project's home directory

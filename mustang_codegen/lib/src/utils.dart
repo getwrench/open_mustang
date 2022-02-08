@@ -73,12 +73,8 @@ class Utils {
         .toList();
   }
 
-  static String? getCustomSerializerPackage() {
-    String? userHomeDir = homeDir();
-    String configFilePath = '';
-    if (userHomeDir != null) {
-      configFilePath = p.join(userHomeDir, configFile);
-    }
+  static String? getCustomSerializerPackage(String package) {
+    String configFilePath = p.join(package, configFile);
     if (configFilePath.isNotEmpty && File(configFilePath).existsSync()) {
       File configFile = File(configFilePath);
       String rawConfig = configFile.readAsStringSync();
