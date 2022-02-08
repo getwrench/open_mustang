@@ -1,7 +1,7 @@
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
-import 'package:mustang_codegen/src/service_method_override_generator.dart';
 import 'package:glob/glob.dart';
+import 'package:mustang_codegen/src/service_method_override_generator.dart';
 import 'package:mustang_codegen/src/utils.dart';
 import 'package:mustang_core/mustang_core.dart';
 import 'package:path/path.dart' as p;
@@ -67,7 +67,7 @@ class ScreenServiceGenerator extends Generator {
     String pkgName = buildStep.inputId.package;
     String appSerializerAlias = 'app_serializer';
 
-    String? customSerializerPackage = Utils.getCustomSerializerPackage();
+    String? customSerializerPackage = Utils.getCustomSerializerPackage(pkgName);
     String customSerializer = '';
     String customSerializerAlias = '';
     if (customSerializerPackage != null) {
