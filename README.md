@@ -290,7 +290,7 @@ EventStream.pushEvent(timerEvent);
 ```
 
 Visible screen of the app automatically rebuilds itself after consuming the event. It is upto the screen
-to show appropriate UI based on the received vent.
+to show appropriate UI based on the received event.
 
 
 ### Folder Structure
