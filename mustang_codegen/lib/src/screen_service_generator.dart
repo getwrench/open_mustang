@@ -67,7 +67,7 @@ class ScreenServiceGenerator extends Generator {
     String pkgName = buildStep.inputId.package;
     String appSerializerAlias = 'app_serializer';
 
-    String? customSerializerPackage = Utils.getCustomSerializerPackage(pkgName);
+    String? customSerializerPackage = Utils.getCustomSerializerPackage();
     String customSerializer = '';
     String customSerializerAlias = '';
     if (customSerializerPackage != null) {

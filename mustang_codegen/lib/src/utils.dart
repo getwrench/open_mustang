@@ -73,8 +73,8 @@ class Utils {
         .toList();
   }
 
-  static String? getCustomSerializerPackage(String package) {
-    String configFilePath = p.join(package, configFile);
+  static String? getCustomSerializerPackage() {
+    String configFilePath = p.join(p.current, configFile);
     if (configFilePath.isNotEmpty && File(configFilePath).existsSync()) {
       File configFile = File(configFilePath);
       String rawConfig = configFile.readAsStringSync();
@@ -113,21 +113,6 @@ class Utils {
     }
     methodWithArguments = '$methodWithArguments)';
     return methodWithArguments;
-  }
-
-  static String? homeDir() {
-    Map<String, String> envVars = Platform.environment;
-    if (Platform.isMacOS) {
-      return envVars['HOME'];
-    }
-
-    if (Platform.isLinux) {
-      return envVars['HOME'];
-    }
-
-    if (Platform.isWindows) {
-      return envVars['UserProfile'];
-    }
   }
 
   static String generateRandomString(int len) {

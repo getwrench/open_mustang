@@ -109,8 +109,7 @@ class ScreenStateGenerator extends Generator {
           !import.contains('built_collection.dart') &&
           !import.contains('mustang_core.dart') &&
           !import.contains('dart:core')) {
-        String? customSerializerPackage =
-            Utils.getCustomSerializerPackage(currentPkgName);
+        String? customSerializerPackage = Utils.getCustomSerializerPackage();
         List<String> importTokens = import.split('/');
         String importPackage = '';
         if (importTokens.length > 1) {

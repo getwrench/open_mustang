@@ -44,3 +44,6 @@
 
 ## 1.0.14
 - `mustang.yaml` config file should now be in project's home directory
+
+## 1.0.15
+- Fix - mustang.yaml is not getting picked up from the project root directory
