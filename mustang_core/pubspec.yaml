@@ -3,7 +3,7 @@ description: >
   A framework to build Flutter applications. It provides state management, persistence, caching and
   opinionated project structure.
 
-version: 1.0.6
+version: 1.0.7
 repository: https://github.com/getwrench/open_mustang
 
 environment:

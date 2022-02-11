@@ -20,3 +20,6 @@
 
 ## 1.0.6
 - Framework introduced support for `before`, `after`, `around` Aspects
+
+## 1.0.7
+- Aspects can accept arguments

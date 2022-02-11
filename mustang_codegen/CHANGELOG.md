@@ -47,3 +47,6 @@
 
 ## 1.0.15
 - Fix - mustang.yaml is not getting picked up from the project root directory
+
+## 1.0.16
+- Aspects can accept arguments
