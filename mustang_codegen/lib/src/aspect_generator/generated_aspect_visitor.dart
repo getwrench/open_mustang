@@ -4,16 +4,15 @@ import 'package:mustang_codegen/src/codegen_constants.dart';
 
 /// Visits an generated aspect file and finds all parameters
 /// for an aspect
-class GeneratedAspectVisitor extends SimpleElementVisitor {
+class GeneratedAspectVisitor extends SimpleElementVisitor<void> {
   const GeneratedAspectVisitor(
     this.invokeParameters,
   );
 
   final List<ParameterElement> invokeParameters;
 
-
   @override
-  visitMethodElement(MethodElement element) {
+  void visitMethodElement(MethodElement element) {
     switch (element.displayName) {
       case CodeGenConstants.invoke:
         invokeParameters.addAll(element.parameters.toList());
