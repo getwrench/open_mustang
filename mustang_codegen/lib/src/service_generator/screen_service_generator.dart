@@ -1,7 +1,7 @@
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
 import 'package:glob/glob.dart';
-import 'package:mustang_codegen/src/service_method_override_generator.dart';
+import 'package:mustang_codegen/src/service_generator/service_method_override_visitor.dart';
 import 'package:mustang_codegen/src/utils.dart';
 import 'package:mustang_core/mustang_core.dart';
 import 'package:path/path.dart' as p;
@@ -55,7 +55,7 @@ class ScreenServiceGenerator extends Generator {
     List<String> overriders = [];
 
     element.visitChildren(
-      ServiceMethodOverrideGenerator(
+      ServiceMethodOverrideVisitor(
         overrides: overriders,
         imports: importStates,
       ),

@@ -1,8 +1,8 @@
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
+import 'package:mustang_codegen/src/aspect_generator/aspect_hook_visitor.dart';
 import 'package:mustang_codegen/src/codegen_constants.dart';
 import 'package:mustang_codegen/src/utils.dart';
-import 'package:mustang_codegen/src/visitors/aspect_hook_visitor.dart';
 import 'package:mustang_core/mustang_core.dart';
 import 'package:path/path.dart' as p;
 import 'package:source_gen/source_gen.dart';
@@ -44,14 +44,10 @@ class AppAspectGenerator extends Generator {
     List<MethodElement> invokeHooksMethods = [];
     List<String> imports = [];
 
-    element.visitChildren(AspectHookVisitor(
-      invokeHooksMethods,
-    ));
+    element.visitChildren(AspectHookVisitor(invokeHooksMethods));
 
     List<String> invokeHooks = [];
-
     for (MethodElement aspectMethod in invokeHooksMethods) {
-      _validateAspectParameters(aspectMethod);
       String methodWithExecutionArgs = Utils.methodWithExecutionArgs(
         aspectMethod,
         imports,
@@ -59,7 +55,7 @@ class AppAspectGenerator extends Generator {
       String params = aspectMethod.parameters.join(',');
       invokeHooks.add('''
         Future<void> ${CodeGenConstants.invoke}($params) async {         
-          ${aspectMethod.isAsynchronous ? 'await' : ''} $methodWithExecutionArgs;
+          await $methodWithExecutionArgs;
         }
       ''');
     }
@@ -99,28 +95,6 @@ class AppAspectGenerator extends Generator {
         todo: 'annotate a method with @${CodeGenConstants.invoke}',
         element: element,
       );
-    }
-  }
-
-  void _validateAspectParameters(MethodElement element) {
-    if (element.parameters.isNotEmpty) {
-      if (element.parameters.length > 1 ||
-          !element.parameters.first.type.isDartCoreFunction) {
-        throw InvalidGenerationSourceError(
-          '''Error: Methods annotated with @invoke can only accept sourceMethod as argument.
-  Example:
-    @invoke
-    Future<void> run(Function sourceMethod) async {
-      print('before sourceMethod');
-      await sourceMethod();
-      print('after sourceMethod');
-    }
-    
-${element.parameters.length} Found: ${element.parameters.join(', ')}''',
-          todo: 'annotate a method with @${CodeGenConstants.invoke}',
-          element: element,
-        );
-      }
     }
   }
 

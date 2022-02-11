@@ -2,17 +2,17 @@ import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:analyzer/dart/element/visitor.dart';
+import 'package:mustang_codegen/src/aspect_generator/generated_aspect_visitor.dart';
 import 'package:mustang_codegen/src/codegen_constants.dart';
 import 'package:mustang_codegen/src/utils.dart';
-import 'package:mustang_codegen/src/visitors/generated_aspect_visitor.dart';
 import 'package:mustang_core/mustang_core.dart';
 import 'package:source_gen/source_gen.dart';
 
 /// Visits all the methods of a service and generates appropriate code
 /// for overriding parent methods. This visitor is called in
 /// [ScreenServiceGenerator] to override methods that are annotated
-class ServiceMethodOverrideGenerator extends SimpleElementVisitor {
-  ServiceMethodOverrideGenerator({
+class ServiceMethodOverrideVisitor extends SimpleElementVisitor<void> {
+  ServiceMethodOverrideVisitor({
     required this.overrides,
     required this.imports,
   });
@@ -21,7 +21,7 @@ class ServiceMethodOverrideGenerator extends SimpleElementVisitor {
   List<String> imports;
 
   @override
-  visitMethodElement(MethodElement element) {
+  void visitMethodElement(MethodElement element) {
     List<ElementAnnotation> annotations = element.declaration.metadata.toList();
     // if there are no annotations skip this method
     if (annotations.isNotEmpty) {
@@ -58,7 +58,6 @@ class ServiceMethodOverrideGenerator extends SimpleElementVisitor {
         aroundAnnotationObject,
         aroundHooks,
         imports,
-        isSourceMethodAsync: element.isAsynchronous,
       );
 
       if (beforeAnnotationObject != null ||
@@ -70,24 +69,20 @@ class ServiceMethodOverrideGenerator extends SimpleElementVisitor {
       String nestedAroundMethods = _nestAroundMethods(
         methodWithExecutionArgs,
         aroundHooks,
-        isAsync: element.isAsynchronous,
       );
 
       String declaration =
           element.declaration.getDisplayString(withNullability: false);
-      String async = element.isAsynchronous ? 'async' : '';
-      String await = element.isAsynchronous ? 'await' : '';
 
-      if (aroundHooks.isNotEmpty) {
-        overrides.add('''
+      overrides.add('''
           @override
-          $declaration $async {
+          $declaration async {
             ${beforeHooks.join('')}
-            $await ${aroundHooks.isEmpty ? methodWithExecutionArgs : nestedAroundMethods};
+            await ${aroundHooks.isEmpty ? methodWithExecutionArgs : nestedAroundMethods};
             ${afterHooks.join('')}
           }
         ''');
-      }
+
       return super.visitMethodElement(element);
     }
   }
@@ -101,6 +96,12 @@ class ServiceMethodOverrideGenerator extends SimpleElementVisitor {
     if (beforeAnnotationObject != null) {
       List<DartObject> aspects =
           beforeAnnotationObject.getField('aspects')?.toListValue() ?? [];
+      Map<DartObject?, DartObject?> args =
+          beforeAnnotationObject.getField('args')!.toMapValue()!;
+      Map<String, dynamic> argsMap = {};
+      for (var e in args.entries) {
+        argsMap["'${e.key!.toStringValue()!}'"] = _getTypeValue(e.value);
+      }
       // add validation for when its empty
       if (aspects.isNotEmpty) {
         for (DartObject aspect in aspects) {
@@ -110,11 +111,9 @@ class ServiceMethodOverrideGenerator extends SimpleElementVisitor {
                 .type?.element?.library?.topLevelElements
                 .firstWhere((element) => element.displayName.contains('\$\$'));
 
-            aspectExtensionObject?.visitChildren(
-              GeneratedAspectVisitor(
-                invokeParameters,
-              ),
-            );
+            aspectExtensionObject
+                ?.visitChildren(GeneratedAspectVisitor(invokeParameters));
+
             _validateBeforeOrAfterAspectParameters(
               element,
               invokeParameters,
@@ -130,7 +129,7 @@ class ServiceMethodOverrideGenerator extends SimpleElementVisitor {
             String aspectName =
                 '\$\$${aspect.type?.getDisplayString(withNullability: false)}';
             beforeHooks.add('''
-              await $aspectName().$methodName();
+              await $aspectName().$methodName($argsMap);
             ''');
           }
         }
@@ -147,6 +146,12 @@ class ServiceMethodOverrideGenerator extends SimpleElementVisitor {
     if (afterAnnotationObject != null) {
       List<DartObject> aspects =
           afterAnnotationObject.getField('aspects')?.toListValue() ?? [];
+      Map<DartObject?, DartObject?> args =
+          afterAnnotationObject.getField('args')!.toMapValue()!;
+      Map<String, dynamic> argsMap = {};
+      for (var e in args.entries) {
+        argsMap["'${e.key!.toStringValue()!}'"] = _getTypeValue(e.value);
+      }
       // add validation for when its empty
       if (aspects.isNotEmpty) {
         for (DartObject aspect in aspects) {
@@ -156,11 +161,9 @@ class ServiceMethodOverrideGenerator extends SimpleElementVisitor {
                 .type?.element?.library?.topLevelElements
                 .firstWhere((element) => element.displayName.contains('\$\$'));
 
-            aspectExtensionObject?.visitChildren(
-              GeneratedAspectVisitor(
-                invokeParameters,
-              ),
-            );
+            aspectExtensionObject
+                ?.visitChildren(GeneratedAspectVisitor(invokeParameters));
+
             _validateBeforeOrAfterAspectParameters(
               element,
               invokeParameters,
@@ -176,7 +179,7 @@ class ServiceMethodOverrideGenerator extends SimpleElementVisitor {
             String aspectName =
                 '\$\$${aspect.type?.getDisplayString(withNullability: false)}';
             afterHooks.add('''
-              await $aspectName().$methodName();
+              await $aspectName().$methodName($argsMap);
             ''');
           }
         }
@@ -188,11 +191,16 @@ class ServiceMethodOverrideGenerator extends SimpleElementVisitor {
     MethodElement element,
     DartObject? aroundAnnotationObject,
     List<String> aroundHooks,
-    List<String> imports, {
-    isSourceMethodAsync = false,
-  }) {
+    List<String> imports,
+  ) {
     if (aroundAnnotationObject != null) {
       DartObject? aspect = aroundAnnotationObject.getField('aspect');
+      Map<DartObject?, DartObject?> args =
+          aroundAnnotationObject.getField('args')!.toMapValue()!;
+      Map<String, dynamic> argsMap = {};
+      for (var e in args.entries) {
+        argsMap["'${e.key!.toStringValue()!}'"] = _getTypeValue(e.value);
+      }
       // add validation for when its empty
       if (aspect != null) {
         if (aspect.type?.getDisplayString(withNullability: false) != null) {
@@ -200,13 +208,15 @@ class ServiceMethodOverrideGenerator extends SimpleElementVisitor {
           Element? aspectExtensionObject = aspect
               .type?.element?.library?.topLevelElements
               .firstWhere((element) => element.displayName.contains('\$\$'));
-          aspectExtensionObject?.visitChildren(GeneratedAspectVisitor(
-            invokeParameters,
-          ));
+
+          aspectExtensionObject
+              ?.visitChildren(GeneratedAspectVisitor(invokeParameters));
+
           _validateAroundInvokeParameters(
             element,
             invokeParameters,
           );
+
           String annotationImport =
               aspect.type?.element?.location?.encoding ?? '';
           if (annotationImport.isNotEmpty) {
@@ -217,7 +227,7 @@ class ServiceMethodOverrideGenerator extends SimpleElementVisitor {
           String aspectName =
               '\$\$${aspect.type?.getDisplayString(withNullability: false)}';
           aroundHooks.add('''
-              $aspectName().$methodName(
+              $aspectName().$methodName($argsMap,
             ''');
         }
       }
@@ -226,24 +236,39 @@ class ServiceMethodOverrideGenerator extends SimpleElementVisitor {
 
   String _nestAroundMethods(
     String methodWithExecutionArgs,
-    List<String> aroundHooks, {
-    bool isAsync = false,
-  }) {
-    String aroundHook = '''
-      ${isAsync ? 'await' : ''} $methodWithExecutionArgs
-      ''';
+    List<String> aroundHooks,
+  ) {
+    String aroundHook = 'await $methodWithExecutionArgs';
     for (String s in aroundHooks.reversed) {
-      aroundHook = '''
-          $s ${isAsync ? '() async {' : '() =>'} $aroundHook
-        ''';
+      aroundHook = '$s () async { $aroundHook';
     }
     String closing =
-        List.generate(aroundHooks.length, (index) => isAsync ? ';})' : ')')
-            .join(isAsync ? '' : ',');
+        List.generate(aroundHooks.length, (index) => ';})').join('');
     aroundHook = '''
         $aroundHook$closing
       ''';
     return aroundHook;
+  }
+
+  dynamic _getTypeValue(DartObject? dartObject) {
+    if (dartObject == null) {
+      return dartObject;
+    }
+
+    switch ('${dartObject.type}') {
+      case 'int':
+        return dartObject.toIntValue();
+      case 'double':
+        return dartObject.toDoubleValue();
+      case 'string':
+        return dartObject.toStringValue();
+      case 'bool':
+        return dartObject.toBoolValue();
+      default:
+        return null;
+    }
+
+    return dartObject;
   }
 
   void _validateSourceMethodAsync(MethodElement element) {
@@ -270,7 +295,7 @@ class ServiceMethodOverrideGenerator extends SimpleElementVisitor {
         '''Error: Around aspects must accept sourceMethod as an argument.
   example:
     @invoke 
-    Future<void> run(Function sourceMethod) async {
+    Future<void> run(Map<String, dynamic> args, Function sourceMethod) async {
       print('before sourceMethod');
       await sourceMethod();
       print('after sourceMethod');
@@ -280,13 +305,13 @@ class ServiceMethodOverrideGenerator extends SimpleElementVisitor {
       );
     }
 
-    if (invokeParameters.length > 1 ||
-        !invokeParameters.first.type.isDartCoreFunction) {
+    if (invokeParameters.length > 1 &&
+        !invokeParameters.last.type.isDartCoreFunction) {
       throw InvalidGenerationSourceError(
         '''Error: Around aspects must only accept sourceMethod as an argument.
   example: 
     @invoke 
-    Future<void> run(Function sourceMethod) async {
+    Future<void> run(Map<String, dynamic> args, Function sourceMethod) async {
       print('before sourceMethod ');
       await sourceMethod();
       print('after sourceMethod');
@@ -303,9 +328,9 @@ class ServiceMethodOverrideGenerator extends SimpleElementVisitor {
     List<ParameterElement> invokeParameters,
     DartType? annotationType,
   ) {
-    if (invokeParameters.isNotEmpty) {
+    if (invokeParameters.length > 1) {
       throw InvalidGenerationSourceError(
-        'Error: Method annotated with @invoke in \$$annotationType expects ${invokeParameters.join(', ')} as argument\nbut Before or After aspect should not accept any.',
+        'Error: Method annotated with @invoke in \$$annotationType expects ${invokeParameters.join(', ')} as argument\n',
         todo: 'Make sure generated aspect files don\'t have errors',
         element: element,
       );
