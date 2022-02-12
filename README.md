@@ -39,9 +39,9 @@ rebuild the UI whenever there is a change in the application state.
     1. `Screen` reads `State` while building the UI
     2. `Screen` invokes methods in the `Service` as a response to user events (`scroll`, `tap` etc.,)
     3. `Service` 
-        - reads/updates `Models` in the `WrenchStore`
+        - reads/updates `Models` in the `MustangStore`
         - makes API calls, if needed
-        - informs `State` if `WrenchStore` is mutated
+        - informs `State` if `MustangStore` is mutated
     4. `State` informs `Screen` to rebuild the UI
     5. Back to Step 1
 
@@ -97,7 +97,7 @@ rebuild the UI whenever there is a change in the application state.
     @ScreenService(screenState: $ExampleScreenState)
     abstract class $ExampleScreenService {
       void getUser() {
-        User user = WrenchStore.get<User>() ?? User();
+        User user = MustangStore.get<User>() ?? User();
           updateState1(user);
         }
     }
@@ -117,7 +117,7 @@ rebuild the UI whenever there is a change in the application state.
             // In the snippet below, getScreenData method caches the return value of getData method, a Future.
             // Even when getData method is called multiple times, method execution happens only the first time.
             Future<void> getData() async {
-              Common common = WrenchStore.get<Common>() ?? Common();
+              Common common = MustangStore.get<Common>() ?? Common();
               User user;
               Vehicle vehicle;
 
@@ -183,7 +183,7 @@ rebuild the UI whenever there is a change in the application state.
 
 ![Persistence](./02-arch-with-persistence.png)
 
-By default, `app state` is maintained in memory by `WrenchStore`. When the app is terminated, the `app state` is lost
+By default, `app state` is maintained in memory by `MustangStore`. When the app is terminated, the `app state` is lost
 permanently. However, there are cases where it is desirable to persist and restore the `app state`. For example,
 
 - Save and restore user's session token to prevent user having to log in everytime
@@ -198,20 +198,20 @@ WidgetsFlutterBinding.ensureInitialized();
 
 // In main.dart before calling runApp method,
 // 1. Enable persistence like below
-WrenchStore.config(
+MustangStore.config(
   isPersistent: true,
   storeName: 'myapp',
 );
 
 // 2. Initialize persistence
 Directory dir = await getApplicationDocumentsDirectory();
-await WrenchStore.initPersistence(dir.path);
+await MustangStore.initPersistence(dir.path);
 
 // 3. Restore persisted state before the app starts
-await WrenchStore.restoreState(app_serializer.json2Type, app_serializer.serializerNames);
+await MustangStore.restoreState(app_serializer.json2Type, app_serializer.serializerNames);
 ```
 
-With the above change, `app state` (`WrenchStore`) is persisted to the disk and will be restored into `WrenchStore` when the app is started.
+With the above change, `app state` (`MustangStore`) is persisted to the disk and will be restored into `MustangStore` when the app is started.
 
 ### Cache
 
@@ -219,11 +219,11 @@ With the above change, `app state` (`WrenchStore`) is persisted to the disk and 
 
 `Cache` feature allows switching between instances of the same type on need basis.
 
-`Persistence` is a snapshot of the `app state` in memory (`WrenchStore`). However, there are times when data
+`Persistence` is a snapshot of the `app state` in memory (`MustangStore`). However, there are times when data
 need to be persisted but restored only when needed. An example would be a technician working on multiple jobs at the same time i.e, technician switches between jobs.
-Since the `WrenchStore` allows only one instance of a type, there cannot be two instances of the Job object in the WrenchStore.
+Since the `MustangStore` allows only one instance of a type, there cannot be two instances of the Job object in the MustangStore.
 
-`Cache` APIs, available in `Service`s, make it easy to restore any instance into memory (`WrenchStore`).
+`Cache` APIs, available in `Service`s, make it easy to restore any instance into memory (`MustangStore`).
 
 - ```
   Future<void> addObjectToCache<T>(String key, T t)
@@ -245,7 +245,7 @@ Since the `WrenchStore` allows only one instance of a type, there cannot be two 
       ) callback,
   )
   ```
-  Restores all objects in the cache identified by the `key` into memory `WrenchStore` and also into the persisted store
+  Restores all objects in the cache identified by the `key` into memory `MustangStore` and also into the persisted store
   so that the in-memory and persisted app state remain consistent.
 
 - ```
@@ -265,7 +265,7 @@ Following are some of the examples external events:
 - Push notifications
 
 Mustang allows the app to subscribe to such events. When subscribed, `Service` of the currently visible `Screen` receives
-event notifications and updates them in the Wrench Store. `Service` then triggers the `Screen` rebuild.
+event notifications and updates them in the MustangStore. `Service` then triggers the `Screen` rebuild.
 It is important to keep in mind that every event is an instance of `Model`. And, to use a model as an event, it needs to be
 annotated with `@appEvent`. Following is an example of creating of an event inside `models` folder
 
@@ -283,7 +283,7 @@ outside `screens` folder as they are not tied to or related to any specific scre
 
 ```dart
 // Create an event 
-TimerEvent timerEvent = WrenchStore.get<TimerEvent>() ?? TimerEvent();
+TimerEvent timerEvent = MustangStore.get<TimerEvent>() ?? TimerEvent();
 timerEvent = timerEvent.rebuild((b) => b..value = (b.value ?? 0) + 1);
 // Publish the event
 EventStream.pushEvent(timerEvent);
@@ -446,7 +446,7 @@ to show appropriate UI based on the received event.
     @ScreenService(screenState: $CounterState)
     class CounterService {
       void increment() {
-        Counter counter = WrenchStore.get<Counter>() ?? Counter();
+        Counter counter = MustangStore.get<Counter>() ?? Counter();
         counter = counter.rebuild((b) => b.value = (b.value ?? 0) + 1);
         updateState1(counter);
       }

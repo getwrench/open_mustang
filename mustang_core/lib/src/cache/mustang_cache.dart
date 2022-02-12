@@ -1,17 +1,16 @@
 import 'package:hive/hive.dart';
-import 'package:mustang_core/src/store/wrench_store.dart';
+import 'package:mustang_core/src/store/mustang_store.dart';
 
-/// [WrenchCache] provides utility methods to save/lookup instances
+/// [MustangCache] provides utility methods to save/lookup instances
 /// of any type.
 ///
 /// Only one instance of cache store exists for an App.
-@Deprecated('Use MustangCache instead')
-class WrenchCache {
+class MustangCache {
   /// Hive Box Name to cache the model data
   static String cacheName = '';
 
   static void configCache(String cacheName) async {
-    WrenchCache.cacheName = cacheName;
+    MustangCache.cacheName = cacheName;
   }
 
   /// Creates [storeLocation] in the file system to save serialized objects
@@ -44,7 +43,7 @@ class WrenchCache {
   }
 
   /// Deserializes the previously serialized string into an object and
-  /// - updates WrenchStore
+  /// - updates MustangStore
   /// - updates Persistence store
   static Future<void> restoreObjects(
     String key,
@@ -60,8 +59,8 @@ class WrenchCache {
       Map<String, String> cacheData =
           (await lazyBox.get(key))?.cast<String, String>() ?? {};
       for (String modelKey in cacheData.keys) {
-        WrenchStore.persistObject(modelKey, cacheData[modelKey]!);
-        callback(WrenchStore.update, modelKey, cacheData[modelKey]!);
+        MustangStore.persistObject(modelKey, cacheData[modelKey]!);
+        callback(MustangStore.update, modelKey, cacheData[modelKey]!);
       }
     }
   }

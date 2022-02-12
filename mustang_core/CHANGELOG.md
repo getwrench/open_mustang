@@ -23,3 +23,6 @@
 
 ## 1.0.7
 - Aspects can accept arguments
+
+## 1.0.8
+- Renamed `WrenchStore` to `MustangStore` and `WrenchCache` to `MustangCache`

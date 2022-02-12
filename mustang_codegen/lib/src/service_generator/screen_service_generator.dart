@@ -136,7 +136,7 @@ class ScreenServiceGenerator extends Generator {
         
       extension \$$serviceName on $serviceName {
         void updateState() {
-          $screenState screenState = WrenchStore.get<$screenState>() ?? $screenState();
+          $screenState screenState = MustangStore.get<$screenState>() ?? $screenState();
           if (screenState.mounted) {
             screenState.update();
           }
@@ -145,9 +145,9 @@ class ScreenServiceGenerator extends Generator {
         void updateState1<T>(T t, {
           reload = true,
         }) {
-          $screenState screenState = WrenchStore.get<$screenState>() ?? $screenState();
+          $screenState screenState = MustangStore.get<$screenState>() ?? $screenState();
           if (screenState.mounted) {
-            WrenchStore.update(t);
+            MustangStore.update(t);
             ${_generatePersistObjectTemplate('T', appSerializerAlias, customSerializerAlias)}
             if (kDebugMode) {
               postEvent('${Utils.debugEventKind}', {
@@ -164,9 +164,9 @@ class ScreenServiceGenerator extends Generator {
         void updateState2<T, S>(T t, S s, {
           reload = true,
         }) {
-          $screenState screenState = WrenchStore.get<$screenState>() ?? $screenState();
+          $screenState screenState = MustangStore.get<$screenState>() ?? $screenState();
           if (screenState.mounted) {
-            WrenchStore.update2(t, s);
+            MustangStore.update2(t, s);
             ${_generatePersistObjectTemplate('T', appSerializerAlias, customSerializerAlias)}
             ${_generatePersistObjectTemplate('S', appSerializerAlias, customSerializerAlias)}
             if (kDebugMode) {
@@ -188,9 +188,9 @@ class ScreenServiceGenerator extends Generator {
         void updateState3<T, S, U>(T t, S s, U u, {
           reload = true,
         }) {
-          $screenState screenState = WrenchStore.get<$screenState>() ?? $screenState();
+          $screenState screenState = MustangStore.get<$screenState>() ?? $screenState();
           if (screenState.mounted) {
-            WrenchStore.update3(t, s, u);
+            MustangStore.update3(t, s, u);
             ${_generatePersistObjectTemplate('T', appSerializerAlias, customSerializerAlias)}
             ${_generatePersistObjectTemplate('S', appSerializerAlias, customSerializerAlias)}
             ${_generatePersistObjectTemplate('U', appSerializerAlias, customSerializerAlias)}
@@ -217,9 +217,9 @@ class ScreenServiceGenerator extends Generator {
         void updateState4<T, S, U, V>(T t, S s, U u, V v, {
           reload = true,
         }) {
-          $screenState screenState = WrenchStore.get<$screenState>() ?? $screenState();
+          $screenState screenState = MustangStore.get<$screenState>() ?? $screenState();
           if (screenState.mounted) {
-            WrenchStore.update4(t, s, u, v);
+            MustangStore.update4(t, s, u, v);
             ${_generatePersistObjectTemplate('T', appSerializerAlias, customSerializerAlias)}
             ${_generatePersistObjectTemplate('S', appSerializerAlias, customSerializerAlias)}
             ${_generatePersistObjectTemplate('U', appSerializerAlias, customSerializerAlias)}
@@ -250,13 +250,13 @@ class ScreenServiceGenerator extends Generator {
         
         T memoizeScreen<T>(T Function() service) {
           _\$${screenState}Cache screenStateCache =
-              WrenchStore.get<_\$${screenState}Cache>() ?? const _\$${screenState}Cache();
-          $screenState screenState = WrenchStore.get<$screenState>() ?? $screenState();
+              MustangStore.get<_\$${screenState}Cache>() ?? const _\$${screenState}Cache();
+          $screenState screenState = MustangStore.get<$screenState>() ?? $screenState();
           
           if (screenStateCache.t == null) {
             T t = service();
             screenStateCache = _\$${screenState}Cache(t);
-            WrenchStore.update(screenStateCache);
+            MustangStore.update(screenStateCache);
             if (kDebugMode) {
               postEvent('${Utils.debugEventKind}', {
                 'modelName': '\${_\$${screenState}Cache}',
@@ -266,7 +266,7 @@ class ScreenServiceGenerator extends Generator {
             if (t is Future) {
               t.whenComplete(() {
                 if (!(screenState.mounted)) {
-                  WrenchStore.delete<_\$${screenState}Cache>();
+                  MustangStore.delete<_\$${screenState}Cache>();
                   if (kDebugMode) {
                     postEvent('${Utils.debugEventKind}', {
                       'modelName': '\${_\$${screenState}Cache}', 
@@ -283,14 +283,14 @@ class ScreenServiceGenerator extends Generator {
         void clearMemoizedScreen({
           reload = true,
         }) {
-          WrenchStore.delete<_\$${screenState}Cache>();
+          MustangStore.delete<_\$${screenState}Cache>();
           if (kDebugMode) {
             postEvent('${Utils.debugEventKind}', {
               'modelName': '\${_\$${screenState}Cache}',
               'modelStr': '{}',
             });
           }
-          $screenState screenState = WrenchStore.get<$screenState>() ?? $screenState();
+          $screenState screenState = MustangStore.get<$screenState>() ?? $screenState();
           if (screenState.mounted) {
             if (reload) { 
               screenState.update();
@@ -299,7 +299,7 @@ class ScreenServiceGenerator extends Generator {
         }
         
         Future<void> addObjectToCache<T>(String key, T t) async {
-          await WrenchCache.addObject(
+          await MustangCache.addObject(
             key,
             '\$T',
             ${_generateCacheObjectJsonArg('T', appSerializerAlias, customSerializerAlias)},
@@ -307,11 +307,11 @@ class ScreenServiceGenerator extends Generator {
         }
         
         Future<void> deleteObjectsFromCache(String key) async {
-          await WrenchCache.deleteObjects(key);
+          await MustangCache.deleteObjects(key);
         }
         
         bool itemExistsInCache(String key) {
-          return WrenchCache.itemExists(key);
+          return MustangCache.itemExists(key);
         }
   
     }
@@ -344,7 +344,7 @@ class ScreenServiceGenerator extends Generator {
     String customSerializerAlias,
   ) {
     if (customSerializerAlias.isNotEmpty) {
-      return '''WrenchStore.persistObject(
+      return '''MustangStore.persistObject(
         '\$$type',
         jsonEncode(
           $appSerializerAlias.serializerNames.contains('\$$type')
@@ -353,7 +353,7 @@ class ScreenServiceGenerator extends Generator {
         ),
       );''';
     } else {
-      return '''WrenchStore.persistObject(
+      return '''MustangStore.persistObject(
         '\$$type',
         jsonEncode($appSerializerAlias.serializers.serialize(${type.toLowerCase()})),
       );''';

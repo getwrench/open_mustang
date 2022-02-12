@@ -1,4 +1,4 @@
-import 'package:mustang_core/src/implementation/aspect_impl.dart';
+import 'package:mustang_core/src/interfaces/aspect_impl.dart';
 
 class Before {
   const Before(
