@@ -40,7 +40,7 @@ class ScreenStateGenerator extends Generator {
           .replaceFirst(r'$', '');
       String fieldName = fieldElement.name;
       String declaration =
-          '$fieldType get $fieldName => WrenchStore.get<$fieldType>() ?? $fieldType();';
+          '$fieldType get $fieldName => MustangStore.get<$fieldType>() ?? $fieldType();';
       stateModelFields.add(declaration);
     }
     List<String> stateImports = Utils.getImports(
@@ -58,7 +58,7 @@ class ScreenStateGenerator extends Generator {
       class $stateName extends ChangeNotifier {
         $stateName() {
           mounted = true;
-          WrenchStore.update(this);
+          MustangStore.update(this);
           if (kDebugMode) {
             postEvent('${Utils.debugEventKind}', {
               'modelName': '\$$stateName', 

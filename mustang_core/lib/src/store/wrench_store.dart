@@ -7,6 +7,7 @@ import 'package:mustang_core/src/cache/wrench_cache.dart';
 /// of any type.
 ///
 /// Only 1 instance of a type exists at any point of time.
+@Deprecated('Use MustangStore instead')
 class WrenchStore {
   // HashMap is used to store objects when large flag is enabled
   static final HashMap<String, Object?> _hashStore = HashMap();
