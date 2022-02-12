@@ -34,7 +34,7 @@ A framework to build Flutter applications. Following features are available out 
 - Every `Screen` has a corresponding `Service` and a `State`. All three components work together to continuously
 rebuild the UI whenever there is a change in the application state.
 
-    ![Architecture](./01-arch.png)
+    ![Architecture](./01-components.png)
 
     1. `Screen` reads `State` while building the UI
     2. `Screen` invokes methods in the `Service` as a response to user events (`scroll`, `tap` etc.,)
@@ -181,7 +181,7 @@ rebuild the UI whenever there is a change in the application state.
 
 ### Persistence
 
-![Persistence](./02-arch-with-persistence.png)
+![Persistence](./02-persistence.png)
 
 By default, `app state` is maintained in memory by `MustangStore`. When the app is terminated, the `app state` is lost
 permanently. However, there are cases where it is desirable to persist and restore the `app state`. For example,
@@ -215,7 +215,7 @@ With the above change, `app state` (`MustangStore`) is persisted to the disk and
 
 ### Cache
 
-![Cache](./03-arch-with-cache.png)
+![Cache](./03-cache.png)
 
 `Cache` feature allows switching between instances of the same type on need basis.
 
@@ -255,7 +255,7 @@ Since the `MustangStore` allows only one instance of a type, there cannot be two
 
 ### Events
 
-![Events](./04-arch-with-events.png)
+![Events](./04-events.png)
 
 There are use cases where application has to react to external events. An external 
 event is any event that is generated *not* as a result of user's interaction with the app.
