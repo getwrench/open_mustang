@@ -53,3 +53,6 @@
 
 ## 1.0.17
 - Renamed `WrenchStore` to `MustangStore` and `WrenchCache` to `MustangCache`
+
+## 1.0.18
+- Bug - String args for Aspects does not have quotes in the generated file
