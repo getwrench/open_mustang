@@ -260,15 +260,13 @@ class ServiceMethodOverrideVisitor extends SimpleElementVisitor<void> {
         return dartObject.toIntValue();
       case 'double':
         return dartObject.toDoubleValue();
-      case 'string':
-        return dartObject.toStringValue();
+      case 'String':
+        return "'${dartObject.toStringValue()}'";
       case 'bool':
         return dartObject.toBoolValue();
       default:
         return null;
     }
-
-    return dartObject;
   }
 
   void _validateSourceMethodAsync(MethodElement element) {
