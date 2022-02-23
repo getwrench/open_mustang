@@ -79,7 +79,7 @@ class ScreenServiceGenerator extends Generator {
     List<String> appEventModels = [];
     List<String> appEventModelImports = [];
     await for (AssetId assetId
-        in buildStep.findAssets(Glob('$appModelsDir/*[^model].dart'))) {
+        in buildStep.findAssets(Glob('$appModelsDir/*[^.model].dart'))) {
       LibraryElement appModelLibrary =
           await buildStep.resolver.libraryFor(assetId);
       Iterable<AnnotatedElement> appEvents = LibraryReader(appModelLibrary)
