@@ -198,17 +198,19 @@ class ScreenStateGenerator extends Generator {
             element: element);
       }
 
-      if (element.type.element != null &&
-          element.type.element!.metadata.isNotEmpty &&
-          element.type.element!.metadata.first.element != null &&
-          (element.type.element!.metadata.first.element!.name?.toLowerCase() ??
-                  '') !=
-              '$AppModel'.toLowerCase()) {
+      if (element.type.element != null && !_hasAppModelAnnotation(element)) {
         throw InvalidGenerationSourceError(
             'Error: Only models are allowed as fields in State class',
             todo: 'Use only Models as fields',
             element: element);
       }
     }
+  }
+
+  bool _hasAppModelAnnotation(FieldElement element) {
+    return element.type.element!.metadata.any((elementAnnotation) {
+      return (elementAnnotation.element!.name?.toLowerCase() ?? '') ==
+          '$AppModel'.toLowerCase();
+    });
   }
 }
