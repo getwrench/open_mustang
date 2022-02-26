@@ -198,7 +198,11 @@ class ScreenStateGenerator extends Generator {
             element: element);
       }
 
-      if (element.type.element != null && !_hasAppModelAnnotation(element)) {
+      if (element.type.element != null &&
+          !element.type.element!.declaration
+              .toString()
+              .contains('implements Built') &&
+          !_hasAppModelAnnotation(element)) {
         throw InvalidGenerationSourceError(
             'Error: Only models are allowed as fields in State class',
             todo: 'Use only Models as fields',
