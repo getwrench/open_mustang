@@ -56,3 +56,6 @@
 
 ## 1.0.18
 - Bug - String args for Aspects does not have quotes in the generated file
+
+## 1.0.19
+- Bug - Event codegen fails when model filename has `model`
