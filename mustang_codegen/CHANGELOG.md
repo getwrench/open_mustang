@@ -59,3 +59,6 @@
 
 ## 1.0.19
 - Bug - Event codegen fails when model filename has `model`
+
+## 1.0.20
+- Bug - Codegen for State fails when model does not start with `$`
