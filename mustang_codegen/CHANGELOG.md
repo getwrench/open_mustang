@@ -62,3 +62,6 @@
 
 ## 1.0.20
 - Bug - Codegen for State fails when model does not start with `$`
+
+## 1.0.21
+- Fix: lint warnings

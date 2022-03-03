@@ -26,3 +26,7 @@
 
 ## 1.0.8
 - Renamed `WrenchStore` to `MustangStore` and `WrenchCache` to `MustangCache`
+
+## 1.0.9
+- Fix: Lint warnings
+- Fix: added null assertion for Mustang store update
