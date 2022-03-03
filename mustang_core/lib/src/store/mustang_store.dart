@@ -11,6 +11,8 @@ class MustangStore {
   // HashMap is used to store objects when large flag is enabled
   static final HashMap<String, Object?> _hashStore = HashMap();
 
+  static const nonNullType = 'Mustang store accepts only non-nullable types';
+
   // Flat to persist the data
   static bool persistent = false;
 
@@ -27,7 +29,7 @@ class MustangStore {
   static void update<T>(T t) {
     assert(
       !(T.toString().endsWith('?')),
-      'Mustang store accepts only non-nullable types',
+      nonNullType,
     );
     _hashStore.update(
       T.toString(),
@@ -41,7 +43,7 @@ class MustangStore {
   static void update2<T, S>(T t, S s) {
     assert(
       !(T.toString().endsWith('?') || S.toString().endsWith('?')),
-      'Mustang store accepts only non-nullable types',
+      nonNullType,
     );
     update<T>(t);
     update<S>(s);
@@ -54,7 +56,7 @@ class MustangStore {
       !(T.toString().endsWith('?') ||
           S.toString().endsWith('?') ||
           U.toString().endsWith('?')),
-      'Mustang store accepts only non-nullable types',
+      nonNullType,
     );
     update<T>(t);
     update<S>(s);
@@ -70,7 +72,7 @@ class MustangStore {
           S.toString().endsWith('?') ||
           U.toString().endsWith('?') ||
           V.toString().endsWith('?')),
-      'Mustang store accepts only non-nullable types',
+      nonNullType,
     );
     update<T>(t);
     update<S>(s);
