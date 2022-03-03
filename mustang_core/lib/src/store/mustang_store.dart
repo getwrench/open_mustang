@@ -11,6 +11,8 @@ class MustangStore {
   // HashMap is used to store objects when large flag is enabled
   static final HashMap<String, Object?> _hashStore = HashMap();
 
+  static const nonNullType = 'Mustang store accepts only non-nullable types';
+
   // Flat to persist the data
   static bool persistent = false;
 
@@ -25,6 +27,10 @@ class MustangStore {
 
   /// Saves instance [t] after removing, if exists, an instance of [T]
   static void update<T>(T t) {
+    assert(
+      !(T.toString().endsWith('?')),
+      nonNullType,
+    );
     _hashStore.update(
       T.toString(),
       (_) => t,
@@ -35,6 +41,10 @@ class MustangStore {
   /// Saves instances [t] and [s] after removing, if exists,
   /// an instance of type [T] and an instance of type [S].
   static void update2<T, S>(T t, S s) {
+    assert(
+      !(T.toString().endsWith('?') || S.toString().endsWith('?')),
+      nonNullType,
+    );
     update<T>(t);
     update<S>(s);
   }
@@ -42,6 +52,12 @@ class MustangStore {
   /// Saves instances [t], [s], [u] after removing, if exists,
   /// an instance of type [T], instance of type [S] and instance of type [U]
   static void update3<T, S, U>(T t, S s, U u) {
+    assert(
+      !(T.toString().endsWith('?') ||
+          S.toString().endsWith('?') ||
+          U.toString().endsWith('?')),
+      nonNullType,
+    );
     update<T>(t);
     update<S>(s);
     update<U>(u);
@@ -51,6 +67,13 @@ class MustangStore {
   /// an instance of type [T], instance of type [S], instance of type [U]
   /// and instance of type [V]
   static void update4<T, S, U, V>(T t, S s, U u, V v) {
+    assert(
+      !(T.toString().endsWith('?') ||
+          S.toString().endsWith('?') ||
+          U.toString().endsWith('?') ||
+          V.toString().endsWith('?')),
+      nonNullType,
+    );
     update<T>(t);
     update<S>(s);
     update<U>(u);
