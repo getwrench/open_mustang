@@ -67,9 +67,9 @@ class MustangStore {
   static void update4<T, S, U, V>(T t, S s, U u, V v) {
     assert(
       !(T.toString().endsWith('?') ||
-              S.toString().endsWith('?') ||
-              U.toString().endsWith('?')) ||
-          V.toString().endsWith('?'),
+          S.toString().endsWith('?') ||
+          U.toString().endsWith('?') ||
+          V.toString().endsWith('?')),
       'Mustang store accepts only non-nullable types',
     );
     update<T>(t);
