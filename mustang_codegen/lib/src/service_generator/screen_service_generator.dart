@@ -63,6 +63,15 @@ class ScreenServiceGenerator extends Generator {
 
     importStates.add("import '${Utils.class2File(screenState)}.state.dart';");
     importStates = importStates.toSet().toList();
+    String statePath =
+        buildStep.inputId.uri.toString().replaceFirst('_service', '_state');
+    AssetId stateAssetId = AssetId.resolve(Uri.parse(statePath));
+    LibraryElement stateLibraryElement =
+        await buildStep.resolver.libraryFor(stateAssetId);
+    ClassElement stateClassElement =
+        LibraryReader(stateLibraryElement).classes.first;
+    List<String> stateFieldsTypes =
+        stateClassElement.fields.map((e) => e.type.toString()).toList();
 
     String pkgName = buildStep.inputId.package;
     String appSerializerAlias = 'app_serializer';
@@ -128,7 +137,7 @@ class ScreenServiceGenerator extends Generator {
           
         Future<void> subscribeToEvent() async {
           EventStream.reset();
-          ${_generateEventSubscription(appEventModels)}
+          ${_generateEventSubscription(appEventModels, stateFieldsTypes)}
         }
         
         ${overriders.join('\n')}
@@ -318,8 +327,13 @@ class ScreenServiceGenerator extends Generator {
     ''';
   }
 
-  String _generateEventSubscription(List<String> appModelEvents) {
-    if (appModelEvents.isEmpty) {
+  String _generateEventSubscription(
+    List<String> appModelEvents,
+    List<String> stateFieldsTypes,
+  ) {
+    // check if the event model is defined in the state
+    if (appModelEvents.isEmpty ||
+        !appModelEvents.any((e) => stateFieldsTypes.contains(e))) {
       return '';
     }
 

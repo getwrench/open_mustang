@@ -65,3 +65,6 @@
 
 ## 1.0.21
 - Fix: lint warnings
+
+## 1.0.22
+- Fix: Services are subscribing to event when the eventModel is not used in the state
