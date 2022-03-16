@@ -68,3 +68,6 @@
 
 ## 1.0.22
 - Fix: Services are subscribing to event when the eventModel is not used in the state
+
+## 1.0.23
+- Fix: Incorrect file name while generating event subscription code
