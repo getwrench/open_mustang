@@ -64,7 +64,7 @@ class ScreenServiceGenerator extends Generator {
     importStates.add("import '${Utils.class2File(screenState)}.state.dart';");
     importStates = importStates.toSet().toList();
     String statePath =
-        buildStep.inputId.uri.toString().replaceFirst('_service', '_state');
+        buildStep.inputId.uri.toString().replaceFirst('_service.dart', '_state.dart');
     AssetId stateAssetId = AssetId.resolve(Uri.parse(statePath));
     LibraryElement stateLibraryElement =
         await buildStep.resolver.libraryFor(stateAssetId);
