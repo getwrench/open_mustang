@@ -23,6 +23,40 @@ class Utils {
         .toLowerCase();
   }
 
+  static String stateClassToGenServiceFile(String stateClassName) {
+    String stateFileName = class2File(stateClassName);
+    return stateFileName.replaceFirst(
+        RegExp('_state\$'), '_service.service.dart');
+  }
+
+  static String serviceClassToGenStateFile(String serviceClassName) {
+    String serviceFileName = class2File(serviceClassName);
+    return serviceFileName.replaceFirst(
+        RegExp('_service\$'), '_state.state.dart');
+  }
+
+  static String stateClassToGenServiceClass(String stateClassName) {
+    String stateFileName = class2File(stateClassName);
+    String genServiceFileName =
+        stateFileName.replaceFirst(RegExp('_state\$'), '_service');
+    String firstPass =
+        genServiceFileName.replaceAllMapped(RegExp('_([a-z])'), (Match m) {
+      return (m.group(1)?.toUpperCase() ?? '');
+    });
+    return capitalizeFirst(firstPass);
+  }
+
+  static String serviceClass2GenStateClass(String serviceClassName) {
+    String serviceFileName = class2File(serviceClassName);
+    String genStateFileName =
+        serviceFileName.replaceFirst(RegExp('_service\$'), '_state');
+    String firstPass =
+        genStateFileName.replaceAllMapped(RegExp('_([a-z])'), (Match m) {
+      return (m.group(1)?.toUpperCase() ?? '');
+    });
+    return capitalizeFirst(firstPass);
+  }
+
   static String class2Var(String className) {
     String firstLetter = className.substring(0, 1).toLowerCase();
     return '$firstLetter${className.substring(1)}';

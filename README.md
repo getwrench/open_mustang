@@ -18,6 +18,7 @@ A framework to build Flutter applications. Following features are available out 
 - [Persistence](#persistence)
 - [Cache](#cache)
 - [Events](#events)
+- [Aspects](#aspects)
 - [Folder Structure](#folder-structure)
 - [Quick Start](#quick-start)
 
@@ -91,10 +92,9 @@ rebuild the UI whenever there is a change in the application state.
 ### Service
 - An abstract class annotated with `ScreenService`
 - Service name should start with `$`
-- Provide `State` class as an argument to `ScreenService` annotation, to create an association between `State` and `Service` as shown below.
   
     ```dart
-    @ScreenService(screenState: $ExampleScreenState)
+    @screenService
     abstract class $ExampleScreenService {
       void getUser() {
         User user = MustangStore.get<User>() ?? User();
@@ -158,8 +158,8 @@ rebuild the UI whenever there is a change in the application state.
               // state variable provides access to model fields declared in the HomeScreenState class
               HomeScreenState? state = StateConsumer<HomeScreenState>().of(context);
               
-              # Even when this widget is built many times, only 1 API call 
-              # will be made because the Future from the service is cached
+              // Even when this widget is built many times, only 1 API call 
+              // will be made because the Future from the service is cached
               SchedulerBinding.instance?.addPostFrameCallback(
                 (_) => HomeScreenService().getScreenData(),
               );
@@ -292,6 +292,9 @@ EventStream.pushEvent(timerEvent);
 Visible screen of the app automatically rebuilds itself after consuming the event. It is upto the screen
 to show appropriate UI based on the received event.
 
+### Aspects
+
+TODO
 
 ### Folder Structure
 - Folder structure of a Flutter application created with this framework looks as below
@@ -443,7 +446,7 @@ to show appropriate UI based on the received event.
     import 'counter_service.service.dart';
     import 'counter_state.dart';
         
-    @ScreenService(screenState: $CounterState)
+    @screenService
     class CounterService {
       void increment() {
         Counter counter = MustangStore.get<Counter>() ?? Counter();

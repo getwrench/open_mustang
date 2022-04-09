@@ -34,6 +34,10 @@ class ScreenStateGenerator extends Generator {
     ClassElement stateClass = element as ClassElement;
     List<String> stateModelFields = [];
 
+    String importGenService =
+        "import '${Utils.stateClassToGenServiceFile(stateName)}';";
+    String genServiceClass = Utils.stateClassToGenServiceClass(stateName);
+
     for (FieldElement fieldElement in stateClass.fields) {
       String fieldType = fieldElement.type
           .getDisplayString(withNullability: false)
@@ -49,50 +53,74 @@ class ScreenStateGenerator extends Generator {
     );
 
     return '''
-      import 'dart:convert';
       import 'dart:developer';
       import 'package:flutter/foundation.dart';
+      import 'package:flutter/widgets.dart';
       import 'package:mustang_core/mustang_core.dart';
+      import 'package:mustang_core/mustang_widgets.dart';
       ${stateImports.join('\n')}
       
-      class $stateName extends ChangeNotifier {
-        $stateName() {
-          mounted = true;
+      $importGenService
+      
+      class $stateName extends ChangeNotifier implements RouteAware {
+        late final BuildContext context;
+        
+        $stateName({
+          required this.context,
+        }) {
           MustangStore.update(this);
+          MustangRouteObserver.getInstance().subscribe(this, ModalRoute.of(context)!);
           if (kDebugMode) {
             postEvent('${Utils.debugEventKind}', {
               'modelName': '\$$stateName', 
-              'modelStr': jsonEncode(toJson()),
+              'modelStr': 'active',
             });
           }
-        }
-        
-        bool mounted = false;
-        
-        Map<String, dynamic> toJson() {
-          return {
-            'mounted': mounted
-          };
         }
         
         ${stateModelFields.join('\n')}
         
         void update() {
-          if (mounted) {
-            notifyListeners(); 
-          }
+          notifyListeners(); 
         }
         
+        /// TODO dispose is not getting called
         @override
         void dispose() {
-          mounted = false;
           if (kDebugMode) {
             postEvent('${Utils.debugEventKind}', {
               'modelName': '\$$stateName', 
-              'modelStr': '{}',
+              'modelStr': 'disposed',
             });
           }
+          MustangRouteObserver.getInstance().unsubscribe(this);
           super.dispose();
+        }
+        
+        /// Called when the screen associated with this state has been popped off.
+        @override
+        void didPop() {
+          // TODO: implement didPop
+        }
+      
+        /// Called when the top route has been popped off, and the screen associated with 
+        /// this state shows up.
+        @override
+        void didPopNext() {
+          $genServiceClass().subscribeToEventStream();
+        }
+      
+        /// Called when the screen associated with this state has been pushed.
+        @override
+        void didPush() {
+          $genServiceClass().subscribeToEventStream();
+        }
+      
+        /// Called when a new route has been pushed, and the screen associated with 
+        /// this state is no longer visible.
+        @override
+        void didPushNext() {
+          // TODO: implement didPushNext
         }
       }
     ''';

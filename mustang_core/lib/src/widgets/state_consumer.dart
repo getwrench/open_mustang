@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:mustang_core/src/widgets/state_provider.dart';
 
 class StateConsumer<T extends ChangeNotifier> {

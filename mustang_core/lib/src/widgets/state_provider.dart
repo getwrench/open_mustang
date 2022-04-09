@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 class StateProvider<T extends ChangeNotifier> extends InheritedNotifier<T> {
   const StateProvider({
