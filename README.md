@@ -19,17 +19,21 @@ A framework to build Flutter applications. Following features are available out 
 - [Cache](#cache)
 - [Events](#events)
 - [Aspects](#aspects)
-- [Folder Structure](#folder-structure)
-- [Quick Start](#quick-start)
+- [Project Structure](#project-structure)
+
+## Quick Start
 
 ### Framework Components
-- **Screen** - Screen is a reusable widget. It usually represents a screen in the app or a page in Browser. 
+- **Model** - A Dart class. All models as a whole represent the app state.
 
-- **Model** - A Dart class representing application data.
+- **Screen** - Screen is a reusable widget. It usually represents a screen in an app or a page in a web browser.
+Screens can also be used as a widget in another screen.
 
-- **State** - Provides access to subset of `Models` needed for a `Screen`. It is a Dart class with _1 or more_ `Model` fields.
+- **State** - State class provides access to the subset of the app state to the corresponding screen.
+It is a Dart class with _1 or more_ `Model` fields.
 
-- **Service** - A Dart class for async communication and business logic.
+- **Service** - Coordinates communication between the corresponding screen and a state. Also, async communication and 
+application logic goes here.
 
 ### Component Communication
 - Every `Screen` has a corresponding `Service` and a `State`. All three components work together to continuously
@@ -38,11 +42,11 @@ rebuild the UI whenever there is a change in the application state.
     ![Architecture](./01-components.png)
 
     1. `Screen` reads `State` while building the UI
-    2. `Screen` invokes methods in the `Service` as a response to user events (`scroll`, `tap` etc.,)
+    2. `Screen` invokes methods in the `Service` as a response to user events (`scroll`, `tap` etc.)
     3. `Service` 
         - reads/updates `Models` in the `MustangStore`
-        - makes API calls, if needed
-        - informs `State` if `MustangStore` is mutated
+        - makes API calls, when needed
+        - informs `State` when `MustangStore` is updated
     4. `State` informs `Screen` to rebuild the UI
     5. Back to Step 1
 
@@ -51,7 +55,7 @@ rebuild the UI whenever there is a change in the application state.
 - Model name should start with `$`
 - Initialize fields with `InitField` annotation
 - Methods/Getters/Setters are `NOT` supported inside `Model` classes
-- If a field should be excluded when a `Model` is persisted, annotate that field with `SerializeField(false)`
+- If a field should be excluded when a `Model` is persisted to disk, annotate that field with `SerializeField(false)`
     
     ```dart
     @appModel
@@ -68,7 +72,7 @@ rebuild the UI whenever there is a change in the application state.
       
       late $Address address;  // $Address is another model annotated with @appModel
       
-      late BuiltList<$Vehicle> vehicles;  // Use immutable versions of List/Map inside Model classes
+      late BuiltList<$Vehicle> vehicles;  // Use only immutable versions of List/Map as fields inside Model classes
       
       @SerializeField(false)
       late String errorMsg; // errorMsg field will not be included when $User model is persisted 
@@ -78,7 +82,7 @@ rebuild the UI whenever there is a change in the application state.
 ### State
 - An abstract class annotated with `screenState`
 - State name should start with `$`
-- Fields of the class must be `Model` classes
+- All fields of the state class must be `Model`s 
 
     ```dart      
     @screenState
@@ -103,10 +107,11 @@ rebuild the UI whenever there is a change in the application state.
     }
     ```
     
-- Service also provides following APIs
-    - `updateState` -  Updates screen state and/or re-build the screen. To update the `State` without re-building the screen. Set `reload` argument to `false` to update the `State` without re-building the `Screen`.
+- Service has access to the following APIs
+    - `updateState` -  Updates app state and re-builds the screen. To update the state without re-building the screen,
+  set `reload` argument to `false`.
         - `updateState()`
-        - `updateState1(T model1, { reload: true })`
+        - `updateState1(T model1, { reload: false })` // only updates the state, screen will re-build
         - `updateState2(T model1, S model2, { reload: true })`
         - `updateState3(T model1, S model2, U model3, { reload: true })`
         - `updateState4(T model1, S model2, U mode3, V model4, { reload: true })`
@@ -114,8 +119,9 @@ rebuild the UI whenever there is a change in the application state.
     - `memoizeScreen` - Invokes any method passed as argument only once.
         - `T memoizeScreen<T>(T Function() methodName)`
             ```dart
-            // In the snippet below, getScreenData method caches the return value of getData method, a Future.
-            // Even when getData method is called multiple times, method execution happens only the first time.
+            // In the snippet below, getScreenData method caches the response of getData method, a Future.
+            // Even when getData method is called multiple times, method execution happens only once and uses the
+            // response received the first time.
             Future<void> getData() async {
               Common common = MustangStore.get<Common>() ?? Common();
               User user;
@@ -128,7 +134,7 @@ rebuild the UI whenever there is a change in the application state.
               return memoize(getData);
             }
             ```
-    - `clearMemoizedScreen` - Clears value cached by `memoizeScreen` method.
+    - `clearMemoizedScreen` - Clears the data cached by `memoizeScreen` method.
         - `void clearMemoizedScreen()`
             ```dart
             Future<void> getData() async {
@@ -146,7 +152,7 @@ rebuild the UI whenever there is a change in the application state.
             ``` 
 
 ### Screen
-- Use `StateProvider` widget to re-build the `Screen` automatically when there is a change in `State`
+- Use `StateProvider` widget to re-build the `Screen` when there is a change in `State`
   
     ```dart
     
@@ -259,7 +265,7 @@ Since the `MustangStore` allows only one instance of a type, there cannot be two
 
 There are use cases where application has to react to external events. An external 
 event is any event that is generated *not* as a result of user's interaction with the app.
-Following are some of the examples external events:
+Following are the examples external events:
 - Internet connectivity
 - Data update events from the app backend
 - Push notifications
@@ -268,6 +274,18 @@ Mustang allows the app to subscribe to such events. When subscribed, `Service` o
 event notifications and updates them in the MustangStore. `Service` then triggers the `Screen` rebuild.
 It is important to keep in mind that every event is an instance of `Model`. And, to use a model as an event, it needs to be
 annotated with `@appEvent`. Following is an example of creating of an event inside `models` folder
+
+```dart
+Widget build(BuildContext context) {
+    return MaterialApp(
+      ...
+      navigatorObservers: [
+        MustangRouteObserver.getInstance(), // this is needed for Events to work
+      ],
+    );
+}
+
+```
 
 ```dart
 @appModel
@@ -296,8 +314,8 @@ to show appropriate UI based on the received event.
 
 TODO
 
-### Folder Structure
-- Folder structure of a Flutter application created with this framework looks as below
+### Project Structure
+- Project structure of a Flutter application created with Mustang framework looks as below
     ```
       lib/
         - main.dart
@@ -318,7 +336,8 @@ TODO
 - Every `Screen` needs a `State` and a `Service`. So, `Screen, State, Service` files are grouped inside a directory
 - All `Model` classes must be inside `models` directory
 
-### Quick Start
+## Quick Start
+
 - Install Flutter
   ```bash
     mkdir -p ~/lib && cd ~/lib
