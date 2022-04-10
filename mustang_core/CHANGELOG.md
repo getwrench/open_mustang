@@ -34,3 +34,4 @@
 ## 1.0.10
 - Introduced route observer to react to route changes
 - Removed material imports
+- Widget to handle route redirection based on a predicate
