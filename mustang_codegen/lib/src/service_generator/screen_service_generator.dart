@@ -39,32 +39,26 @@ class ScreenServiceGenerator extends Generator {
     String generatedServiceName = element.displayName.replaceFirst(r'$', '');
     String importService = p.basenameWithoutExtension(buildStep.inputId.path);
 
-    List<String> importStates = [];
-    String screenState = annotation
-            .read('screenState')
-            .typeValue
-            .element
-            ?.displayName
-            .replaceFirst(r'$', '') ??
-        '';
-
+    String screenState = Utils.serviceClass2GenStateClass(generatedServiceName);
     if (screenState.isEmpty) {
       return '';
     }
 
     List<String> overriders = [];
-
+    List<String> imports = [];
     element.visitChildren(
       ServiceMethodOverrideVisitor(
         overrides: overriders,
-        imports: importStates,
+        imports: imports,
       ),
     );
+    imports.add(
+        "import '${Utils.serviceClassToGenStateFile(generatedServiceName)}';");
+    imports = imports.toSet().toList();
 
-    importStates.add("import '${Utils.class2File(screenState)}.state.dart';");
-    importStates = importStates.toSet().toList();
-    String statePath =
-        buildStep.inputId.uri.toString().replaceFirst('_service.dart', '_state.dart');
+    String statePath = buildStep.inputId.uri
+        .toString()
+        .replaceFirst('_service.dart', '_state.dart');
     AssetId stateAssetId = AssetId.resolve(Uri.parse(statePath));
     LibraryElement stateLibraryElement =
         await buildStep.resolver.libraryFor(stateAssetId);
@@ -110,8 +104,7 @@ class ScreenServiceGenerator extends Generator {
       import 'package:$pkgName/src/models/serializers.dart' as $appSerializerAlias;
       $customSerializer
       ${appEventModelImports.join('\n')}
-      
-      ${importStates.join('\n')}
+      ${imports.join('\n')}
       
       class _\$${screenState}Cache<T> {
         const _\$${screenState}Cache([this.t]);
@@ -126,17 +119,7 @@ class ScreenServiceGenerator extends Generator {
       }
       
       class $generatedServiceName extends $serviceName {
-        static String _serviceName = '';
-          
-        $generatedServiceName() {
-          if (_serviceName != '$generatedServiceName') {
-            _serviceName = '$generatedServiceName';
-            subscribeToEvent();   
-          }
-        }
-          
-        Future<void> subscribeToEvent() async {
-          EventStream.reset();
+        Future<void> subscribeToEventStream() async {
           ${_generateEventSubscription(appEventModels, stateFieldsTypes)}
         }
         
@@ -145,122 +128,111 @@ class ScreenServiceGenerator extends Generator {
         
       extension \$$serviceName on $serviceName {
         void updateState() {
-          $screenState screenState = MustangStore.get<$screenState>() ?? $screenState();
-          if (screenState.mounted) {
-            screenState.update();
-          }
+          $screenState screenState = MustangStore.get<$screenState>()!;
+          screenState.update();
         }
         
         void updateState1<T>(T t, {
           reload = true,
         }) {
-          $screenState screenState = MustangStore.get<$screenState>() ?? $screenState();
-          if (screenState.mounted) {
-            MustangStore.update(t);
-            ${_generatePersistObjectTemplate('T', appSerializerAlias, customSerializerAlias)}
-            if (kDebugMode) {
-              postEvent('${Utils.debugEventKind}', {
-                'modelName': '\$T',
-                'modelStr': ${_generateCacheObjectJsonArg('T', appSerializerAlias, customSerializerAlias)},
-              });
-            }
-            if (reload) {
-              screenState.update();
-            }
+          $screenState screenState = MustangStore.get<$screenState>()!;
+          MustangStore.update(t);
+          ${_generatePersistObjectTemplate('T', appSerializerAlias, customSerializerAlias)}
+          if (kDebugMode) {
+            postEvent('${Utils.debugEventKind}', {
+              'modelName': '\$T',
+              'modelStr': ${_generateCacheObjectJsonArg('T', appSerializerAlias, customSerializerAlias)},
+            });
+          }
+          if (reload) {
+            screenState.update();
           }
         }
     
         void updateState2<T, S>(T t, S s, {
           reload = true,
         }) {
-          $screenState screenState = MustangStore.get<$screenState>() ?? $screenState();
-          if (screenState.mounted) {
-            MustangStore.update2(t, s);
-            ${_generatePersistObjectTemplate('T', appSerializerAlias, customSerializerAlias)}
-            ${_generatePersistObjectTemplate('S', appSerializerAlias, customSerializerAlias)}
-            if (kDebugMode) {
-              postEvent('${Utils.debugEventKind}', {
-                'modelName': '\$T',
-                'modelStr': ${_generateCacheObjectJsonArg('T', appSerializerAlias, customSerializerAlias)},
-              });
-              postEvent('${Utils.debugEventKind}', {
-                'modelName': '\$S',
-                'modelStr': ${_generateCacheObjectJsonArg('S', appSerializerAlias, customSerializerAlias)},
-              });
-            }
-            if (reload) {
-              screenState.update();
-            }
+          $screenState screenState = MustangStore.get<$screenState>()!;
+          MustangStore.update2(t, s);
+          ${_generatePersistObjectTemplate('T', appSerializerAlias, customSerializerAlias)}
+          ${_generatePersistObjectTemplate('S', appSerializerAlias, customSerializerAlias)}
+          if (kDebugMode) {
+            postEvent('${Utils.debugEventKind}', {
+              'modelName': '\$T',
+              'modelStr': ${_generateCacheObjectJsonArg('T', appSerializerAlias, customSerializerAlias)},
+            });
+            postEvent('${Utils.debugEventKind}', {
+              'modelName': '\$S',
+              'modelStr': ${_generateCacheObjectJsonArg('S', appSerializerAlias, customSerializerAlias)},
+            });
+          }
+          if (reload) {
+            screenState.update();
           }
         }
     
         void updateState3<T, S, U>(T t, S s, U u, {
           reload = true,
         }) {
-          $screenState screenState = MustangStore.get<$screenState>() ?? $screenState();
-          if (screenState.mounted) {
-            MustangStore.update3(t, s, u);
-            ${_generatePersistObjectTemplate('T', appSerializerAlias, customSerializerAlias)}
-            ${_generatePersistObjectTemplate('S', appSerializerAlias, customSerializerAlias)}
-            ${_generatePersistObjectTemplate('U', appSerializerAlias, customSerializerAlias)}
-            if (kDebugMode) {
-              postEvent('${Utils.debugEventKind}', {
-                'modelName': '\$T',
-                'modelStr': ${_generateCacheObjectJsonArg('T', appSerializerAlias, customSerializerAlias)},
-              });
-              postEvent('${Utils.debugEventKind}', {
-                'modelName': '\$S',
-                'modelStr': ${_generateCacheObjectJsonArg('S', appSerializerAlias, customSerializerAlias)},
-              });
-              postEvent('${Utils.debugEventKind}', {
-                'modelName': '\$U',
-                'modelStr': ${_generateCacheObjectJsonArg('U', appSerializerAlias, customSerializerAlias)},
-              });
-            }
-            if (reload) {
-              screenState.update();
-            }
+          $screenState screenState = MustangStore.get<$screenState>()!;
+          MustangStore.update3(t, s, u);
+          ${_generatePersistObjectTemplate('T', appSerializerAlias, customSerializerAlias)}
+          ${_generatePersistObjectTemplate('S', appSerializerAlias, customSerializerAlias)}
+          ${_generatePersistObjectTemplate('U', appSerializerAlias, customSerializerAlias)}
+          if (kDebugMode) {
+            postEvent('${Utils.debugEventKind}', {
+              'modelName': '\$T',
+              'modelStr': ${_generateCacheObjectJsonArg('T', appSerializerAlias, customSerializerAlias)},
+            });
+            postEvent('${Utils.debugEventKind}', {
+              'modelName': '\$S',
+              'modelStr': ${_generateCacheObjectJsonArg('S', appSerializerAlias, customSerializerAlias)},
+            });
+            postEvent('${Utils.debugEventKind}', {
+              'modelName': '\$U',
+              'modelStr': ${_generateCacheObjectJsonArg('U', appSerializerAlias, customSerializerAlias)},
+            });
+          }
+          if (reload) {
+            screenState.update();
           }
         }
     
         void updateState4<T, S, U, V>(T t, S s, U u, V v, {
           reload = true,
         }) {
-          $screenState screenState = MustangStore.get<$screenState>() ?? $screenState();
-          if (screenState.mounted) {
-            MustangStore.update4(t, s, u, v);
-            ${_generatePersistObjectTemplate('T', appSerializerAlias, customSerializerAlias)}
-            ${_generatePersistObjectTemplate('S', appSerializerAlias, customSerializerAlias)}
-            ${_generatePersistObjectTemplate('U', appSerializerAlias, customSerializerAlias)}
-            ${_generatePersistObjectTemplate('V', appSerializerAlias, customSerializerAlias)}
-            if (kDebugMode) {
-              postEvent('${Utils.debugEventKind}', {
-                'modelName': '\$T',
-                'modelStr': ${_generateCacheObjectJsonArg('T', appSerializerAlias, customSerializerAlias)},
-              });
-              postEvent('${Utils.debugEventKind}', {
-                'modelName': '\$S',
-                'modelStr': ${_generateCacheObjectJsonArg('S', appSerializerAlias, customSerializerAlias)},
-              });
-              postEvent('${Utils.debugEventKind}', {
-                'modelName': '\$U',
-                'modelStr': ${_generateCacheObjectJsonArg('U', appSerializerAlias, customSerializerAlias)},
-              });
-              postEvent('${Utils.debugEventKind}', {
-                'modelName': '\$V',
-                'modelStr': ${_generateCacheObjectJsonArg('V', appSerializerAlias, customSerializerAlias)},
-              });
-            }
-            if (reload) {
-              screenState.update();
-            }
+          $screenState screenState = MustangStore.get<$screenState>()!;
+          MustangStore.update4(t, s, u, v);
+          ${_generatePersistObjectTemplate('T', appSerializerAlias, customSerializerAlias)}
+          ${_generatePersistObjectTemplate('S', appSerializerAlias, customSerializerAlias)}
+          ${_generatePersistObjectTemplate('U', appSerializerAlias, customSerializerAlias)}
+          ${_generatePersistObjectTemplate('V', appSerializerAlias, customSerializerAlias)}
+          if (kDebugMode) {
+            postEvent('${Utils.debugEventKind}', {
+              'modelName': '\$T',
+              'modelStr': ${_generateCacheObjectJsonArg('T', appSerializerAlias, customSerializerAlias)},
+            });
+            postEvent('${Utils.debugEventKind}', {
+              'modelName': '\$S',
+              'modelStr': ${_generateCacheObjectJsonArg('S', appSerializerAlias, customSerializerAlias)},
+            });
+            postEvent('${Utils.debugEventKind}', {
+              'modelName': '\$U',
+              'modelStr': ${_generateCacheObjectJsonArg('U', appSerializerAlias, customSerializerAlias)},
+            });
+            postEvent('${Utils.debugEventKind}', {
+              'modelName': '\$V',
+              'modelStr': ${_generateCacheObjectJsonArg('V', appSerializerAlias, customSerializerAlias)},
+            });
+          }
+          if (reload) {
+            screenState.update();
           }
         }
         
         T memoizeScreen<T>(T Function() service) {
           _\$${screenState}Cache screenStateCache =
               MustangStore.get<_\$${screenState}Cache>() ?? const _\$${screenState}Cache();
-          $screenState screenState = MustangStore.get<$screenState>() ?? $screenState();
           
           if (screenStateCache.t == null) {
             T t = service();
@@ -270,19 +242,6 @@ class ScreenServiceGenerator extends Generator {
               postEvent('${Utils.debugEventKind}', {
                 'modelName': '\${_\$${screenState}Cache}',
                 'modelStr': jsonEncode(screenStateCache.toJson()),
-              });
-            }
-            if (t is Future) {
-              t.whenComplete(() {
-                if (!(screenState.mounted)) {
-                  MustangStore.delete<_\$${screenState}Cache>();
-                  if (kDebugMode) {
-                    postEvent('${Utils.debugEventKind}', {
-                      'modelName': '\${_\$${screenState}Cache}', 
-                      'modelStr': '{}',
-                    });
-                  }
-                }
               });
             }
           }
@@ -299,12 +258,10 @@ class ScreenServiceGenerator extends Generator {
               'modelStr': '{}',
             });
           }
-          $screenState screenState = MustangStore.get<$screenState>() ?? $screenState();
-          if (screenState.mounted) {
-            if (reload) { 
+          $screenState screenState = MustangStore.get<$screenState>()!;
+          if (reload) { 
               screenState.update();
-            }    
-          }
+          }    
         }
         
         Future<void> addObjectToCache<T>(String key, T t) async {
@@ -347,8 +304,10 @@ class ScreenServiceGenerator extends Generator {
         }
       ''';
     }
-    return '''await for (AppEvent event in EventStream.getStream()) {
-      $instanceCheckStr
+    return '''
+      Stream<AppEvent> appEventStream = await EventStream.getStream();
+      await for (AppEvent event in appEventStream) {
+        $instanceCheckStr
     }''';
   }
 
@@ -416,20 +375,6 @@ class ScreenServiceGenerator extends Generator {
           'Error: class annotated with ScreenService should be abstract',
           todo: 'Make the class abstract',
           element: element);
-    }
-
-    if (annotation.read('screenState').typeValue.element != null &&
-        !annotation
-            .read('screenState')
-            .typeValue
-            .element!
-            .displayName
-            .startsWith(r'$')) {
-      throw InvalidGenerationSourceError(
-        'Error: State class name should start with \$',
-        todo: 'Missing \$ in the State class name',
-        element: element,
-      );
     }
   }
 }

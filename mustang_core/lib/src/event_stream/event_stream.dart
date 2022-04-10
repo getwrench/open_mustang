@@ -10,14 +10,11 @@ class EventStream {
     _streamController.add(event);
   }
 
-  static Stream<AppEvent> getStream() {
-    return _streamController.stream;
-  }
-
-  static void reset() {
+  static Future<Stream<AppEvent>> getStream() async {
     if (_streamController.hasListener) {
-      _streamController.close();
+      await _streamController.close();
     }
     _streamController = StreamController<AppEvent>();
+    return _streamController.stream;
   }
 }

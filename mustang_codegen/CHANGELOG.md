@@ -71,3 +71,6 @@
 
 ## 1.0.23
 - Fix: Incorrect file name while generating event subscription code
+
+## 1.0.24
+- Fix: When a route is popped, event stream subscription is lost

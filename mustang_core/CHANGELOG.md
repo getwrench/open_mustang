@@ -30,3 +30,7 @@
 ## 1.0.9
 - Fix: Lint warnings
 - Fix: added null assertion for Mustang store update
+
+## 1.0.10
+- Introduced route observer to react to route changes
+- Removed material imports
