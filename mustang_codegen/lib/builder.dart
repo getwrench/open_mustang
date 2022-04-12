@@ -2,6 +2,7 @@ import 'package:build/build.dart';
 import 'package:mustang_codegen/src/app_serializer_builder.dart';
 import 'package:mustang_codegen/src/aspect_generator/app_aspect_generator.dart';
 import 'package:mustang_codegen/src/model_generator/app_model_generator.dart';
+import 'package:mustang_codegen/src/offline_service_builder.dart';
 import 'package:mustang_codegen/src/screen_generator/screen_generator.dart';
 import 'package:mustang_codegen/src/service_generator/screen_service_generator.dart';
 import 'package:mustang_codegen/src/state_generator/screen_state_generator.dart';
@@ -33,3 +34,5 @@ Builder screenLibraryBuilder(BuilderOptions options) => LibraryBuilder(
     );
 
 Builder appSerializerBuilder(BuilderOptions options) => AppSerializerBuilder();
+
+Builder offlineSerializerBuilder(BuilderOptions options) => OfflineServiceBuilder();
