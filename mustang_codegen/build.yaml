@@ -25,6 +25,13 @@ builders:
         include: ['**/models/*.dart']
       }
     }
+  offline_service_builder:
+    import: 'package:mustang_codegen/builder.dart'
+    builder_factories: [ 'offlineSerializerBuilder' ]
+    build_extensions: { '.dart': [ '.ser.dart' ] }
+    auto_apply: root_package
+    build_to: source
+    runs_before: [ 'built_value_generator:built_value' ]
   app_serializer_builder:
     import: 'package:mustang_codegen/builder.dart'
     builder_factories: [ 'appSerializerBuilder' ]

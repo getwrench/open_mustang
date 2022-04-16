@@ -19,6 +19,14 @@ class MustangStore {
   // Hive Box Name to store the model data
   static String? hiveBox;
 
+  static bool _offline = false;
+
+  static get getOfflineStatus => _offline;
+
+  static void toggleOfflineStatus() {
+    _offline = !_offline;
+  }
+
   /// Looks up instance of type [T], if exists. Returns null if instance of
   /// type [T] is not found.
   static T? get<T>() {
@@ -99,9 +107,11 @@ class MustangStore {
   static void config({
     bool isPersistent = false,
     String? storeName,
+    bool offline = false,
   }) async {
     persistent = isPersistent;
     hiveBox = storeName;
+    _offline = offline;
   }
 
   /// Writes serialized object to a file

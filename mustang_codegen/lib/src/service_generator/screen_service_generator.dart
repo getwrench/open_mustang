@@ -251,16 +251,18 @@ class ScreenServiceGenerator extends Generator {
         void clearMemoizedScreen({
           reload = true,
         }) {
-          MustangStore.delete<_\$${screenState}Cache>();
-          if (kDebugMode) {
-            postEvent('${Utils.debugEventKind}', {
-              'modelName': '\${_\$${screenState}Cache}',
-              'modelStr': '{}',
-            });
-          }
-          $screenState screenState = MustangStore.get<$screenState>()!;
-          if (reload) { 
-              screenState.update();
+          if(!MustangStore.getOfflineStatus) {
+            MustangStore.delete<_\$${screenState}Cache>();
+            if (kDebugMode) {
+              postEvent('${Utils.debugEventKind}', {
+                'modelName': '\${_\$${screenState}Cache}',
+                'modelStr': '{}',
+              });
+            }
+            $screenState screenState = MustangStore.get<$screenState>()!;
+            if (reload) { 
+                screenState.update();
+            }
           }    
         }
         

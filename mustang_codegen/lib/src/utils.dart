@@ -13,7 +13,9 @@ class Utils {
 
   // Keys in mustang-cli.yaml
   static const String serializerKey = 'serializer';
+  static const String preFetchKey = 'prefetch';
   static const String screenKey = 'screen';
+  static const String screensKey = 'screens';
   static const String screenImportsKey = 'imports';
 
   static String class2File(String className) {
@@ -55,6 +57,22 @@ class Utils {
       return (m.group(1)?.toUpperCase() ?? '');
     });
     return capitalizeFirst(firstPass);
+  }
+
+  static String screenClass2GenServiceClass(String screenClassName) {
+    String screenFileName = class2File(screenClassName);
+    String genServiceFileName =
+    screenFileName.replaceFirst(RegExp('_screen\$'), '_service');
+    String firstPass =
+    genServiceFileName.replaceAllMapped(RegExp('_([a-z])'), (Match m) {
+      return (m.group(1)?.toUpperCase() ?? '');
+    });
+    return capitalizeFirst(firstPass);
+  }
+
+  static String screenFile2GenServiceFile(String screenClassName) {
+    String screenFileName = class2File(screenClassName);
+    return screenFileName.replaceFirst(RegExp('_screen\$'), '_service');
   }
 
   static String class2Var(String className) {
@@ -105,6 +123,22 @@ class Utils {
         .map((importElement) =>
             '${importElement.importedLibrary?.definingCompilationUnit.declaration ?? ''}')
         .toList();
+  }
+
+  static List<String> getOfflinePreFetchScreens() {
+    String configFilePath = p.join(p.current, configFile);
+    if (configFilePath.isNotEmpty && File(configFilePath).existsSync()) {
+      File configFile = File(configFilePath);
+      String rawConfig = configFile.readAsStringSync();
+
+      dynamic yamlConfig = loadYaml(rawConfig);
+      if (yamlConfig[preFetchKey] != null) {
+        if(yamlConfig[preFetchKey][screensKey] != null) {
+          return List<String>.from(yamlConfig[preFetchKey][screensKey]);
+        }
+      }
+    }
+    return <String>[];
   }
 
   static String? getCustomSerializerPackage() {
