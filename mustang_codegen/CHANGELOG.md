@@ -74,3 +74,6 @@
 
 ## 1.0.24
 - Fix: When a route is popped, event stream subscription is lost
+
+## 1.0.25
+- Fix: Notifier is disposed after popping a route

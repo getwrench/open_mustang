@@ -53,6 +53,7 @@ class ScreenStateGenerator extends Generator {
     );
 
     return '''
+      import 'dart:async';
       import 'dart:developer';
       import 'package:flutter/foundation.dart';
       import 'package:flutter/widgets.dart';
@@ -84,7 +85,6 @@ class ScreenStateGenerator extends Generator {
           notifyListeners(); 
         }
         
-        /// TODO dispose is not getting called
         @override
         void dispose() {
           if (kDebugMode) {
@@ -93,6 +93,7 @@ class ScreenStateGenerator extends Generator {
               'modelStr': 'disposed',
             });
           }
+          MustangStore.delete<$stateName>();
           MustangRouteObserver.getInstance().unsubscribe(this);
           super.dispose();
         }
@@ -100,7 +101,9 @@ class ScreenStateGenerator extends Generator {
         /// Called when the screen associated with this state has been popped off.
         @override
         void didPop() {
-          // TODO: implement didPop
+          Timer(const Duration(seconds: 1), () {
+            dispose();
+          });
         }
       
         /// Called when the top route has been popped off, and the screen associated with 
