@@ -1,5 +1,5 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:flutter/widgets.dart';
 
 class RouteRedirect extends StatelessWidget {
   const RouteRedirect({
@@ -44,8 +44,10 @@ class RouteRedirect extends StatelessWidget {
           Navigator.pushNamed(context, targetRouteName);
         });
       }
-      return Center(
-        child: Text(loadingMsg),
+      return Scaffold(
+        body: Center(
+          child: Text(loadingMsg),
+        ),
       );
     }
     return child;
