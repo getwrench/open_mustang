@@ -35,3 +35,6 @@
 - Introduced route observer to react to route changes
 - Removed material imports
 - Widget to handle route redirection based on a predicate
+
+## 1.0.11
+- Added MustangScreen widget
