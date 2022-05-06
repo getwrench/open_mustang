@@ -87,11 +87,16 @@ class ScreenServiceGenerator extends Generator {
           await buildStep.resolver.libraryFor(assetId);
       Iterable<AnnotatedElement> appEvents = LibraryReader(appModelLibrary)
           .annotatedWith(const TypeChecker.fromRuntime(AppEvent));
+
       if (appEvents.isNotEmpty) {
         appEventModels.add(appEvents.first.element.name!);
         String importPath =
             assetId.uri.toString().replaceFirst('dart', 'model.dart');
         appEventModelImports.add("import '$importPath';");
+      }
+
+      if (_stateHasNoAppEvents(appEventModels, stateFieldsTypes)) {
+        appEventModelImports.clear();
       }
     }
 
@@ -285,17 +290,15 @@ class ScreenServiceGenerator extends Generator {
   }
 
   String _generateEventSubscription(
-    List<String> appModelEvents,
+    List<String> appEventModels,
     List<String> stateFieldsTypes,
   ) {
-    // check if the event model is defined in the state
-    if (appModelEvents.isEmpty ||
-        !appModelEvents.any((e) => stateFieldsTypes.contains(e))) {
+    if (_stateHasNoAppEvents(appEventModels, stateFieldsTypes)) {
       return '';
     }
 
     String instanceCheckStr = '';
-    for (String appEventModel in appModelEvents) {
+    for (String appEventModel in appEventModels) {
       String modelName = appEventModel.replaceFirst('\$', '');
       instanceCheckStr += '''
         if (event is $modelName) {
@@ -376,5 +379,10 @@ class ScreenServiceGenerator extends Generator {
           todo: 'Make the class abstract',
           element: element);
     }
+  }
+
+  bool _stateHasNoAppEvents(List<String> appEventModels, List<String> stateFieldsTypes) {
+    return (appEventModels.isEmpty ||
+        !appEventModels.any((e) => stateFieldsTypes.contains(e)));
   }
 }

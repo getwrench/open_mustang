@@ -101,7 +101,7 @@ class ScreenStateGenerator extends Generator {
         /// Called when the screen associated with this state has been popped off.
         @override
         void didPop() {
-          Timer(const Duration(seconds: 1), () {
+          Timer(const Duration(milliseconds: 250), () {
             dispose();
           });
         }
