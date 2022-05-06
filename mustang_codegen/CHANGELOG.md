@@ -82,3 +82,6 @@
 - Fix: When a screen is popped very fast, dispose is getting called right after pushing the route
 - Lint fixes
 - MustangScreen wrapper widget supports fetching data
+
+## 1.0.27
+- Fix: Active state instance is getting deleted while disposing the change notifier

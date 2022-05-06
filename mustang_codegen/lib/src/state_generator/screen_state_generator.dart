@@ -93,15 +93,15 @@ class ScreenStateGenerator extends Generator {
               'modelStr': 'disposed',
             });
           }
-          MustangStore.delete<$stateName>();
-          MustangRouteObserver.getInstance().unsubscribe(this);
           super.dispose();
         }
         
         /// Called when the screen associated with this state has been popped off.
         @override
         void didPop() {
-          Timer(const Duration(milliseconds: 250), () {
+          MustangRouteObserver.getInstance().unsubscribe(this);
+          MustangStore.delete<$stateName>();
+          Timer(const Duration(seconds: 1000), () {
             dispose();
           });
         }

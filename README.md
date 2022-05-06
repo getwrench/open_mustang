@@ -380,6 +380,7 @@ TODO
     dev_dependencies:
       ...
       build_runner: ^2.1.4
+      built_value_generator: ^8.1.3
       mustang_codegen: ^1.0.11    
   ```
   
