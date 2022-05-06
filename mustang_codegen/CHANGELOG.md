@@ -77,3 +77,8 @@
 
 ## 1.0.25
 - Fix: Notifier is disposed after popping a route
+
+## 1.0.26
+- Fix: When a screen is popped very fast, dispose is getting called right after pushing the route
+- Lint fixes
+- MustangScreen wrapper widget supports fetching data
