@@ -32,21 +32,6 @@ builders:
     auto_apply: root_package
     build_to: source
     runs_before: [ 'built_value_generator:built_value' ]
-  # built_value builder config is from
-  # https://github.com/google/built_value.dart/blob/master/built_value_generator/build.yaml
-  built_value:
-    target: ':built_value_generator'
-    import: 'package:built_value_generator/builder.dart'
-    builder_factories: [ 'builtValue' ]
-    build_extensions: { '.dart': [ '.built_value.g.part' ] }
-    auto_apply: root_package
-    build_to: cache
-    applies_builders: [ 'source_gen|combining_builder' ]
-    defaults: {
-      generate_for: {
-        include: [ '**/models/*.model.dart', '**/models/serializers.dart' ]
-      }
-    }
   screen_builder:
     import: 'package:mustang_codegen/builder.dart'
     builder_factories: [ 'screenLibraryBuilder' ]
