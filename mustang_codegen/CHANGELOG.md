@@ -95,3 +95,6 @@
 
 ## 1.1.0
 - Updated build order for build_runner
+
+## 1.1.1
+- Updated all deps
