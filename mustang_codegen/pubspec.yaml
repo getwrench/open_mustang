@@ -22,8 +22,3 @@ dependencies:
 dev_dependencies:
   lints: ^1.0.1
   test: ^1.19.2
-
-platforms:
-  linux:
-  macos:
-  windows:
