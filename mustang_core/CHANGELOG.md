@@ -38,3 +38,6 @@
 
 ## 1.0.11
 - Added MustangScreen widget
+
+## 1.0.12
+- Updated documentation
