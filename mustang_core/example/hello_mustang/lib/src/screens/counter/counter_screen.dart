@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hello_mustang/src/screens/counter/greeting.dart';
+import 'package:hello_mustang/src/screens/counter/widgets/greeting.dart';
 import 'package:mustang_core/mustang_widgets.dart';
 
 import 'counter_service.service.dart';
