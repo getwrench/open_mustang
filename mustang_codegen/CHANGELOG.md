@@ -88,3 +88,7 @@
 
 ## 1.0.28
 - Addressed pub.dev issues partially
+
+## 1.0.29
+- Added doc comments
+- Updated deps

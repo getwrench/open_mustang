@@ -41,3 +41,7 @@
 
 ## 1.0.12
 - Updated documentation
+
+## 1.0.13
+- Added example
+- Fixed broken images in README

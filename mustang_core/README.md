@@ -39,7 +39,7 @@ application logic goes here.
 - Every `Screen` has a corresponding `Service` and a `State`. All three components work together to continuously
 rebuild the UI whenever there is a change in the application state.
 
-    ![Architecture](01-components.png)
+    [<img src="https://github.com/getwrench/open_mustang/raw/master/mustang_core/01-components.png"/>](Architecture)
 
     1. `Screen` reads `State` while building the UI
     2. `Screen` invokes methods in the `Service` as a response to user events (`scroll`, `tap` etc.)
@@ -187,7 +187,7 @@ rebuild the UI whenever there is a change in the application state.
 
 ### Persistence
 
-![Persistence](02-persistence.png)
+[<img src="https://github.com/getwrench/open_mustang/raw/master/mustang_core/02-persistence.png"/>](Persistence)
 
 By default, `app state` is maintained in memory by `MustangStore`. When the app is terminated, the `app state` is lost
 permanently. However, there are cases where it is desirable to persist and restore the `app state`. For example,
@@ -221,7 +221,7 @@ With the above change, `app state` (`MustangStore`) is persisted to the disk and
 
 ### Cache
 
-![Cache](03-cache.png)
+[<img src="https://github.com/getwrench/open_mustang/raw/master/mustang_core/03-cache.png"/>](Cache)
 
 `Cache` feature allows switching between instances of the same type on need basis.
 
@@ -261,7 +261,7 @@ Since the `MustangStore` allows only one instance of a type, there cannot be two
 
 ### Events
 
-![Events](04-events.png)
+[<img src="https://github.com/getwrench/open_mustang/raw/master/mustang_core/04-events.png"/>](Events)
 
 There are use cases where application has to react to external events. An external 
 event is any event that is generated *not* as a result of user's interaction with the app.
