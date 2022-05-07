@@ -92,3 +92,6 @@
 ## 1.0.29
 - Added doc comments
 - Updated deps
+
+## 1.1.0
+- Updated build order for build_runner

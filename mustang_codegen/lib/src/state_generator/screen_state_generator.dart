@@ -58,7 +58,7 @@ class ScreenStateGenerator extends Generator {
       import 'package:flutter/foundation.dart';
       import 'package:flutter/widgets.dart';
       import 'package:mustang_core/mustang_core.dart';
-      import 'package:mustang_core/mustang_widgets.dart';
+      import 'package:mustang_widgets/mustang_widgets.dart';
       ${stateImports.join('\n')}
       
       $importGenService

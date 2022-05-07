@@ -1,28 +1,28 @@
 builders:
-  aspect_builder:
-    import: 'package:mustang_codegen/builder.dart'
-    builder_factories: [ 'appAspectLibraryBuilder' ]
-    build_extensions: { '.dart': [ '.aspect.dart' ] }
-    runs_before: ['mustang_codegen:screen_service_generator']
-    auto_apply: root_package
-    build_to: source
-    defaults: {
-      generate_for: {
-        exclude: [ '**/aspects/*.aspect.dart' ],
-        include: [ '**/aspects/*.dart' ]
-      }
-    }
   model_builder:
     import: 'package:mustang_codegen/builder.dart'
     builder_factories: [ 'appModelLibraryBuilder' ]
     build_extensions: { '.dart': [ '.model.dart' ] }
     auto_apply: root_package
     build_to: source
-    runs_before: ['mustang_codegen:app_serializer_builder', 'built_value_generator:built_value']
+    runs_before: [ 'mustang_codegen:app_serializer_builder' ]
     defaults: {
       generate_for: {
-        exclude: ['**/models/*.model.dart', '**/models/*.model.g.dart'],
-        include: ['**/models/*.dart']
+        exclude: [ '**/models/*.model.dart', '**/models/*.model.g.dart' ],
+        include: [ '**/models/*.dart' ]
+      }
+    }
+  aspect_builder:
+    import: 'package:mustang_codegen/builder.dart'
+    builder_factories: [ 'appAspectLibraryBuilder' ]
+    build_extensions: { '.dart': [ '.aspect.dart' ] }
+    auto_apply: root_package
+    build_to: source
+    runs_before: [ 'mustang_codegen:screen_service_generator' ]
+    defaults: {
+      generate_for: {
+        exclude: [ '**/aspects/*.aspect.dart' ],
+        include: [ '**/aspects/*.dart' ]
       }
     }
   app_serializer_builder:
@@ -32,6 +32,20 @@ builders:
     auto_apply: root_package
     build_to: source
     runs_before: [ 'built_value_generator:built_value' ]
+  # https://github.com/google/built_value.dart/blob/master/built_value_generator/build.yaml
+  built_value:
+    target: ':built_value_generator'
+    import: 'package:built_value_generator/builder.dart'
+    builder_factories: [ 'builtValue' ]
+    build_extensions: { '.dart': [ '.built_value.g.part' ] }
+    auto_apply: root_package
+    build_to: cache
+    applies_builders: [ 'source_gen|combining_builder' ]
+    defaults: {
+      generate_for: {
+        include: [ '**/models/*.model.dart', '**/models/serializers.dart' ]
+      }
+    }
   screen_builder:
     import: 'package:mustang_codegen/builder.dart'
     builder_factories: [ 'screenLibraryBuilder' ]
@@ -51,7 +65,7 @@ builders:
     build_to: source
     defaults: {
       generate_for: {
-        include: ['**/screens/**/*_service.dart']
+        include: [ '**/screens/**/*_service.dart' ]
       }
     }
   state_builder:
@@ -65,5 +79,3 @@ builders:
         include: [ '**/screens/**/*_state.dart' ]
       }
     }
-
-

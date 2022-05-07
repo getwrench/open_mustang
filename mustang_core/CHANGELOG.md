@@ -45,3 +45,7 @@
 ## 1.0.13
 - Added example
 - Fixed broken images in README
+
+## 1.1.0
+- Moved flutter widgets into mustang_widgets repo
+- Made mustang_core pure dart package

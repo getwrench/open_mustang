@@ -3,7 +3,7 @@ description: >
   A framework to build Flutter applications. It provides state management, persistence, caching and
   opinionated project structure.
 
-version: 1.0.13
+version: 1.1.0
 repository: https://github.com/getwrench/open_mustang
 
 environment:
@@ -11,11 +11,9 @@ environment:
 
 dependencies:
   build_resolvers: ^2.0.4
-  flutter:
-    sdk: flutter
   hive: ^2.0.4
 
 dev_dependencies:
-  flutter_lints: ^1.0.4
-  flutter_test:
-    sdk: flutter
+  lints: ^1.0.1
+  test: ^1.19.2
+
