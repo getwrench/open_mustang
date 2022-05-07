@@ -131,16 +131,21 @@ class Utils {
     String methodWithArguments = 'super.${element.displayName}(';
     if (element.parameters.isNotEmpty) {
       element.parameters.toList().forEach((parameter) {
-        String importForParam = parameter.type.element?.location?.encoding ?? '';
+        String importForParam =
+            parameter.type.element?.location?.encoding ?? '';
 
         if (importForParam.isNotEmpty) {
           importForParam = importForParam.split(';').first;
-          String customSerializerPackage = Utils.getCustomSerializerPackage() ?? '';
+          String customSerializerPackage =
+              Utils.getCustomSerializerPackage() ?? '';
           List<String> importForParamTokens = importForParam.split('/');
-          List<String> customSerializerPackageTokens = customSerializerPackage.split('/');
+          List<String> customSerializerPackageTokens =
+              customSerializerPackage.split('/');
 
-          if (customSerializerPackageTokens.isNotEmpty && importForParamTokens.isNotEmpty) {
-            if (importForParamTokens.first == customSerializerPackageTokens.first) {
+          if (customSerializerPackageTokens.isNotEmpty &&
+              importForParamTokens.isNotEmpty) {
+            if (importForParamTokens.first ==
+                customSerializerPackageTokens.first) {
               imports.add("import '$customSerializerPackage';");
             } else {
               imports.add("import '$importForParam';");

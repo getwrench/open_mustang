@@ -85,3 +85,6 @@
 
 ## 1.0.27
 - Fix: Active state instance is getting deleted while disposing the change notifier
+
+## 1.0.28
+- Addressed pub.dev issues partially

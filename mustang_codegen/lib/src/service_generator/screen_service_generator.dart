@@ -381,7 +381,8 @@ class ScreenServiceGenerator extends Generator {
     }
   }
 
-  bool _stateHasNoAppEvents(List<String> appEventModels, List<String> stateFieldsTypes) {
+  bool _stateHasNoAppEvents(
+      List<String> appEventModels, List<String> stateFieldsTypes) {
     return (appEventModels.isEmpty ||
         !appEventModels.any((e) => stateFieldsTypes.contains(e)));
   }
