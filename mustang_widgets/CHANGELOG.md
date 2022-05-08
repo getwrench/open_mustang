@@ -5,3 +5,7 @@
 ## 1.0.1
 
 * Added placeholder example
+
+## 1.0.2
+
+* Updated pubspec desc
