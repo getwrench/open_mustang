@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hello_mustang/src/screens/counter/counter_state.state.dart';
-import 'package:mustang_core/mustang_widgets.dart';
+import 'package:mustang_widgets/mustang_widgets.dart';
 
 class Greeting extends StatelessWidget {
   const Greeting({Key? key}) : super(key: key);

@@ -13,7 +13,8 @@ dependencies:
     sdk: flutter
   built_collection: ^5.1.1
   built_value: ^8.1.3
-  mustang_core: ^1.0.2
+  mustang_core: ^1.1.1
+  mustang_widgets: ^1.0.0
   path_provider: ^2.0.6
 
 dev_dependencies:
@@ -21,7 +22,7 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^1.0.0
   build_runner: ^2.1.4
-  mustang_codegen: ^1.0.7
+  mustang_codegen: ^1.1.2
 
 flutter:
   uses-material-design: true
