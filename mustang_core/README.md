@@ -20,8 +20,7 @@ A framework to build Flutter applications. Following features are available out 
 - [Events](#events)
 - [Aspects](#aspects)
 - [Project Structure](#project-structure)
-
-## Quick Start
+- [Quick Start](#quick-start)
 
 ### Framework Components
 - **Model** - A Dart class. All models as a whole represent the app state.
@@ -336,7 +335,7 @@ TODO
 - Every `Screen` needs a `State` and a `Service`. So, `Screen, State, Service` files are grouped inside a directory
 - All `Model` classes must be inside `models` directory
 
-## Quick Start
+### Quick Start
 
 - Install Flutter
   ```bash
@@ -401,7 +400,10 @@ TODO
   
 - Update the generated `counter.dart` model
   ```dart
-    class $Counter {
+    @appModel 
+    abstract class $Counter {
+      ...
+  
       @InitField(0)
       late int value;
     }
@@ -464,10 +466,9 @@ TODO
     import 'package:quick_start/src/models/counter.model.dart';
         
     import 'counter_service.service.dart';
-    import 'counter_state.dart';
         
     @screenService
-    class CounterService {
+    abstract class CounterService {
       void increment() {
         Counter counter = MustangStore.get<Counter>() ?? Counter();
         counter = counter.rebuild((b) => b.value = (b.value ?? 0) + 1);
