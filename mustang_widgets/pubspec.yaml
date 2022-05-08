@@ -1,8 +1,8 @@
 name: mustang_widgets
 description: >
-  Flutter widgets for Mustang framework.
+  Flutter widgets to use while building application using Mustang framework. This package should be added as a dev dependency.
 
-version: 1.0.2
+version: 1.0.3
 repository: https://github.com/getwrench/open_mustang
 
 environment:

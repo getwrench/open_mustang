@@ -9,3 +9,7 @@
 ## 1.0.2
 
 * Updated pubspec desc
+
+## 1.0.3
+
+* Removed material dep from RouteRedirect
