@@ -2,7 +2,7 @@ name: mustang_widgets
 description: >
   Flutter widgets to that help build application in Mustang framework.
 
-version: 1.0.0
+version: 1.0.1
 repository: https://github.com/getwrench/open_mustang
 
 environment:
