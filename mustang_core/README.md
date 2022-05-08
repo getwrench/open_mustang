@@ -374,14 +374,14 @@ TODO
       ...
       built_collection: ^5.1.1
       built_value: ^8.1.3
-      mustang_core: ^1.0.2
+      mustang_core: ^1.1.2
+      mustang_widgets: ^1.0.2
       path_provider: ^2.0.6
 
     dev_dependencies:
       ...
       build_runner: ^2.1.4
-      built_value_generator: ^8.1.3
-      mustang_codegen: ^1.0.11    
+      mustang_codegen: ^1.1.4    
   ```
   
 - Install dependencies
@@ -410,7 +410,7 @@ TODO
 - Update `counter_screen.dart` screen
   ```dart
     import 'package:flutter/material.dart';
-    import 'package:mustang_core/mustang_widgets.dart';
+    import 'package:mustang_widgets/mustang_widgets.dart';
     
     import 'counter_service.service.dart';
     import 'counter_state.state.dart';

@@ -55,3 +55,6 @@
 
 ## 1.1.2
 - Add example
+
+## 1.1.3
+- Updated README
