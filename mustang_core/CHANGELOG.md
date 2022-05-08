@@ -49,3 +49,6 @@
 ## 1.1.0
 - Moved flutter widgets into mustang_widgets repo
 - Made mustang_core pure dart package
+
+## 1.1.1
+- Converted to dart package project

@@ -98,3 +98,6 @@
 
 ## 1.1.1
 - Updated all deps
+
+## 1.1.2
+- Converted to dart package project
