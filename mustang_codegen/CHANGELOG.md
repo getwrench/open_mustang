@@ -101,3 +101,6 @@
 
 ## 1.1.2
 - Converted to dart package project
+
+## 1.1.3
+- Set min version for `path` package to 1.8.1
