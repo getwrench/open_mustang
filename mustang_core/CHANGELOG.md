@@ -52,3 +52,6 @@
 
 ## 1.1.1
 - Converted to dart package project
+
+## 1.1.2
+- Add example
