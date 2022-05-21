@@ -87,16 +87,23 @@ class ScreenServiceGenerator extends Generator {
           await buildStep.resolver.libraryFor(assetId);
       Iterable<AnnotatedElement> appEvents = LibraryReader(appModelLibrary)
           .annotatedWith(const TypeChecker.fromRuntime(AppEvent));
+      Iterable<AnnotatedElement> appEventsGlobal =
+          LibraryReader(appModelLibrary)
+              .annotatedWith(const TypeChecker.fromRuntime(AppEventGlobal));
 
-      if (appEvents.isNotEmpty) {
-        appEventModels.add(appEvents.first.element.name!);
-        String importPath =
-            assetId.uri.toString().replaceFirst('dart', 'model.dart');
-        appEventModelImports.add("import '$importPath';");
-      }
+      if (appEvents.isNotEmpty || appEventsGlobal.isNotEmpty) {
+        bool isAppEventGlobal = appEvents.isEmpty && appEventsGlobal.isNotEmpty;
 
-      if (_stateHasNoAppEvents(appEventModels, stateFieldsTypes)) {
-        appEventModelImports.clear();
+        String appEvent = isAppEventGlobal
+            ? appEventsGlobal.first.element.name!
+            : appEvents.first.element.name!;
+
+        if (isAppEventGlobal || _stateHasAppEvent(appEvent, stateFieldsTypes)) {
+          appEventModels.add(appEvent);
+          String importPath =
+              assetId.uri.toString().replaceFirst('dart', 'model.dart');
+          appEventModelImports.add("import '$importPath';");
+        }
       }
     }
 
@@ -293,7 +300,7 @@ class ScreenServiceGenerator extends Generator {
     List<String> appEventModels,
     List<String> stateFieldsTypes,
   ) {
-    if (_stateHasNoAppEvents(appEventModels, stateFieldsTypes)) {
+    if (appEventModels.isEmpty) {
       return '';
     }
 
@@ -381,9 +388,7 @@ class ScreenServiceGenerator extends Generator {
     }
   }
 
-  bool _stateHasNoAppEvents(
-      List<String> appEventModels, List<String> stateFieldsTypes) {
-    return (appEventModels.isEmpty ||
-        !appEventModels.any((e) => stateFieldsTypes.contains(e)));
+  bool _stateHasAppEvent(String appEvent, List<String> stateFieldsTypes) {
+    return stateFieldsTypes.contains(appEvent);
   }
 }
