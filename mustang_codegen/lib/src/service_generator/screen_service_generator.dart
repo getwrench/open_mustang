@@ -140,14 +140,15 @@ class ScreenServiceGenerator extends Generator {
         
       extension \$$serviceName on $serviceName {
         void updateState() {
-          $screenState screenState = MustangStore.get<$screenState>()!;
-          screenState.update();
+          $screenState? screenState = MustangStore.get<$screenState>();
+          if (screenState != null) {
+            screenState.update();
+          }
         }
         
         void updateState1<T>(T t, {
           reload = true,
         }) {
-          $screenState screenState = MustangStore.get<$screenState>()!;
           MustangStore.update(t);
           ${_generatePersistObjectTemplate('T', appSerializerAlias, customSerializerAlias)}
           if (kDebugMode) {
@@ -157,14 +158,16 @@ class ScreenServiceGenerator extends Generator {
             });
           }
           if (reload) {
-            screenState.update();
+            $screenState? screenState = MustangStore.get<$screenState>();
+            if (screenState != null) {
+              screenState.update();
+            }
           }
         }
     
         void updateState2<T, S>(T t, S s, {
           reload = true,
         }) {
-          $screenState screenState = MustangStore.get<$screenState>()!;
           MustangStore.update2(t, s);
           ${_generatePersistObjectTemplate('T', appSerializerAlias, customSerializerAlias)}
           ${_generatePersistObjectTemplate('S', appSerializerAlias, customSerializerAlias)}
@@ -179,14 +182,16 @@ class ScreenServiceGenerator extends Generator {
             });
           }
           if (reload) {
-            screenState.update();
+            $screenState? screenState = MustangStore.get<$screenState>();
+            if (screenState != null) {
+              screenState.update();
+            }
           }
         }
     
         void updateState3<T, S, U>(T t, S s, U u, {
           reload = true,
         }) {
-          $screenState screenState = MustangStore.get<$screenState>()!;
           MustangStore.update3(t, s, u);
           ${_generatePersistObjectTemplate('T', appSerializerAlias, customSerializerAlias)}
           ${_generatePersistObjectTemplate('S', appSerializerAlias, customSerializerAlias)}
@@ -206,14 +211,16 @@ class ScreenServiceGenerator extends Generator {
             });
           }
           if (reload) {
-            screenState.update();
+            $screenState? screenState = MustangStore.get<$screenState>();
+            if (screenState != null) {
+              screenState.update();
+            }
           }
         }
     
         void updateState4<T, S, U, V>(T t, S s, U u, V v, {
           reload = true,
         }) {
-          $screenState screenState = MustangStore.get<$screenState>()!;
           MustangStore.update4(t, s, u, v);
           ${_generatePersistObjectTemplate('T', appSerializerAlias, customSerializerAlias)}
           ${_generatePersistObjectTemplate('S', appSerializerAlias, customSerializerAlias)}
@@ -238,7 +245,10 @@ class ScreenServiceGenerator extends Generator {
             });
           }
           if (reload) {
-            screenState.update();
+            $screenState? screenState = MustangStore.get<$screenState>();
+            if (screenState != null) {
+              screenState.update();
+            }
           }
         }
         
@@ -270,9 +280,11 @@ class ScreenServiceGenerator extends Generator {
               'modelStr': '{}',
             });
           }
-          $screenState screenState = MustangStore.get<$screenState>()!;
-          if (reload) { 
+          if (reload) {
+            $screenState? screenState = MustangStore.get<$screenState>();
+            if (screenState != null) {
               screenState.update();
+            }
           }    
         }
         
