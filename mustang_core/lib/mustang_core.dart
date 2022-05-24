@@ -2,6 +2,7 @@ library mustang_core;
 
 export 'src/annotations/after.dart';
 export 'src/annotations/app_event.dart';
+export 'src/annotations/app_event_global.dart';
 export 'src/annotations/app_model.dart';
 export 'src/annotations/around.dart';
 export 'src/annotations/aspect.dart';

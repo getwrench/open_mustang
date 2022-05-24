@@ -12,6 +12,8 @@ class AppModelGenerator extends Generator {
         library.annotatedWith(const TypeChecker.fromRuntime(AppModel));
     Iterable<AnnotatedElement> appEvents =
         library.annotatedWith(const TypeChecker.fromRuntime(AppEvent));
+    Iterable<AnnotatedElement> appEventsGlobal =
+        library.annotatedWith(const TypeChecker.fromRuntime(AppEventGlobal));
 
     StringBuffer appModelBuffer = StringBuffer();
 
@@ -23,7 +25,8 @@ class AppModelGenerator extends Generator {
       appModels.first.element,
       appModels.first.annotation,
       buildStep,
-      appEvents.isNotEmpty,
+      appEvents,
+      appEventsGlobal,
     ));
 
     return '$appModelBuffer';
@@ -33,9 +36,12 @@ class AppModelGenerator extends Generator {
     Element element,
     ConstantReader annotation,
     BuildStep buildStep,
-    bool isAppEvent,
+    Iterable<AnnotatedElement> appEvents,
+    Iterable<AnnotatedElement> appEventsGlobal,
   ) {
-    _validate(element);
+    _validate(element, appEvents, appEventsGlobal);
+
+    bool isAppEvent = appEvents.isNotEmpty || appEventsGlobal.isNotEmpty;
 
     String appModelName = element.displayName.replaceFirst(r'$', '');
     ClassElement appModelClass = element as ClassElement;
@@ -88,7 +94,18 @@ class AppModelGenerator extends Generator {
     ''';
   }
 
-  void _validate(Element element) {
+  void _validate(
+    Element element,
+    Iterable<AnnotatedElement> appEvents,
+    Iterable<AnnotatedElement> appEventsGlobal,
+  ) {
+    if (appEvents.isNotEmpty && appEventsGlobal.isNotEmpty) {
+      throw InvalidGenerationSourceError(
+          'Only one of appEvent or appEventGlobal should be present.',
+          todo: '',
+          element: element);
+    }
+
     if (!element.displayName.startsWith(r'$')) {
       throw InvalidGenerationSourceError(
           'Model class name should start with \$',

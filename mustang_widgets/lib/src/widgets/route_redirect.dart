@@ -4,25 +4,25 @@ import 'package:flutter/widgets.dart';
 class RouteRedirect extends StatelessWidget {
   const RouteRedirect({
     Key? key,
-    required this.test,
+    required this.redirect,
     required this.targetRouteName,
     required this.child,
     this.pushReplace = true,
     this.loadingMsg = 'Redirecting...',
   }) : super(key: key);
 
-  /// If [test] returns true, this widget redirects the app to the [targetRoute],
-  /// otherwise noop
-  final bool Function() test;
+  /// If [redirect] returns true, this widget redirects the app to the [targetRoute],
+  /// otherwise returns [child]
+  final bool Function() redirect;
 
-  /// Route to go to when [test] is true
+  /// Route to go to when [redirect] is true
   final String targetRouteName;
 
   /// If [pushReplace] is true, [targetRoute] replaces all existing routes,
   /// otherwise [targetRoute] is pushed on top of the existing route
   final bool pushReplace;
 
-  /// If [test] return false, child gets rendered
+  /// If [redirect] return false, child gets rendered
   final Widget child;
 
   /// Text to show while transitioning to the destination route
@@ -30,24 +30,26 @@ class RouteRedirect extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (test()) {
-      if (pushReplace) {
-        SchedulerBinding.instance?.addPostFrameCallback((_) async {
+    if (redirect()) {
+      SchedulerBinding.instance?.addPostFrameCallback((_) async {
+        if (pushReplace) {
           Navigator.pushNamedAndRemoveUntil(
             context,
             targetRouteName,
             (route) => false,
           );
-        });
-      } else {
-        SchedulerBinding.instance?.addPostFrameCallback((_) async {
+        } else {
           Navigator.pushNamed(context, targetRouteName);
-        });
-      }
-      return Center(
-        child: DefaultTextStyle(
-          style: const TextStyle(),
-          child: Text(loadingMsg),
+        }
+      });
+
+      return Container(
+        decoration: const BoxDecoration(color: Color(0xFFFFFFFF)),
+        child: Center(
+          child: DefaultTextStyle(
+            style: const TextStyle(),
+            child: Text(loadingMsg),
+          ),
         ),
       );
     }

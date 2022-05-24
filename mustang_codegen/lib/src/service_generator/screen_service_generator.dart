@@ -87,16 +87,23 @@ class ScreenServiceGenerator extends Generator {
           await buildStep.resolver.libraryFor(assetId);
       Iterable<AnnotatedElement> appEvents = LibraryReader(appModelLibrary)
           .annotatedWith(const TypeChecker.fromRuntime(AppEvent));
+      Iterable<AnnotatedElement> appEventsGlobal =
+          LibraryReader(appModelLibrary)
+              .annotatedWith(const TypeChecker.fromRuntime(AppEventGlobal));
 
-      if (appEvents.isNotEmpty) {
-        appEventModels.add(appEvents.first.element.name!);
-        String importPath =
-            assetId.uri.toString().replaceFirst('dart', 'model.dart');
-        appEventModelImports.add("import '$importPath';");
-      }
+      if (appEvents.isNotEmpty || appEventsGlobal.isNotEmpty) {
+        bool isAppEventGlobal = appEvents.isEmpty && appEventsGlobal.isNotEmpty;
 
-      if (_stateHasNoAppEvents(appEventModels, stateFieldsTypes)) {
-        appEventModelImports.clear();
+        String appEvent = isAppEventGlobal
+            ? appEventsGlobal.first.element.name!
+            : appEvents.first.element.name!;
+
+        if (isAppEventGlobal || _stateHasAppEvent(appEvent, stateFieldsTypes)) {
+          appEventModels.add(appEvent);
+          String importPath =
+              assetId.uri.toString().replaceFirst('dart', 'model.dart');
+          appEventModelImports.add("import '$importPath';");
+        }
       }
     }
 
@@ -133,14 +140,15 @@ class ScreenServiceGenerator extends Generator {
         
       extension \$$serviceName on $serviceName {
         void updateState() {
-          $screenState screenState = MustangStore.get<$screenState>()!;
-          screenState.update();
+          $screenState? screenState = MustangStore.get<$screenState>();
+          if (screenState != null) {
+            screenState.update();
+          }
         }
         
         void updateState1<T>(T t, {
           reload = true,
         }) {
-          $screenState screenState = MustangStore.get<$screenState>()!;
           MustangStore.update(t);
           ${_generatePersistObjectTemplate('T', appSerializerAlias, customSerializerAlias)}
           if (kDebugMode) {
@@ -150,14 +158,16 @@ class ScreenServiceGenerator extends Generator {
             });
           }
           if (reload) {
-            screenState.update();
+            $screenState? screenState = MustangStore.get<$screenState>();
+            if (screenState != null) {
+              screenState.update();
+            }
           }
         }
     
         void updateState2<T, S>(T t, S s, {
           reload = true,
         }) {
-          $screenState screenState = MustangStore.get<$screenState>()!;
           MustangStore.update2(t, s);
           ${_generatePersistObjectTemplate('T', appSerializerAlias, customSerializerAlias)}
           ${_generatePersistObjectTemplate('S', appSerializerAlias, customSerializerAlias)}
@@ -172,14 +182,16 @@ class ScreenServiceGenerator extends Generator {
             });
           }
           if (reload) {
-            screenState.update();
+            $screenState? screenState = MustangStore.get<$screenState>();
+            if (screenState != null) {
+              screenState.update();
+            }
           }
         }
     
         void updateState3<T, S, U>(T t, S s, U u, {
           reload = true,
         }) {
-          $screenState screenState = MustangStore.get<$screenState>()!;
           MustangStore.update3(t, s, u);
           ${_generatePersistObjectTemplate('T', appSerializerAlias, customSerializerAlias)}
           ${_generatePersistObjectTemplate('S', appSerializerAlias, customSerializerAlias)}
@@ -199,14 +211,16 @@ class ScreenServiceGenerator extends Generator {
             });
           }
           if (reload) {
-            screenState.update();
+            $screenState? screenState = MustangStore.get<$screenState>();
+            if (screenState != null) {
+              screenState.update();
+            }
           }
         }
     
         void updateState4<T, S, U, V>(T t, S s, U u, V v, {
           reload = true,
         }) {
-          $screenState screenState = MustangStore.get<$screenState>()!;
           MustangStore.update4(t, s, u, v);
           ${_generatePersistObjectTemplate('T', appSerializerAlias, customSerializerAlias)}
           ${_generatePersistObjectTemplate('S', appSerializerAlias, customSerializerAlias)}
@@ -231,7 +245,10 @@ class ScreenServiceGenerator extends Generator {
             });
           }
           if (reload) {
-            screenState.update();
+            $screenState? screenState = MustangStore.get<$screenState>();
+            if (screenState != null) {
+              screenState.update();
+            }
           }
         }
         
@@ -263,9 +280,11 @@ class ScreenServiceGenerator extends Generator {
               'modelStr': '{}',
             });
           }
-          $screenState screenState = MustangStore.get<$screenState>()!;
-          if (reload) { 
+          if (reload) {
+            $screenState? screenState = MustangStore.get<$screenState>();
+            if (screenState != null) {
               screenState.update();
+            }
           }    
         }
         
@@ -293,7 +312,7 @@ class ScreenServiceGenerator extends Generator {
     List<String> appEventModels,
     List<String> stateFieldsTypes,
   ) {
-    if (_stateHasNoAppEvents(appEventModels, stateFieldsTypes)) {
+    if (appEventModels.isEmpty) {
       return '';
     }
 
@@ -381,9 +400,7 @@ class ScreenServiceGenerator extends Generator {
     }
   }
 
-  bool _stateHasNoAppEvents(
-      List<String> appEventModels, List<String> stateFieldsTypes) {
-    return (appEventModels.isEmpty ||
-        !appEventModels.any((e) => stateFieldsTypes.contains(e)));
+  bool _stateHasAppEvent(String appEvent, List<String> stateFieldsTypes) {
+    return stateFieldsTypes.contains(appEvent);
   }
 }

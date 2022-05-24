@@ -54,6 +54,7 @@ class ScreenStateGenerator extends Generator {
 
     return '''
       import 'dart:async';
+      import 'dart:convert';
       import 'dart:developer';
       import 'package:flutter/foundation.dart';
       import 'package:flutter/widgets.dart';
@@ -74,7 +75,7 @@ class ScreenStateGenerator extends Generator {
           if (kDebugMode) {
             postEvent('${Utils.debugEventKind}', {
               'modelName': '\$$stateName', 
-              'modelStr': 'active',
+              'modelStr': jsonEncode({'status': 'active'}),
             });
           }
         }
@@ -90,7 +91,7 @@ class ScreenStateGenerator extends Generator {
           if (kDebugMode) {
             postEvent('${Utils.debugEventKind}', {
               'modelName': '\$$stateName', 
-              'modelStr': 'disposed',
+              'modelStr': jsonEncode({'status': 'disposed'}),
             });
           }
           super.dispose();
