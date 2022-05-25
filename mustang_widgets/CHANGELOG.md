@@ -13,3 +13,7 @@
 ## 1.0.3
 
 * Removed material dep from RouteRedirect
+
+## 1.0.4
+
+* Changed RouteRedirect widget parameter name from test to redirect
